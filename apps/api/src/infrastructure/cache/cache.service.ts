@@ -1,56 +1,68 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { createClient, type RedisClientType } from 'redis';
 
 @Injectable()
-export class CacheService {
+export class CacheService implements OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name);
+  private client: RedisClientType | null = null;
+  private readonly defaultTTL = 300; // 5 minutes
 
-  constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
+  constructor() {
+    this.connect();
+  }
 
-  async get<T>(key: string): Promise<T | undefined> {
+  private async connect(): Promise<void> {
     try {
-      const value = await this.cache.get<T>(key);
-      return value ?? undefined;
+      const url = process.env.REDIS_URL;
+      if (!url) { this.logger.warn('REDIS_URL not set, cache disabled'); return; }
+
+      this.client = createClient({ url });
+      await this.client.connect();
+      this.logger.log('Redis connected');
     } catch (e) {
-      this.logger.warn(`Cache get failed for ${key}`);
-      return undefined;
+      this.logger.warn('Redis unavailable, cache disabled');
+      this.client = null;
     }
   }
 
-  async set(key: string, value: any, ttl?: number): Promise<void> {
+  async get<T>(key: string): Promise<T | null> {
+    if (!this.client) return null;
     try {
-      await this.cache.set(key, value, ttl ?? 5 * 60 * 1000);
-    } catch (e) {
-      this.logger.warn(`Cache set failed for ${key}`);
-    }
+      const val = await this.client.get(key);
+      return val ? (JSON.parse(val) as T) : null;
+    } catch { return null; }
+  }
+
+  async set(key: string, value: unknown, ttl = this.defaultTTL): Promise<void> {
+    if (!this.client) return;
+    try {
+      await this.client.setEx(key, ttl, JSON.stringify(value));
+    } catch { /* silent */ }
   }
 
   async del(key: string): Promise<void> {
-    try {
-      await this.cache.del(key);
-    } catch (e) {
-      this.logger.warn(`Cache del failed for ${key}`);
-    }
+    if (!this.client) return;
+    try { await this.client.del(key); } catch { /* silent */ }
   }
 
-  async getOrSet<T>(key: string, factory: () => Promise<T>, ttl?: number): Promise<T> {
+  async getOrSet<T>(key: string, factory: () => Promise<T>, ttl = this.defaultTTL): Promise<T> {
     const cached = await this.get<T>(key);
-    if (cached !== undefined) return cached;
+    if (cached !== null) return cached;
     const value = await factory();
     await this.set(key, value, ttl);
     return value;
   }
 
-  static budgetBalanceKey(familyId: string): string {
-    return `budget:balance:${familyId}`;
+  /** Cache budget balance */
+  async getBudgetBalance(familyId: string): Promise<number | null> {
+    return this.get<number>(`budget:balance:${familyId}`);
   }
 
-  static budgetMonthlyKey(familyId: string, year: number, month: number): string {
-    return `budget:monthly:${familyId}:${year}:${month}`;
+  async setBudgetBalance(familyId: string, balance: number): Promise<void> {
+    await this.set(`budget:balance:${familyId}`, balance, 60); // 1 min TTL
   }
 
-  static budgetCategoriesKey(familyId: string): string {
-    return `budget:categories:${familyId}`;
+  async onModuleDestroy(): Promise<void> {
+    if (this.client) await this.client.quit();
   }
 }
