@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { BotUpdate } from './bot.update';
+import { KeyboardFactory } from './keyboard.factory';
 import { OnboardingWizard } from '../modules/onboarding/onboarding.wizard';
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
+import { BirthdayBotUpdate } from '../modules/birthdays/presentation/bot/birthday.update';
+import { MedicationBotUpdate } from '../modules/medications/presentation/bot/medication.update';
 import { FamilyModule } from '../modules/family/family.module';
 import { BudgetModule } from '../modules/budget/budget.module';
 import { BirthdaysModule } from '../modules/birthdays/birthdays.module';
 import { MedicationsModule } from '../modules/medications/medications.module';
-import { BirthdayBotUpdate } from '../modules/birthdays/presentation/bot/birthday.update';
-import { MedicationBotUpdate } from '../modules/medications/presentation/bot/medication.update';
 import { session } from 'telegraf';
 
 @Module({
@@ -27,7 +28,7 @@ import { session } from 'telegraf';
               domain: process.env.BOT_WEBHOOK_DOMAIN,
               path: process.env.BOT_WEBHOOK_PATH ?? '/bot/webhook',
             },
-          } : undefined,  // polling mode if no domain
+          } : undefined,
         };
       },
     }),
@@ -36,6 +37,14 @@ import { session } from 'telegraf';
     BirthdaysModule,
     MedicationsModule,
   ],
-  providers: [BotUpdate, OnboardingWizard, BudgetAddWizard, BirthdayBotUpdate, MedicationBotUpdate],
+  providers: [
+    BotUpdate,
+    KeyboardFactory,
+    OnboardingWizard,
+    BudgetAddWizard,
+    BirthdayBotUpdate,
+    MedicationBotUpdate,
+  ],
+  exports: [KeyboardFactory],
 })
 export class BotModule {}
