@@ -12,7 +12,13 @@ export class I18nService {
   private readonly localesDir: string;
 
   constructor() {
-    this.localesDir = join(process.cwd(), 'apps/api/locales');
+    // Try multiple paths: monorepo root, then api package root
+    const cwd = process.cwd();
+    if (cwd.endsWith('/apps/api')) {
+      this.localesDir = join(cwd, 'locales');
+    } else {
+      this.localesDir = join(cwd, 'apps/api/locales');
+    }
     this.loadAll();
   }
 
