@@ -18,6 +18,7 @@ import { InlineHandler } from './handlers/inline.handler';
 import { PollHandler } from './handlers/poll.handler';
 import { ChatMemberHandler } from './handlers/chat-member.handler';
 import { PhotoHandler } from './handlers/photo.handler';
+import { AdminHandler } from './handlers/admin.handler';
 
 // Menus
 import { MenuRegistry } from './menus/menu.registry';
@@ -60,6 +61,7 @@ import { MedicationsModule } from '../modules/medications/medications.module';
   providers: [
     BotUpdate, KeyboardFactory, MenuRegistry, StreamingService, MessageManager, BotAnalytics,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
+    AdminHandler,
     OnboardingWizard, BudgetAddWizard,
     BirthdayBotUpdate, MedicationBotUpdate,
     { provide: 'MAIN_MENU', useValue: mainMenu },
