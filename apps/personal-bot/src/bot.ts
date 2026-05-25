@@ -97,3 +97,109 @@ bot.command('reject', (ctx) => {
 bot.launch(() => console.log('🤖 Bot started! /status /tasks'));
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+// ═══ AUTO-EXEC: Task kelishi bilan darhol bajarish ═══
+async function autoExecuteTask(task: string, ctx: any): Promise<string> {
+  const t = task.toLowerCase();
+  
+  // TypeCheck
+  if (t.includes('typecheck') || t.includes('tc')) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && pnpm typecheck 2>&1', { encoding: 'utf-8', timeout: 60000 });
+    return r.includes('4 successful') ? '✅ TypeCheck: 4/4 passed' : '❌ TypeCheck FAILED:\n' + r.slice(-500);
+  }
+  
+  // Quality Gate
+  if (t.includes('quality') || t.includes('gate') || t.includes('qg') || t.includes('qc')) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && bash scripts/quality-gate.sh 2>&1', { encoding: 'utf-8', timeout: 60000 });
+    return r.includes('ALL 4/4') ? '✅ Quality Gate: 4/4 passed' : '❌\n' + r.slice(-800);
+  }
+  
+  // Build
+  if (t.includes('build') || t.includes('rb')) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && pnpm build 2>&1', { encoding: 'utf-8', timeout: 60000 });
+    return r.includes('4 successful') ? '✅ Build: 4/4 passed' : '❌\n' + r.slice(-500);
+  }
+  
+  // Tests
+  if (t.includes('test')) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && pnpm --filter @uyimiz/api test 2>&1', { encoding: 'utf-8', timeout: 60000 });
+    const match = r.match(/Tests\s+(\d+)\s+passed/);
+    return match ? `✅ Tests: ${match[1]} passed` : '❌\n' + r.slice(-500);
+  }
+  
+  // Git status
+  if (t.includes('git') && (t.includes('status') || t.includes('log'))) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && git log --oneline -5 2>&1', { encoding: 'utf-8', timeout: 10000 });
+    return '📝 Oxirgi commitlar:\n' + r;
+  }
+  
+  // Task status
+  if (t.includes('task') && (t.includes('status') || t.includes('list'))) {
+    const r = pm.getFullStatus();
+    return r.slice(0, 2000);
+  }
+
+  // PM2 status
+  if (t.includes('pm2') || t.includes('service') || t.includes('jarayon')) {
+    return pm.pm2Status();
+  }
+
+  // Review code
+  if (t.includes('review') || t.includes('tekshir')) {
+    const files = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && git diff --stat HEAD~3 2>&1', { encoding: 'utf-8', timeout: 10000 });
+    const log = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && git log --oneline -5 2>&1', { encoding: 'utf-8', timeout: 10000 });
+    return '🔍 REVIEW:\n\nOxirgi commitlar:\n' + log + '\n\nO\'zgarishlar:\n' + files;
+  }
+
+  // Fix/eslint
+  if (t.includes('fix') || t.includes('lint')) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && pnpm lint 2>&1', { encoding: 'utf-8', timeout: 30000 });
+    return '🔧 Lint:\n' + r.slice(-500);
+  }
+
+  // DB
+  if (t.includes('db') || t.includes('schema') || t.includes('migration')) {
+    const r = execSync('cd /Users/admin/Developer/Projects/bot/uyimiz_bot && pnpm --filter @uyimiz/db exec drizzle-kit check 2>&1', { encoding: 'utf-8', timeout: 10000 });
+    return '🗄️ DB Schema:\n' + r.slice(-500);
+  }
+
+  // Default: queue for AI agent
+  return '';
+}
+
+// Override /do with auto-exec
+const oldDoHandler = bot.command;
+bot.command('do', async (ctx) => {
+  const task = (ctx.message as any)?.text?.replace(/^\/do\s*/, '')?.trim();
+  if (!task) return ctx.reply('/do [task]\nMisollar:\n/do typecheck\n/do quality gate\n/do review code');
+  
+  await ctx.sendChatAction('typing').catch(()=>{});
+  
+  // Try auto-execute
+  const result = await autoExecuteTask(task, ctx);
+  
+  if (result) {
+    // Auto-executed successfully
+    await ctx.reply(`🤖 Avtomatik bajarildi!\n\n${result}`);
+    
+    // Save as done
+    let tasks: any[] = [];
+    try { if (existsSync(TASK_FILE)) tasks = JSON.parse(readFileSync(TASK_FILE, 'utf-8')); } catch {}
+    tasks.push({ id: Date.now().toString(36), task, from: ctx.from?.id, createdAt: new Date().toISOString(), status: 'done', result: result.slice(0, 200) });
+    writeFileSync(TASK_FILE, JSON.stringify(tasks, null, 2));
+  } else {
+    // Queue for AI agent
+    let tasks: any[] = [];
+    try { if (existsSync(TASK_FILE)) tasks = JSON.parse(readFileSync(TASK_FILE, 'utf-8')); } catch {}
+    const id = Date.now().toString(36);
+    tasks.push({ id, task, from: ctx.from?.id, createdAt: new Date().toISOString(), status: 'pending' });
+    writeFileSync(TASK_FILE, JSON.stringify(tasks, null, 2));
+    
+    await ctx.reply(
+      `📋 Task #${id}\n⏳ ${task}\n\n` +
+      `Bu task avtomatik bajarilmadi — AI agentga yuborildi.\n` +
+      `Avtomatik bajariladigan tasklar: typecheck, build, test, gate, review, lint, db, git, pm2`
+    );
+  }
+});
+
