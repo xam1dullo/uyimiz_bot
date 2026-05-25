@@ -278,6 +278,112 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
+---
+## 🔁 AI Workflow Orchestratsiyasi: GSD-2 + beads + AGENTS.md
+
+Bu loyihada BARCHA AI agentlar (Codex, Copilot Agent, Claude Code, Cursor, boshqalar)
+quyidagi tartib bo‘yicha harakat qiladi. Hech qachon bu tartibdan chetga chiqma.
+
+### 0. Har doim boshlashdan oldin
+
+1) AGENTS.md (shu fayl) ni o‘qi.
+2) Agar mavjud bo‘lsa, quyidagilarni BOR-YO‘QLIGINI tekshir:
+   - `.gsd/` papkasi va `ROADMAP.md`
+   - `.beads/` papkasi
+   - `apps/*/AGENTS.md` (masalan, backend bo‘lsa `apps/api/AGENTS.md`)
+3) Loyiha stack va qoidalarini shu fayllardan ol.
+
+### 1. Vazifani qayerdan olish — PRIORITET TARTIBI
+
+Vazifani o‘zing o‘ylab topma — har doim quyidagi tartibda top:
+
+1) **GSD-2 (asosi)**  
+   - Agar `.gsd/` mavjud bo‘lsa:  
+     - Hozirgi taskni GSD dan ol:
+       - Agar CLI orqali ishlayotgan bo‘lsang: `/gsd status` va `/gsd next`  
+       - Yoki `STATE.md` va `ROADMAP.md` dan "current task" ni o‘qi.
+   - Agar GSD task berib qo‘ygan bo‘lsa — SHUNI bajar, boshqasiga sakrama.
+
+2) **beads (task graph)**  
+   - Agar `.beads/` mavjud bo‘lsa:  
+     - `bd list --status ready` yoki `bd list --status in-progress` ga mos taskni tanla.  
+     - `blocked` tasklarni e’tiborsiz qoldir, avval parent/dep ni hal qil.
+
+3) **Agar GSD ham, beads ham task bermagan bo‘lsa**  
+   - Foydalanuvchidan so‘ra:  
+     - "Qaysi modul ustida ishlaymiz?"  
+     - "Bu task GSD roadmap ga kiritilganmi?"  
+   - Keyin olingan ma’lumotga ko‘ra YANGI task ni GSD yoki beads ichida yaratish taklifini ber.
+
+### 2. Har bir TASK uchun STANDART PROSESS
+
+Har qanday kod yozishdan oldin:
+
+1) **Kontext to‘plash:**
+   - AGENTS.md (root) + tegishli `apps/.../AGENTS.md` ni yana bir marta tez ko‘zdan kechir.
+   - Tegishli modulning papkasini top (masalan: `apps/api/src/modules/budget/`).
+   - `ROADMAP.md` va `CONTEXT.md` dan shu modulga tegishli qismni o‘qi.
+   - Agar beads ishlatilayotgan bo‘lsa: `bd show {task-id}` bilan task tafsilotlarini o‘qi.
+
+2) **Reja yozish (GSD style):**
+   - Kichik, aniq plan yoz:
+     - qaysi fayllar o‘zgaradi
+     - qaysi endpoint/handler/modulega touch qilasan
+     - DB o‘zgaradimi yoki yo‘q
+
+3) **Keyin**gina kod o‘zgartirishni boshlash.
+
+### 3. Kod yozilgandan keyin — CHECKLIST
+
+Har bitta task yakunida:
+
+1) AGENTS.md qoidalariga mosligini tekshir:
+   - pnpm ishlatilganmi?
+   - DDD structure buzilmaganmi?
+   - withFamilyContext() ishlatilganmi? (agar family-scoped DB bo‘lsa)
+   - i18n ishlatilganmi? (user-facing matn bo‘lsa)
+
+2) Test & lint:
+   - Imkon bo‘lsa: `pnpm lint`, `pnpm typecheck`, `pnpm test` (tegishli package uchun).
+
+3) **beads status update**:
+   - Agar task beads ichida bo‘lsa:  
+     - Qay holatga keldi: `bd done`, yoki `bd block` (agar hal bo‘lmagan muammo bo‘lsa).
+   - Agar **yangi sub-tasklar chiqsa**, ularga mos `bd add` qilishni taklif qil.
+
+4) **GSD-2 bilan sinxronizatsiya**:
+   - Task ustida ishlash GSD roadmapdagi slice bilan bog‘liq bo‘lsa:
+     - GSD kontekst fayllariga (CONTEXT.md / KNOWLEDGE.md / DECISIONS.md) zarur bo‘lsa qisqa yozuv qo‘shishni taklif qil.
+
+### 4. Qarorlar zanjiri (Decision hierarchy)
+
+Agar ziddiyat bo‘lsa:
+
+1) **Security va RLS qoidalari** (RLS, withFamilyContext, token handling) — doimo birinchi.
+2) Keyin: **AGENTS.md qoidalari** (arxitektura, stack, patterns).
+3) Shundan keyin: **GSD-2 roadmap** (qaysi modul birinchi).
+4) Keyin: **beads tasklar** (qaysi konkret ish).
+5) Foydalanuvchi so‘ragan "quick change" — faqat yuqoridagilarga zid bo‘lmasa.
+
+### 5. Agentlar o‘rtasida bo‘linish
+
+- **Codex CLI**:
+  - Terminalga bog‘liq ishlar: commandlar, skriptlar, scaffolding
+  - Ko‘p faylli refactorlarni boshlash
+
+- **GitHub Copilot Agent (VS Code)**:
+  - VS Code ichida konkret fayl/funksiyani yozish yoki o‘zgartirish
+  - Test yozish, kichik refactorlar
+
+- **Claude Code**:
+  - Katta arxitekturaviy o‘zgarishlar
+  - DDD modulni noldan to‘liq chiqish (domain → app → infra → presentation)
+  - Beads + GSD kontekstini o‘qib, reja tuzish
+
+Hammasi bir xil qoidalarga bo‘ysunadi va AGENTS.md + GSD + beads ni kontekst sifatida ishlatadi.
+
+---
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:7510c1e2 -->
 ## Beads Issue Tracker
 
