@@ -96,5 +96,9 @@
       "success": "✅ Reminder added",
       "error": "❌ An error occurred"
     }
+  },
+  "miniapp": {
+    "open": "📱 Open the Mini App",
+    "open_btn": "Open App"
   }
 }

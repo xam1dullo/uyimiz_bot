@@ -7,11 +7,17 @@ import { BotUpdate } from './core/bot.update';
 import { KeyboardFactory } from './core/keyboard.factory';
 import { StreamingService } from './core/streaming.service';
 import { MessageManager } from './core/message-manager';
+import { BotAnalytics } from './core/bot-analytics';
 
 // Handlers
 import { StartHandler } from './handlers/start.handler';
 import { HelpHandler } from './handlers/help.handler';
 import { SettingsHandler } from './handlers/settings.handler';
+import { MiniAppHandler } from './handlers/miniapp.handler';
+import { InlineHandler } from './handlers/inline.handler';
+import { PollHandler } from './handlers/poll.handler';
+import { ChatMemberHandler } from './handlers/chat-member.handler';
+import { PhotoHandler } from './handlers/photo.handler';
 
 // Menus
 import { MenuRegistry } from './menus/menu.registry';
@@ -39,36 +45,23 @@ import { MedicationsModule } from '../modules/medications/medications.module';
     TelegrafModule.forRootAsync({
       useFactory: () => {
         const token = process.env.BOT_TOKEN;
-        if (!token || token === 'your_bot_token_here') {
-          throw new Error('BOT_TOKEN is required');
-        }
+        if (!token || token === 'your_bot_token_here') throw new Error('BOT_TOKEN is required');
         return {
           token,
           middlewares: [session()],
           launchOptions: process.env.BOT_WEBHOOK_DOMAIN ? {
-            webhook: {
-              domain: process.env.BOT_WEBHOOK_DOMAIN,
-              path: process.env.BOT_WEBHOOK_PATH ?? '/bot/webhook',
-            },
+            webhook: { domain: process.env.BOT_WEBHOOK_DOMAIN, path: process.env.BOT_WEBHOOK_PATH ?? '/bot/webhook' },
           } : undefined,
         };
       },
     }),
-    FamilyModule,
-    BudgetModule,
-    BirthdaysModule,
-    MedicationsModule,
+    FamilyModule, BudgetModule, BirthdaysModule, MedicationsModule,
   ],
   providers: [
-    // Core
-    BotUpdate, KeyboardFactory, MenuRegistry, StreamingService, MessageManager,
-    // Handlers
-    StartHandler, HelpHandler, SettingsHandler,
-    // Wizards
+    BotUpdate, KeyboardFactory, MenuRegistry, StreamingService, MessageManager, BotAnalytics,
+    StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
     OnboardingWizard, BudgetAddWizard,
-    // Module bot handlers
     BirthdayBotUpdate, MedicationBotUpdate,
-    // Register menus
     { provide: 'MAIN_MENU', useValue: mainMenu },
     { provide: 'FAMILY_MENU', useValue: familyMenu },
     { provide: 'BUDGET_MENU', useValue: budgetMenu },

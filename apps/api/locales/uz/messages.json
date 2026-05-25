@@ -96,5 +96,9 @@
       "success": "✅ Eslatma qo'shildi",
       "error": "❌ Xatolik yuz berdi"
     }
+  },
+  "miniapp": {
+    "open": "📱 Mini Ilovani oching",
+    "open_btn": "Ilovani ochish"
   }
 }
