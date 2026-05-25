@@ -67,6 +67,7 @@ uyimiz/                         ← Turborepo + pnpm root
 - Install all deps: `pnpm install` (from root)
 - Build all: `pnpm turbo build`
 - Dev all: `pnpm turbo dev`
+- Turbo v2 uses `tasks` not `pipeline` in turbo.json
 
 ---
 

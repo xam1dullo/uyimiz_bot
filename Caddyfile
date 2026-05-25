@@ -1,0 +1,18 @@
+uyimiz.uz {
+    reverse_proxy api:3000
+}
+
+miniapp.uyimiz.uz {
+    root * /app/apps/miniapp/dist
+    file_server
+}
+
+admin.uyimiz.uz {
+    root * /app/apps/admin/dist
+    file_server
+}
+
+uyimiz.uz {
+    root * /app/apps/web/dist
+    file_server
+}

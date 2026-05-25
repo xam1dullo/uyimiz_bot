@@ -1,0 +1,26 @@
+{
+  "common": {
+    "start": "👋 Xush kelibsiz!",
+    "help": "Yordam",
+    "cancelled": "❌ Bekor qilindi",
+    "error": {
+      "tryAgain": "Xatolik yuz berdi. /cancel bosib qayta urining.",
+      "unknown": "Noma'lum xatolik yuz berdi."
+    }
+  },
+  "budget": {
+    "add": {
+      "success": "✅ {amount} UZS qo'shildi",
+      "error": "❌ Xatolik yuz berdi"
+    },
+    "balance": {
+      "message": "💰 Balans: {balance}"
+    }
+  },
+  "reminder": {
+    "add": {
+      "success": "✅ Eslatma qo'shildi",
+      "error": "❌ Xatolik yuz berdi"
+    }
+  }
+}

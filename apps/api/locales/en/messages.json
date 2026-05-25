@@ -1,0 +1,26 @@
+{
+  "common": {
+    "start": "👋 Welcome!",
+    "help": "Help",
+    "cancelled": "❌ Cancelled",
+    "error": {
+      "tryAgain": "An error occurred. Press /cancel and try again.",
+      "unknown": "An unknown error occurred."
+    }
+  },
+  "budget": {
+    "add": {
+      "success": "✅ {amount} UZS added",
+      "error": "❌ An error occurred"
+    },
+    "balance": {
+      "message": "💰 Balance: {balance}"
+    }
+  },
+  "reminder": {
+    "add": {
+      "success": "✅ Reminder added",
+      "error": "❌ An error occurred"
+    }
+  }
+}
