@@ -10,16 +10,22 @@ import { session } from 'telegraf';
 @Module({
   imports: [
     TelegrafModule.forRootAsync({
-      useFactory: () => ({
-        token: process.env.BOT_TOKEN ?? '',
-        middlewares: [session()],
-        launchOptions: {
-          webhook: {
-            domain: process.env.BOT_WEBHOOK_DOMAIN ?? '',
-            path: process.env.BOT_WEBHOOK_PATH ?? '/bot/webhook',
-          },
-        },
-      }),
+      useFactory: () => {
+        const token = process.env.BOT_TOKEN;
+        if (!token || token === 'your_bot_token_here') {
+          throw new Error('BOT_TOKEN is required and must be a real token from @BotFather');
+        }
+        return {
+          token,
+          middlewares: [session()],
+          launchOptions: process.env.BOT_WEBHOOK_DOMAIN ? {
+            webhook: {
+              domain: process.env.BOT_WEBHOOK_DOMAIN,
+              path: process.env.BOT_WEBHOOK_PATH ?? '/bot/webhook',
+            },
+          } : undefined,  // polling mode if no domain
+        };
+      },
     }),
     FamilyModule,
     BudgetModule,

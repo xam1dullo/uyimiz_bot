@@ -16,15 +16,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const response = exception.getResponse();
-      message = typeof response === 'string' ? response : (response as any).message ?? message;
+      message = typeof response === 'string' ? response : (response as Record<string, unknown>).message as string ?? message;
     } else if (exception instanceof Error) {
       message = exception.message;
-      if (message.startsWith('BUDGET_') || message.startsWith('USER_') || message.startsWith('INVITE_') || message.startsWith('FAMILY_')) {
+      if (message.startsWith('BUDGET_') || message.startsWith('USER_') || message.startsWith('INVITE_') || message.startsWith('FAMILY_') || message.startsWith('TASK_') || message.startsWith('MED_') || message.startsWith('FIRSTAID_') || message.startsWith('CHILD_')) {
         status = HttpStatus.BAD_REQUEST;
       }
     }
 
-    this.logger.error(`HTTP ${status} ${request.method} ${request.url}: ${message}`, exception instanceof Error ? exception.stack : '');
+    // Sanitize: don't log raw DB errors
+    const safeMsg = exception instanceof Error && message.startsWith('BUDGET_') ? message : String(status);
+    this.logger.error(`HTTP ${status} ${request.method} ${request.url}: ${safeMsg}`);
 
     reply.status(status).send({
       statusCode: status,
