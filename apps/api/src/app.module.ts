@@ -21,6 +21,7 @@ import { ChildrenModule } from './modules/children/children.module';
 import { DietModule } from './modules/diet/diet.module';
 import { FirstAidModule } from './modules/first_aid/first-aid.module';
 import { MedicationsModule } from './modules/medications/medications.module';
+import { ImportantTasksModule } from './modules/important_tasks/important-tasks.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MedicationsModule } from './modules/medications/medications.module';
     DietModule,
     FirstAidModule,
     MedicationsModule,
+    ImportantTasksModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
