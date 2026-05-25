@@ -1,0 +1,34 @@
+---
+// ─── Main Layout ───
+---
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uyimiz — Oilaviy boshqaruv platformasi</title>
+  <meta name="description" content="Oilangizning kundalik hayotini Telegram orqali boshqaring: byudjet, yumushlar, eslatmalar, sog'liq va tug'ilgan kunlar." />
+</head>
+<body class="bg-white text-gray-900">
+  <header class="border-b">
+    <nav class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold text-indigo-600">🏠 Uyimiz</a>
+      <div class="flex gap-6 text-sm font-medium">
+        <a href="/uz/features">Imkoniyatlar</a>
+        <a href="/uz/pricing">Narxlar</a>
+        <a href="/uz/docs">Hujjatlar</a>
+        <a href="/uz/blog">Blog</a>
+        <a href="https://t.me/uyimiz_bot" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg">Boshlash</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="border-t mt-20 py-8 text-center text-sm text-gray-500">
+    <p>© 2026 Uyimiz. Barcha huquqlar himoyalangan. Telegram orqali ishlaydi.</p>
+  </footer>
+</body>
+</html>
