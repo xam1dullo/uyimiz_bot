@@ -5,6 +5,8 @@ import { session } from 'telegraf';
 // Core
 import { BotUpdate } from './core/bot.update';
 import { KeyboardFactory } from './core/keyboard.factory';
+import { StreamingService } from './core/streaming.service';
+import { MessageManager } from './core/message-manager';
 
 // Handlers
 import { StartHandler } from './handlers/start.handler';
@@ -59,7 +61,7 @@ import { MedicationsModule } from '../modules/medications/medications.module';
   ],
   providers: [
     // Core
-    BotUpdate, KeyboardFactory, MenuRegistry,
+    BotUpdate, KeyboardFactory, MenuRegistry, StreamingService, MessageManager,
     // Handlers
     StartHandler, HelpHandler, SettingsHandler,
     // Wizards
@@ -72,6 +74,6 @@ import { MedicationsModule } from '../modules/medications/medications.module';
     { provide: 'BUDGET_MENU', useValue: budgetMenu },
     { provide: 'SETTINGS_MENU', useValue: settingsMenu },
   ],
-  exports: [KeyboardFactory, MenuRegistry],
+  exports: [KeyboardFactory, MenuRegistry, StreamingService],
 })
 export class BotModule {}

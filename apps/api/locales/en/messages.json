@@ -15,7 +15,11 @@
     },
     "welcome": "👋 Welcome! @uyimiz_bot — family management assistant.",
     "start_btn": "🚀 Get Started",
-    "help_text": "📋 Commands:\n/start — Start bot\n/menu — Main menu\n/settings — Change language\n/create_family — Create family\n/join_family — Join family\n/my_family — My family\n/balance — Balance\n/birthdays — Birthdays\n/medications — Medications\n/cancel — Cancel"
+    "help_text": "📋 Commands:\n/start — Start bot\n/menu — Main menu\n/settings — Change language\n/create_family — Create family\n/join_family — Join family\n/my_family — My family\n/balance — Balance\n/birthdays — Birthdays\n/medications — Medications\n/cancel — Cancel",
+    "welcome_short": "Hello",
+    "welcome_desc": "@uyimiz_bot — your family management assistant.",
+    "ready": "Ready",
+    "choose_action": "👇 What would you like to do?"
   },
   "onboarding": {
     "language": {

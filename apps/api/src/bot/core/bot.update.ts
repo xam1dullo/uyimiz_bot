@@ -1,4 +1,4 @@
-// ─── BotUpdate — Thin router, delegates to menus and handlers ───
+// ─── BotUpdate — Streaming + Smart Edit Router ───
 
 import { Injectable, Logger } from '@nestjs/common';
 import { Ctx, Update, Command, Action, On } from 'nestjs-telegraf';
@@ -6,18 +6,20 @@ import type { Context } from 'telegraf';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { KeyboardFactory } from './keyboard.factory';
 import { MenuRegistry } from '../menus/menu.registry';
-import { BotPerformance } from './bot-performance';
+import { StreamingService } from './streaming.service';
+import { MessageManager } from './message-manager';
 
 @Update()
 @Injectable()
 export class BotUpdate {
   private readonly logger = new Logger(BotUpdate.name);
-  private readonly rateLimiter = BotPerformance.rateLimiter(30, 60_000);
 
   constructor(
     private readonly i18n: I18nService,
     private readonly kb: KeyboardFactory,
     private readonly menus: MenuRegistry,
+    private readonly stream: StreamingService,
+    private readonly msgs: MessageManager,
   ) {
     this.menus.register(require('../menus/main.menu').mainMenu);
     this.menus.register(require('../menus/family.menu').familyMenu);
@@ -25,72 +27,63 @@ export class BotUpdate {
     this.menus.register(require('../menus/settings.menu').settingsMenu);
   }
 
-  // ═══ COMMANDS ═══
-
   @Command('menu')
   async menu(@Ctx() ctx: Context) {
+    // Progressive menu loading
+    await this.stream.answerFirst(ctx);
     await this.menus.render('main', ctx, this.i18n, this.kb);
   }
-
-  // ═══ CALLBACK ACTIONS ═══
 
   @Action(/.*/)
   async onAction(@Ctx() ctx: Context) {
     const data: string = (ctx as any).callbackQuery?.data;
     if (!data) return;
 
-    // Try menu routing first
+    // Answer callback FIRST (Telegram timeout = 0.5s)
+    await this.stream.answerFirst(ctx);
+
+    // Try menu routing
     const routed = await this.menus.routeCallback(data, ctx);
     if (routed) return;
 
-    // Module-specific actions
-    await this.handleModuleAction(data, ctx);
+    // Module actions — use editOrReply to avoid message flood
+    await this.handleAction(data, ctx);
   }
 
-  private async handleModuleAction(data: string, ctx: Context) {
+  private async handleAction(data: string, ctx: Context) {
     const l = this.i18n.getUserLang(ctx);
 
-    // Quick action map
-    const actions: Record<string, () => Promise<void>> = {
-      'action:start_onboarding': async () => {
-        await ctx.answerCbQuery();
-        await (ctx as any).scene?.enter('ONBOARDING');
-      },
-      'action:budget_income': async () => {
-        await ctx.answerCbQuery();
-        await (ctx as any).scene?.enter('BUDGET_ADD');
-      },
-      'action:budget_expense': async () => {
-        await ctx.answerCbQuery();
-        await (ctx as any).scene?.enter('BUDGET_ADD');
-      },
-      'action:budget_balance': async () => {
-        await ctx.answerCbQuery();
-        const fid = (ctx as any).session?.familyId;
-        await ctx.reply(fid ? '💰 Balans hisoblanmoqda...' : this.i18n.t(l, 'errors.need_family'));
-      },
-      'action:budget_report': async () => {
-        await ctx.answerCbQuery();
-        await ctx.reply('📈 ' + this.i18n.t(l, 'menu.coming_soon'));
-      },
-    };
+    if (data === 'action:start_onboarding') {
+      await (ctx as any).scene?.enter('ONBOARDING');
+      return;
+    }
 
-    const handler = actions[data];
-    if (handler) { await handler(); return; }
+    if (data === 'action:budget_income' || data === 'action:budget_expense') {
+      await (ctx as any).scene?.enter('BUDGET_ADD');
+      return;
+    }
 
-    // Default: coming soon
-    await ctx.answerCbQuery();
-    await ctx.reply(this.i18n.t(l, 'menu.coming_soon'));
+    if (data === 'action:budget_balance') {
+      const fid = (ctx as any).session?.familyId;
+      if (!fid) {
+        await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family'));
+        return;
+      }
+      // Progressive: loading → result
+      await this.stream.stream(ctx, [
+        { emoji: '💰', placeholder: this.i18n.t(l, 'budget.balance.calculating'), compute: async () => '💰 Balans: hisoblanmoqda...' },
+      ]);
+      return;
+    }
+
+    // Generic: coming soon with emoji
+    await this.stream.editOrReply(ctx, `🚧 ${this.i18n.t(l, 'menu.coming_soon')}`);
   }
 
-  // ═══ TEXT MESSAGES ═══
-
   @On('text')
-  async onText(@Ctx() ctx: Context & { session?: any }) {
-    const userId = String(ctx.from?.id);
-    if (!this.rateLimiter(userId)) return;
-
+  async onText(@Ctx() ctx: Context) {
     const text = (ctx as any).message?.text;
+    const userId = String(ctx.from?.id);
     this.logger.log(`Message from ${userId}: ${text}`);
   }
 }

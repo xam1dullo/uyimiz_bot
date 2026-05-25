@@ -15,7 +15,11 @@
     },
     "welcome": "👋 Xush kelibsiz! @uyimiz_bot — oilaviy boshqaruv boti.",
     "start_btn": "🚀 Boshlash",
-    "help_text": "📋 Buyruqlar:\n/start — Botni ishga tushirish\n/menu — Asosiy menyu\n/settings — Tilni o'zgartirish\n/create_family — Oila yaratish\n/join_family — Oilaga qo'shilish\n/my_family — Oilam\n/balance — Balans\n/birthdays — Tug'ilgan kunlar\n/medications — Dorilar\n/cancel — Bekor qilish"
+    "help_text": "📋 Buyruqlar:\n/start — Botni ishga tushirish\n/menu — Asosiy menyu\n/settings — Tilni o'zgartirish\n/create_family — Oila yaratish\n/join_family — Oilaga qo'shilish\n/my_family — Oilam\n/balance — Balans\n/birthdays — Tug'ilgan kunlar\n/medications — Dorilar\n/cancel — Bekor qilish",
+    "welcome_short": "Salom",
+    "welcome_desc": "@uyimiz_bot — oilaviy boshqaruv yordamchingiz.",
+    "ready": "Tayyor",
+    "choose_action": "👇 Nima qilamiz?"
   },
   "onboarding": {
     "language": {

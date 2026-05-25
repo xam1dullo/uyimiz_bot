@@ -15,7 +15,11 @@
     },
     "welcome": "👋 Добро пожаловать! @uyimiz_bot — семейный бот-помощник.",
     "start_btn": "🚀 Начать",
-    "help_text": "📋 Команды:\n/start — Запустить\n/menu — Меню\n/settings — Язык\n/create_family — Создать семью\n/join_family — Присоединиться\n/my_family — Моя семья\n/balance — Баланс\n/birthdays — Дни рождения\n/medications — Лекарства\n/cancel — Отмена"
+    "help_text": "📋 Команды:\n/start — Запустить\n/menu — Меню\n/settings — Язык\n/create_family — Создать семью\n/join_family — Присоединиться\n/my_family — Моя семья\n/balance — Баланс\n/birthdays — Дни рождения\n/medications — Лекарства\n/cancel — Отмена",
+    "welcome_short": "Привет",
+    "welcome_desc": "@uyimiz_bot — ваш семейный помощник.",
+    "ready": "Готово",
+    "choose_action": "👇 Что делаем?"
   },
   "onboarding": {
     "language": {
