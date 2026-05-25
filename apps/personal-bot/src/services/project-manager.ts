@@ -28,23 +28,23 @@ export function getFullStatus(): string {
   const qg = sh('cd ' + PROJECT_ROOT + ' && bash scripts/quality-gate.sh 2>&1 | tail -8');
 
   return [
-    '📊 *LOYIHA HOLATI*',
+    '📊 LOYIHA HOLATI',
     '',
     `🌿 Branch: \`${gitBranch}\``,
     '',
-    '*Oxirgi commit\'lar:*',
+    'Oxirgi commit\'lar:',
     '```',
     gitLog,
     '```',
     '',
-    '*Task\'lar:*',
+    'Task\'lar:',
     tasks,
     '',
-    '*Quality Gate:*',
+    'Quality Gate:',
     '```',
     qg,
     '```',
-    gitStatus ? `\n*O\'zgargan fayllar:*\n\`\`\`\n${gitStatus}\n\`\`\`` : '',
+    gitStatus ? `\nO\'zgargan fayllar:\n\`\`\`\n${gitStatus}\n\`\`\`` : '',
   ].join('\n');
 }
 
@@ -62,7 +62,7 @@ export function runQualityGate(): string {
   const passed = result.includes('ALL 4/4 CHECKS PASSED');
   
   return [
-    passed ? '✅ *QUALITY GATE — O\'TDI!*' : '❌ *QUALITY GATE — O\'TMADI!*',
+    passed ? '✅ QUALITY GATE — O\'TDI!*' : '❌ QUALITY GATE — O\'TMADI!*',
     '',
     '```',
     result,
@@ -78,14 +78,14 @@ export function runQualityGate(): string {
 
 export function runBuild(): string {
   const result = sh('pnpm build 2>&1');
-  return `🔨 *Build:*\n\`\`\`\n${result.slice(-200)}\n\`\`\``;
+  return `🔨 Build:\n\`\`\`\n${result.slice(-200)}\n\`\`\``;
 }
 
 export function runTests(): string {
   const result = sh('pnpm --filter @uyimiz/api test 2>&1');
   const passed = result.includes('Tests  104 passed');
   return [
-    passed ? '✅ *TESTLAR O\'TDI (104/104)*' : '❌ *TESTLAR O\'TMADI*',
+    passed ? '✅ TESTLAR O\'TDI (104/104)*' : '❌ TESTLAR O\'TMADI*',
     '',
     '```',
     result.slice(-300),
@@ -99,12 +99,12 @@ export function runTests(): string {
 
 export function gitPull(): string {
   const result = sh('git pull --rebase 2>&1');
-  return `🔄 *Git Pull:*\n\`\`\`\n${result}\n\`\`\``;
+  return `🔄 Git Pull:\n\`\`\`\n${result}\n\`\`\``;
 }
 
 export function gitPush(): string {
   const result = sh('git push 2>&1');
-  return `📤 *Git Push:*\n\`\`\`\n${result}\n\`\`\``;
+  return `📤 Git Push:\n\`\`\`\n${result}\n\`\`\``;
 }
 
 // ═══════════════════════════════════════════
@@ -113,17 +113,17 @@ export function gitPush(): string {
 
 export function pm2Status(): string {
   const result = sh('pm2 status 2>&1');
-  return `⚡ *PM2 Jarayonlar:*\n\`\`\`\n${result.slice(0, 500)}\n\`\`\``;
+  return `⚡ PM2 Jarayonlar:\n\`\`\`\n${result.slice(0, 500)}\n\`\`\``;
 }
 
 export function pm2Restart(name: string): string {
   const result = sh(`pm2 restart ${name} 2>&1`);
-  return `🔄 *${name} qayta ishga tushirildi:*\n\`\`\`\n${result}\n\`\`\``;
+  return `🔄 ${name} qayta ishga tushirildi:\n\`\`\`\n${result}\n\`\`\``;
 }
 
 export function pm2RestartAll(): string {
   const result = sh('pm2 restart all 2>&1');
-  return `🔄 *Barcha jarayonlar qayta ishga tushirildi:*\n\`\`\`\n${result}\n\`\`\``;
+  return `🔄 Barcha jarayonlar qayta ishga tushirildi:\n\`\`\`\n${result}\n\`\`\``;
 }
 
 // ═══════════════════════════════════════════
@@ -132,17 +132,17 @@ export function pm2RestartAll(): string {
 
 export function listTasks(): string {
   const result = sh('cd ' + PROJECT_ROOT + ' && bd list --status open 2>&1 | head -20');
-  return `📋 *Ochiq Task\'lar:*\n\`\`\`\n${result || 'Hammasi yopilgan 🎉'}\n\`\`\``;
+  return `📋 Ochiq Task\'lar:\n\`\`\`\n${result || 'Hammasi yopilgan 🎉'}\n\`\`\``;
 }
 
 export function getTaskStatus(taskId: string): string {
   const result = sh(`cd ${PROJECT_ROOT} && bd show ${taskId} 2>&1`);
-  return `📌 *${taskId}:*\n\`\`\`\n${result.slice(0, 500)}\n\`\`\``;
+  return `📌 ${taskId}:\n\`\`\`\n${result.slice(0, 500)}\n\`\`\``;
 }
 
 export function closeTask(taskId: string): string {
   const result = sh(`cd ${PROJECT_ROOT} && bd close ${taskId} 2>&1`);
-  return `✅ *${taskId} yopildi:*\n\`\`\`\n${result}\n\`\`\``;
+  return `✅ ${taskId} yopildi:\n\`\`\`\n${result}\n\`\`\``;
 }
 
 // ═══════════════════════════════════════════
@@ -153,13 +153,13 @@ export function getRecentChanges(): string {
   const diff = sh('git diff --stat HEAD~3 2>&1');
   const log = sh('git log --oneline -10');
   return [
-    '📝 *Oxirgi o\'zgarishlar:*',
+    '📝 Oxirgi o\'zgarishlar:',
     '',
     '```',
     log,
     '```',
     '',
-    '*Statistika:*',
+    'Statistika:',
     '```',
     diff,
     '```',
@@ -189,7 +189,7 @@ export function requestConfirmation(action: string, description: string, command
   });
   
   return [
-    `⚠️ *TASDIQLASH KERAK*`,
+    `⚠️ TASDIQLASH KERAK`,
     '',
     `Amal: ${action}`,
     `Tavsif: ${description}`,
@@ -208,7 +208,7 @@ export function confirmAction(id: string): { confirmed: boolean; result: string 
   
   return {
     confirmed: true,
-    result: `✅ *Bajarildi:* ${action.description}\n\n\`\`\`\n${result}\n\`\`\``,
+    result: `✅ Bajarildi: ${action.description}\n\n\`\`\`\n${result}\n\`\`\``,
   };
 }
 
@@ -216,7 +216,7 @@ export function rejectAction(id: string): string {
   const action = pendingActions.get(`reject_${id}`);
   if (!action) return '❌ Amal topilmadi';
   pendingActions.delete(`reject_${id}`);
-  return `❌ *Rad etildi:* ${action.description}`;
+  return `❌ Rad etildi: ${action.description}`;
 }
 
 // ═══════════════════════════════════════════
@@ -226,7 +226,7 @@ export function rejectAction(id: string): string {
 export function generateReport(): string {
   const now = new Date().toLocaleString('uz-UZ');
   return [
-    `📊 *AVTOMATIK HISOBOT* — ${now}`,
+    `📊 AVTOMATIK HISOBOT — ${now}`,
     '',
     getFullStatus(),
     '',

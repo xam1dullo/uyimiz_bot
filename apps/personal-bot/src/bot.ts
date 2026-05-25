@@ -31,11 +31,11 @@ async function stream(ctx: any, text: string): Promise<any> {
   if (text.length > 4000) {
     const parts = text.match(/[\s\S]{1,3800}/g) ?? [text];
     for (const part of parts) {
-      await ctx.reply(part, { parse_mode: 'Markdown' });
+      await ctx.reply(part);
     }
     return;
   }
-  return ctx.reply(text, { parse_mode: 'Markdown' });
+  return ctx.reply(text);
 }
 
 async function streamMulti(ctx: any, texts: string[]): Promise<void> {
@@ -43,41 +43,30 @@ async function streamMulti(ctx: any, texts: string[]): Promise<void> {
     await ctx.sendChatAction('typing').catch(() => {});
     if (text.length > 4000) {
       const parts = text.match(/[\s\S]{1,3800}/g) ?? [text];
-      for (const part of parts) await ctx.reply(part, { parse_mode: 'Markdown' });
+      for (const part of parts) await ctx.reply(part);
     } else {
-      await ctx.reply(text, { parse_mode: 'Markdown' });
+      await ctx.reply(text);
     }
   }
 }
 
 // ═══ START ═══
 bot.start(async (ctx) => {
-  await stream(ctx, [
-    '🤖 *LOYIHA BOSHQARUV BOTI*',
-    '',
-    '👤 Xo\'jayin: Khamidullo',
-    '📦 Loyiha: @uyimiz_bot',
-    '',
-    '📊 */status* — Loyiha holati',
-    '✅ */tasks* — Ochiq task\'lar',
-    '🔨 */build* — Build qilish',
-    '🧪 */test* — Test\'larni ishga tushirish',
-    '🔍 */gate* — Quality Gate',
-    '📝 */changes* — Oxirgi o\'zgarishlar',
-    '🔄 */pull* — Git pull',
-    '📤 */push* — Git push',
-    '⚡ */pm2* — Jarayonlar',
-    '🔄 */restart* — Hamma service\'larni qayta ishga tushirish',
-    '📋 */todo* — Vazifa qo\'shish',
-    '💾 */note* — Eslatma',
-    '',
-    '🤖 */ask [savol]* — AI chat',
-    '🧠 */think [mavzu]* — Chuqur tahlil',
-    '',
-    '📊 */report* — To\'liq hisobot',
-    '',
-    'Har bir muhim amal tasdiqlanadi!',
-  ].join('\n'));
+  await ctx.reply(
+    '🤖 LOYIHA BOSHQARUV BOTI\n\n' +
+    '📊 /status — Loyiha holati\n' +
+    '✅ /tasks — Ochiq tasklar\n' +
+    '🔨 /build — Build qilish\n' +
+    '🧪 /test — Testlar\n' +
+    '🔍 /gate — Quality Gate\n' +
+    '📝 /changes — Oxirgi ozgarishlar\n' +
+    '🔄 /pull — Git pull\n' +
+    '📤 /push — Git push\n' +
+    '⚡ /pm2 — Jarayonlar\n' +
+    '🔄 /restart — Restart all\n' +
+    '📊 /report — Tolik hisobot\n' +
+    '\n📋 /help — Barcha buyruqlar',
+  );
 });
 
 // ═══ PROJECT STATUS ═══
@@ -222,7 +211,7 @@ bot.command('note', (ctx) => {
 bot.command('notes', (ctx) => {
   const e = Object.entries(mem.notes);
   if (!e.length) return ctx.reply('📭 Yo\'q');
-  ctx.reply(e.map(([, t], i) => `${i + 1}. ${t}`).join('\n'), { parse_mode: 'Markdown' });
+  ctx.reply(e.map(([, t], i) => `${i + 1}. ${t}`).join('\n'));
 });
 
 bot.command('todo', (ctx) => {
@@ -274,7 +263,7 @@ bot.help((ctx) => {
     '*AI:* /ask /think /context /clear',
     '',
     'Har bir muhim amal tasdiqlanadi (confirm/reject)',
-  ].join('\n'), { parse_mode: 'Markdown' });
+  ].join('\n'));
 });
 
 // ═══ DIRECT MESSAGE ═══
