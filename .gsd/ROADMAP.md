@@ -17,13 +17,13 @@
 - [x] 1.12 Environment Docs
 
 ## Sprint 2 — Core Bot + Family (`uyimiz_bot-22b`)
-- [ ] 2.1–2.11 Family module, onboarding, invite, menu, auth, RLS, i18n, errors, session, API
+- [x] 2.1–2.11 Family module, onboarding, invite, menu, auth, RLS, i18n, errors, session, API
 
 ## Sprint 3 — Budget Module (`uyimiz_bot-647`)
-- [ ] 3.1–3.8 Budget DDD, schema, bot wizard, categories, reports, cache, API
+- [x] 3.1–3.8 Budget DDD, schema, bot wizard, categories, reports, cache, API
 
 ## Sprint 4 — Reminders Module (`uyimiz_bot-8xo`)
-- [ ] 4.1–4.x BullMQ, delayed jobs, snooze, delivery, recovery
+- [x] 4.1–4.x BullMQ, delayed jobs, snooze, delivery, recovery
 
 ## Sprint 5 — Birthdays Module (`uyimiz_bot-vm5`)
-- [ ] 5.1–5.x Birthdays DDD, schema, bot, pg_cron, reminder chain, Mini App, auth, production
+- [x] 5.1–5.x Birthdays DDD, schema, bot, pg_cron, reminder chain, Mini App, auth, production
