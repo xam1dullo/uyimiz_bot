@@ -21,6 +21,7 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-fastify": "^11.0.0",
+    "@nestjs/swagger": "^11.4.4",
     "@nestjs/throttler": "^6.0.0",
     "@uyimiz/config": "workspace:*",
     "@uyimiz/db": "workspace:*",
