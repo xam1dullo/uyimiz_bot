@@ -12,7 +12,10 @@
       "general": "❌ An error occurred.",
       "tryAgain": "An error occurred. Press /cancel and try again.",
       "unknown": "An unknown error occurred."
-    }
+    },
+    "welcome": "👋 Welcome! @uyimiz_bot — family management assistant.",
+    "start_btn": "🚀 Get Started",
+    "help_text": "📋 Commands:\n/start — Start bot\n/menu — Main menu\n/settings — Change language\n/create_family — Create family\n/join_family — Join family\n/my_family — My family\n/balance — Balance\n/birthdays — Birthdays\n/medications — Medications\n/cancel — Cancel"
   },
   "onboarding": {
     "language": {
@@ -45,7 +48,8 @@
     "invite_code": "Code: {code}",
     "section": "👨‍👩‍👧‍👦 Family",
     "members_list": "👥 Members",
-    "invite_button": "🔑 Invite Code"
+    "invite_button": "🔑 Invite Code",
+    "create_new": "🆕 New Family"
   },
   "menu": {
     "main": "🏠 Main Menu",
@@ -54,7 +58,13 @@
     "tasks": "📋 Tasks",
     "reminders": "⏰ Reminders",
     "birthdays": "🎂 Birthdays",
-    "coming_soon": "(coming soon)"
+    "coming_soon": "(coming soon)",
+    "more": "More",
+    "settings": "Settings",
+    "medications": "💊 Medications",
+    "health": "🩺 Health",
+    "diet": "🥗 Diet",
+    "firstaid": "🚑 First Aid"
   },
   "errors": {
     "user_already_in_family": "You are already a family member.",
@@ -65,15 +75,14 @@
     "section": "💰 Budget",
     "add_income": "➕ Add Income",
     "add_expense": "➖ Add Expense",
-    "balance": "📊 Balance",
+    "balance": {
+      "message": "💰 Balance: {balance} UZS",
+      "calculating": "Calculating balance..."
+    },
     "report": "📈 Report",
     "add": {
       "success": "✅ {amount} UZS added",
       "error": "❌ An error occurred"
-    },
-    "balance": {
-      "message": "💰 Balance: {balance} UZS",
-      "calculating": "Calculating balance..."
     }
   },
   "reminder": {

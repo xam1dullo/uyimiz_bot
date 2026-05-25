@@ -1,16 +1,36 @@
 import { Module } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
-import { BotUpdate } from './bot.update';
-import { KeyboardFactory } from './keyboard.factory';
+import { session } from 'telegraf';
+
+// Core
+import { BotUpdate } from './core/bot.update';
+import { KeyboardFactory } from './core/keyboard.factory';
+
+// Handlers
+import { StartHandler } from './handlers/start.handler';
+import { HelpHandler } from './handlers/help.handler';
+import { SettingsHandler } from './handlers/settings.handler';
+
+// Menus
+import { MenuRegistry } from './menus/menu.registry';
+import { mainMenu } from './menus/main.menu';
+import { familyMenu } from './menus/family.menu';
+import { budgetMenu } from './menus/budget.menu';
+import { settingsMenu } from './menus/settings.menu';
+
+// Wizards
 import { OnboardingWizard } from '../modules/onboarding/onboarding.wizard';
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
+
+// Module handlers
 import { BirthdayBotUpdate } from '../modules/birthdays/presentation/bot/birthday.update';
 import { MedicationBotUpdate } from '../modules/medications/presentation/bot/medication.update';
+
+// Dependencies
 import { FamilyModule } from '../modules/family/family.module';
 import { BudgetModule } from '../modules/budget/budget.module';
 import { BirthdaysModule } from '../modules/birthdays/birthdays.module';
 import { MedicationsModule } from '../modules/medications/medications.module';
-import { session } from 'telegraf';
 
 @Module({
   imports: [
@@ -18,7 +38,7 @@ import { session } from 'telegraf';
       useFactory: () => {
         const token = process.env.BOT_TOKEN;
         if (!token || token === 'your_bot_token_here') {
-          throw new Error('BOT_TOKEN is required and must be a real token from @BotFather');
+          throw new Error('BOT_TOKEN is required');
         }
         return {
           token,
@@ -38,13 +58,20 @@ import { session } from 'telegraf';
     MedicationsModule,
   ],
   providers: [
-    BotUpdate,
-    KeyboardFactory,
-    OnboardingWizard,
-    BudgetAddWizard,
-    BirthdayBotUpdate,
-    MedicationBotUpdate,
+    // Core
+    BotUpdate, KeyboardFactory, MenuRegistry,
+    // Handlers
+    StartHandler, HelpHandler, SettingsHandler,
+    // Wizards
+    OnboardingWizard, BudgetAddWizard,
+    // Module bot handlers
+    BirthdayBotUpdate, MedicationBotUpdate,
+    // Register menus
+    { provide: 'MAIN_MENU', useValue: mainMenu },
+    { provide: 'FAMILY_MENU', useValue: familyMenu },
+    { provide: 'BUDGET_MENU', useValue: budgetMenu },
+    { provide: 'SETTINGS_MENU', useValue: settingsMenu },
   ],
-  exports: [KeyboardFactory],
+  exports: [KeyboardFactory, MenuRegistry],
 })
 export class BotModule {}

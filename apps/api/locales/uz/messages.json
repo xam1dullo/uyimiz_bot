@@ -12,7 +12,10 @@
       "general": "❌ Xatolik yuz berdi.",
       "tryAgain": "Xatolik yuz berdi. /cancel bosib qayta urining.",
       "unknown": "Noma'lum xatolik yuz berdi."
-    }
+    },
+    "welcome": "👋 Xush kelibsiz! @uyimiz_bot — oilaviy boshqaruv boti.",
+    "start_btn": "🚀 Boshlash",
+    "help_text": "📋 Buyruqlar:\n/start — Botni ishga tushirish\n/menu — Asosiy menyu\n/settings — Tilni o'zgartirish\n/create_family — Oila yaratish\n/join_family — Oilaga qo'shilish\n/my_family — Oilam\n/balance — Balans\n/birthdays — Tug'ilgan kunlar\n/medications — Dorilar\n/cancel — Bekor qilish"
   },
   "onboarding": {
     "language": {
@@ -45,7 +48,8 @@
     "invite_code": "Kod: {code}",
     "section": "👨‍👩‍👧‍👦 Oila bo'limi",
     "members_list": "👥 A'zolar",
-    "invite_button": "🔑 Taklif kodi"
+    "invite_button": "🔑 Taklif kodi",
+    "create_new": "🆕 Yangi oila"
   },
   "menu": {
     "main": "🏠 Asosiy menyu",
@@ -54,7 +58,13 @@
     "tasks": "📋 Yumushlar",
     "reminders": "⏰ Eslatmalar",
     "birthdays": "🎂 Tug'ilgan kunlar",
-    "coming_soon": "(tez kunda)"
+    "coming_soon": "(tez kunda)",
+    "more": "Ko'proq",
+    "settings": "Sozlamalar",
+    "medications": "💊 Dorilar",
+    "health": "🩺 Sog'liq",
+    "diet": "🥗 Ovqatlanish",
+    "firstaid": "🚑 Birinchi yordam"
   },
   "errors": {
     "user_already_in_family": "Siz allaqachon oila a'zosisiz.",
@@ -65,15 +75,14 @@
     "section": "💰 Budjet bo'limi",
     "add_income": "➕ Kirim qo'shish",
     "add_expense": "➖ Chiqim qo'shish",
-    "balance": "📊 Balans",
+    "balance": {
+      "message": "💰 Balans: {balance} UZS",
+      "calculating": "Balans hisoblanmoqda..."
+    },
     "report": "📈 Hisobot",
     "add": {
       "success": "✅ {amount} UZS qo'shildi",
       "error": "❌ Xatolik yuz berdi"
-    },
-    "balance": {
-      "message": "💰 Balans: {balance} UZS",
-      "calculating": "Balans hisoblanmoqda..."
     }
   },
   "reminder": {

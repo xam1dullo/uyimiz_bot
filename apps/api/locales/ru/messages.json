@@ -12,7 +12,10 @@
       "general": "❌ Произошла ошибка.",
       "tryAgain": "Произошла ошибка. Нажмите /cancel и попробуйте снова.",
       "unknown": "Произошла неизвестная ошибка."
-    }
+    },
+    "welcome": "👋 Добро пожаловать! @uyimiz_bot — семейный бот-помощник.",
+    "start_btn": "🚀 Начать",
+    "help_text": "📋 Команды:\n/start — Запустить\n/menu — Меню\n/settings — Язык\n/create_family — Создать семью\n/join_family — Присоединиться\n/my_family — Моя семья\n/balance — Баланс\n/birthdays — Дни рождения\n/medications — Лекарства\n/cancel — Отмена"
   },
   "onboarding": {
     "language": {
@@ -45,7 +48,8 @@
     "invite_code": "Код: {code}",
     "section": "👨‍👩‍👧‍👦 Семья",
     "members_list": "👥 Члены",
-    "invite_button": "🔑 Код приглашения"
+    "invite_button": "🔑 Код приглашения",
+    "create_new": "🆕 Новая семья"
   },
   "menu": {
     "main": "🏠 Главное меню",
@@ -54,7 +58,13 @@
     "tasks": "📋 Задачи",
     "reminders": "⏰ Напоминания",
     "birthdays": "🎂 Дни рождения",
-    "coming_soon": "(скоро)"
+    "coming_soon": "(скоро)",
+    "more": "Ещё",
+    "settings": "Настройки",
+    "medications": "💊 Лекарства",
+    "health": "🩺 Здоровье",
+    "diet": "🥗 Питание",
+    "firstaid": "🚑 Первая помощь"
   },
   "errors": {
     "user_already_in_family": "Вы уже состоите в семье.",
@@ -65,15 +75,14 @@
     "section": "💰 Бюджет",
     "add_income": "➕ Добавить доход",
     "add_expense": "➖ Добавить расход",
-    "balance": "📊 Баланс",
+    "balance": {
+      "message": "💰 Баланс: {balance} UZS",
+      "calculating": "Расчёт баланса..."
+    },
     "report": "📈 Отчёт",
     "add": {
       "success": "✅ {amount} UZS добавлено",
       "error": "❌ Произошла ошибка"
-    },
-    "balance": {
-      "message": "💰 Баланс: {balance} UZS",
-      "calculating": "Расчёт баланса..."
     }
   },
   "reminder": {
