@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "uyimiz_bot",
+  "project_id": "6fcec0ea-4e0b-4f19-ab05-5a3f6e5e49ae"
+}
