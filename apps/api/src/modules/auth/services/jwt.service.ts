@@ -34,6 +34,11 @@ export class JwtService {
     return `${encodedHeader}.${encodedPayload}.${signature}`;
   }
 
+  /** Refresh token with 7-day expiry */
+  signRefresh(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
+    return this.sign(payload, 7 * 24 * 3600);
+  }
+
   verify(token: string): JwtPayload | null {
     try {
       const parts = token.split('.');
