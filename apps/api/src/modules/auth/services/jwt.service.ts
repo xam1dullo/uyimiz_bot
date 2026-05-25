@@ -16,31 +16,22 @@ export class JwtService {
   private readonly secret: string;
 
   constructor() {
-    this.secret = process.env.JWT_SECRET ?? 'default-secret-change-in-production-!!';
+    this.secret = process.env.JWT_SECRET ?? '';
+    if (this.secret.length < 32) {
+      this.logger.warn('JWT_SECRET is missing or too short (< 32 chars). Auth will fail.');
+    }
   }
 
-  sign(payload: Omit<JwtPayload, 'iat' | 'exp'>, expiresInMinutes = 15): string {
+  sign(payload: Omit<JwtPayload, 'iat' | 'exp'>, expiresInSeconds = 900): string {
     const header = { alg: 'HS256', typ: 'JWT' };
     const now = Math.floor(Date.now() / 1000);
+    const full: JwtPayload = { ...payload, iat: now, exp: now + expiresInSeconds };
 
-    const tokenPayload: JwtPayload = {
-      ...payload,
-      iat: now,
-      exp: now + expiresInMinutes * 60,
-    };
+    const encodedHeader = this.base64url(JSON.stringify(header));
+    const encodedPayload = this.base64url(JSON.stringify(full));
+    const signature = this.signData(`${encodedHeader}.${encodedPayload}`);
 
-    const headerEncoded = this.base64url(JSON.stringify(header));
-    const payloadEncoded = this.base64url(JSON.stringify(tokenPayload));
-    const signature = crypto
-      .createHmac('sha256', this.secret)
-      .update(`${headerEncoded}.${payloadEncoded}`)
-      .digest('base64url');
-
-    return `${headerEncoded}.${payloadEncoded}.${signature}`;
-  }
-
-  signRefresh(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
-    return this.sign(payload, 7 * 24 * 60);
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
   }
 
   verify(token: string): JwtPayload | null {
@@ -48,26 +39,34 @@ export class JwtService {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
 
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
-      const signature = crypto
-        .createHmac('sha256', this.secret)
-        .update(`${parts[0]}.${parts[1]}`)
-        .digest('base64url');
+      const [headerB64, payloadB64, signatureB64] = parts;
+      const expectedSig = this.signData(`${headerB64}.${payloadB64}`);
+      
+      if (!crypto.timingSafeEqual(Buffer.from(signatureB64), Buffer.from(expectedSig))) {
+        return null;
+      }
 
-      if (signature !== parts[2]) return null;
-      if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+      const payload: JwtPayload = JSON.parse(this.base64Decode(payloadB64));
+      
+      if (payload.exp < Math.floor(Date.now() / 1000)) {
+        return null; // expired
+      }
 
-      return payload as JwtPayload;
+      return payload;
     } catch {
       return null;
     }
   }
 
+  private signData(data: string): string {
+    return crypto.createHmac('sha256', this.secret).update(data).digest('base64url');
+  }
+
   private base64url(data: string): string {
-    return Buffer.from(data)
-      .toString('base64')
-      .replace(/=/g, '')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_');
+    return Buffer.from(data).toString('base64url');
+  }
+
+  private base64Decode(data: string): string {
+    return Buffer.from(data, 'base64url').toString('utf-8');
   }
 }
