@@ -1,0 +1,15 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "github.copilot.enable": { "*": true },
+  "github.copilot.chat.agent.runTasks": true,
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.chat.experimental.generateTests": true,
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "chat.agent.maxRequests": 30,
+  "turbo.enabled": true
+}

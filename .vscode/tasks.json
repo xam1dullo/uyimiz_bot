@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev:api",
+      "type": "shell",
+      "command": "pnpm --filter @uyimiz/api dev",
+      "group": "build",
+      "isBackground": true
+    },
+    {
+      "label": "dev:miniapp",
+      "type": "shell",
+      "command": "pnpm --filter @uyimiz/miniapp dev",
+      "group": "build",
+      "isBackground": true
+    },
+    {
+      "label": "db:generate",
+      "type": "shell",
+      "command": "pnpm --filter @uyimiz/db db:generate",
+      "group": "build"
+    },
+    {
+      "label": "db:migrate",
+      "type": "shell",
+      "command": "pnpm --filter @uyimiz/db db:migrate",
+      "group": "build"
+    },
+    {
+      "label": "test:api",
+      "type": "shell",
+      "command": "pnpm --filter @uyimiz/api test",
+      "group": "test"
+    },
+    {
+      "label": "docker:up",
+      "type": "shell",
+      "command": "docker compose up -d postgres redis",
+      "group": "build"
+    },
+    {
+      "label": "docker:down",
+      "type": "shell",
+      "command": "docker compose down",
+      "group": "build"
+    },
+    {
+      "label": "lint:all",
+      "type": "shell",
+      "command": "pnpm lint",
+      "group": "test"
+    },
+    {
+      "label": "typecheck:all",
+      "type": "shell",
+      "command": "pnpm typecheck",
+      "group": "test"
+    }
+  ]
+}
