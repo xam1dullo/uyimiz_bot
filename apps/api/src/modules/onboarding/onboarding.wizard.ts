@@ -4,6 +4,7 @@ import type { WizardContext } from 'telegraf/scenes';
 import { CreateFamilyHandler } from '../family/application/commands/create-family/create-family.handler';
 import { JoinFamilyHandler } from '../family/application/commands/join-family/join-family.handler';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
+import { StreamingService } from '../../bot/core/streaming.service';
 
 @Injectable()
 @Wizard('ONBOARDING')
@@ -14,6 +15,7 @@ export class OnboardingWizard {
     private readonly createFamily: CreateFamilyHandler,
     private readonly joinFamily: JoinFamilyHandler,
     private readonly i18n: I18nService,
+    private readonly stream: StreamingService,
   ) {}
 
   private lang(ctx: WizardContext): string {
@@ -23,13 +25,14 @@ export class OnboardingWizard {
   @WizardStep(0)
   async stepLanguage(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
-    await ctx.reply(this.i18n.t(l, 'onboarding.language.select'), {
+    await this.stream.answerFirst(ctx as any);
+    await ctx.reply('🌐 ' + this.i18n.t(l, 'onboarding.language.select'), {
       reply_markup: {
-        keyboard: [
-          [{ text: this.i18n.t(l, 'onboarding.language.uz') }, { text: this.i18n.t(l, 'onboarding.language.ru') }],
-        ],
-        resize_keyboard: true,
-        one_time_keyboard: true,
+        keyboard: [[
+          { text: '🇺🇿 O\'zbekcha' },
+          { text: '🇷🇺 Русский' },
+        ]],
+        resize_keyboard: true, one_time_keyboard: true,
       },
     });
     ctx.wizard.next();
@@ -38,13 +41,14 @@ export class OnboardingWizard {
   @WizardStep(1)
   async stepLanguageChoose(@Ctx() ctx: WizardContext) {
     const text = (ctx as any).message?.text;
-    if (text?.includes("O'zbekcha")) {
+    if (!text) return;
+    
+    if (text.includes('O\'zbekcha')) {
       (ctx.wizard as any).state.lang = 'uz';
-    } else if (text?.includes('Русский')) {
+    } else if (text.includes('Русский')) {
       (ctx.wizard as any).state.lang = 'ru';
     } else {
-      const l = this.lang(ctx);
-      await ctx.reply(this.i18n.t(l, 'onboarding.language.invalid'));
+      await ctx.reply('❗ Iltimos, tilni tanlang / Пожалуйста, выберите язык');
       return;
     }
     ctx.wizard.next();
@@ -54,13 +58,13 @@ export class OnboardingWizard {
   @WizardStep(2)
   async stepFamily(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
-    await ctx.reply(this.i18n.t(l, 'onboarding.family.has'), {
+    await ctx.reply('👨‍👩‍👧‍👦 ' + this.i18n.t(l, 'onboarding.family.has'), {
       reply_markup: {
-        keyboard: [
-          [{ text: this.i18n.t(l, 'common.yes') }, { text: this.i18n.t(l, 'common.no') }],
-        ],
-        resize_keyboard: true,
-        one_time_keyboard: true,
+        keyboard: [[
+          { text: '✅ ' + this.i18n.t(l, 'common.yes') },
+          { text: '🆕 Yangi oila' },
+        ]],
+        resize_keyboard: true, one_time_keyboard: true,
       },
     });
     ctx.wizard.next();
@@ -70,27 +74,25 @@ export class OnboardingWizard {
   async stepFamilyChoice(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
     const text = (ctx as any).message?.text;
-    if (text?.includes('Ha') || text?.includes('Да') || text?.includes('Yes')) {
+    
+    if (text?.includes('Yangi oila') || text?.includes('Новая')) {
+      ctx.wizard.next();
+      ctx.wizard.next();
+      ctx.wizard.next();
+      await this.stepCreateFamily(ctx);
+    } else {
+      // Has family → enter code
       ctx.wizard.next();
       await this.stepEnterCode(ctx);
-    } else {
-      await ctx.reply(this.i18n.t(l, 'onboarding.family.create'), {
-        reply_markup: {
-          keyboard: [
-            [{ text: this.i18n.t(l, 'onboarding.family.create') }, { text: this.i18n.t(l, 'onboarding.family.join') }],
-          ],
-          resize_keyboard: true,
-          one_time_keyboard: true,
-        },
-      });
     }
   }
 
   @WizardStep(4)
   async stepEnterCode(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
-    await ctx.reply(this.i18n.t(l, 'onboarding.code.enter'));
+    await ctx.reply('🔑 ' + this.i18n.t(l, 'onboarding.code.enter'));
     ctx.wizard.next();
+    ctx.wizard.next(); // skip to process
   }
 
   @WizardStep(5)
@@ -98,27 +100,27 @@ export class OnboardingWizard {
     const l = this.lang(ctx);
     const code = (ctx as any).message?.text?.trim().toUpperCase();
     if (!code || code.length < 4) {
-      await ctx.reply(this.i18n.t(l, 'onboarding.code.invalid'));
+      await ctx.reply('⚠️ ' + this.i18n.t(l, 'onboarding.code.invalid'));
       return;
     }
-    try {
-      const telegramId = String(ctx.from?.id);
-      const name = ctx.from?.first_name ?? 'User';
-      await this.joinFamily.execute({ code, telegramId, name });
-      await ctx.reply(this.i18n.t(l, 'onboarding.code.success'));
-      await ctx.scene.leave();
-    } catch (e: any) {
-      const msg = e.message === 'INVITE_CODE_INVALID'
-        ? this.i18n.t(l, 'errors.invite_code_invalid')
-        : e.message;
-      await ctx.reply(`❌ ${msg}`);
-    }
+
+    // Progressive join
+    await this.stream.stream(ctx as any, [
+      { emoji: '🔍', placeholder: 'Kod tekshirilmoqda...', compute: async () => {
+        const telegramId = String(ctx.from?.id);
+        const name = ctx.from?.first_name ?? 'User';
+        await this.joinFamily.execute({ code, telegramId, name });
+        return '✅ ' + this.i18n.t(l, 'onboarding.code.success');
+      }},
+    ]);
+
+    await ctx.scene.leave();
   }
 
   @WizardStep(6)
   async stepCreateFamily(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
-    await ctx.reply(this.i18n.t(l, 'onboarding.family.create_name'));
+    await ctx.reply('📝 ' + this.i18n.t(l, 'onboarding.family.create_name'));
     ctx.wizard.next();
   }
 
@@ -127,27 +129,31 @@ export class OnboardingWizard {
     const l = this.lang(ctx);
     const familyName = (ctx as any).message?.text?.trim();
     if (!familyName) {
-      await ctx.reply(this.i18n.t(l, 'onboarding.family.no_name'));
+      await ctx.reply('⚠️ ' + this.i18n.t(l, 'onboarding.family.no_name'));
       return;
     }
-    try {
-      const telegramId = String(ctx.from?.id);
-      const name = ctx.from?.first_name ?? 'User';
-      const result = await this.createFamily.execute({ name: familyName, creatorTelegramId: telegramId, creatorName: name });
-      await ctx.reply(
-        this.i18n.t(l, 'onboarding.family.created', { code: result.family.code }),
-        { parse_mode: 'Markdown' },
-      );
-      await ctx.scene.leave();
-    } catch (e: any) {
-      await ctx.reply(`❌ ${e.message}`);
-    }
+
+    // Progressive create
+    await this.stream.stream(ctx as any, [
+      { emoji: '🏗️', placeholder: 'Oila yaratilmoqda...', compute: async () => {
+        const telegramId = String(ctx.from?.id);
+        const name = ctx.from?.first_name ?? 'User';
+        const result = await this.createFamily.execute({ 
+          name: familyName, creatorTelegramId: telegramId, creatorName: name 
+        });
+        return '✅ ' + this.i18n.t(l, 'onboarding.family.created', { code: result.family.code });
+      }},
+    ]);
+
+    await ctx.scene.leave();
   }
 
-  @Hears(/^(❌|\/cancel)$/i)
+  @Hears(/\/cancel/)
   async cancel(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
     await ctx.scene.leave();
-    await ctx.reply(this.i18n.t(l, 'common.cancelled'));
+    await ctx.reply('👋 ' + this.i18n.t(l, 'common.cancelled'), {
+      reply_markup: { remove_keyboard: true },
+    });
   }
 }
