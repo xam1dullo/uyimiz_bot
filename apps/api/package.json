@@ -21,8 +21,10 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-fastify": "^11.0.0",
+    "@nestjs/platform-socket.io": "^11.1.24",
     "@nestjs/swagger": "^11.4.4",
     "@nestjs/throttler": "^6.0.0",
+    "@nestjs/websockets": "^11.1.24",
     "@uyimiz/config": "workspace:*",
     "@uyimiz/db": "workspace:*",
     "@uyimiz/shared": "workspace:*",
@@ -35,6 +37,7 @@
     "nestjs-telegraf": "^2.9.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
+    "socket.io": "^4.8.3",
     "telegraf": "^4.16.0",
     "uuid": "^14.0.0",
     "zod": "^3.23.0"

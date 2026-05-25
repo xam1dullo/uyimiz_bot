@@ -22,6 +22,7 @@ import { DietModule } from './modules/diet/diet.module';
 import { FirstAidModule } from './modules/first_aid/first-aid.module';
 import { MedicationsModule } from './modules/medications/medications.module';
 import { ImportantTasksModule } from './modules/important_tasks/important-tasks.module';
+import { WebSocketModule } from './infrastructure/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ImportantTasksModule } from './modules/important_tasks/important-tasks.
     FirstAidModule,
     MedicationsModule,
     ImportantTasksModule,
+    WebSocketModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
