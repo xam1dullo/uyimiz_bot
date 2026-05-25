@@ -1,6 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { budgetRecords, withFamilyContext, type DB } from '@uyimiz/db';
 import { eq, and, sql, desc } from 'drizzle-orm';
+import type { TransactionType } from '@uyimiz/shared';
 import { BudgetRecordEntity } from '../../domain/entities/budget-record.entity';
 import { IBudgetRepository } from '../../domain/repositories/budget.repository.interface';
 import { DB_TOKEN } from '../../../../infrastructure/database/database.module';
@@ -16,10 +17,10 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
       const [row] = await tx.insert(budgetRecords).values({
         id: record.id,
         familyId: record.familyId,
-        type: record.type as any,
+        type: record.type,
         categoryId: record.categoryId,
         amount: record.amount,
-        description: record.description,
+        description: record.description ?? null,
         txDate: record.txDate,
         createdBy: record.createdBy,
         createdAt: record.createdAt,
@@ -34,9 +35,9 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
     return row ? this.toEntity(row) : null;
   }
 
-  async findByFamilyId(familyId: string, options?: { type?: string; categoryId?: string; limit?: number; offset?: number }): Promise<BudgetRecordEntity[]> {
+  async findByFamilyId(familyId: string, options?: { type?: TransactionType; categoryId?: string; limit?: number; offset?: number }): Promise<BudgetRecordEntity[]> {
     const conditions = [eq(budgetRecords.familyId, familyId)];
-    if (options?.type) conditions.push(eq(budgetRecords.type, options.type as any));
+    if (options?.type) conditions.push(eq(budgetRecords.type, options.type));
     if (options?.categoryId) conditions.push(eq(budgetRecords.categoryId, options.categoryId));
 
     const rows = await this.db.select().from(budgetRecords)
@@ -44,7 +45,7 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
       .orderBy(desc(budgetRecords.txDate))
       .limit(options?.limit ?? 50)
       .offset(options?.offset ?? 0);
-    return rows.map(this.toEntity);
+    return rows.map((r) => this.toEntity(r));
   }
 
   async update(record: BudgetRecordEntity): Promise<BudgetRecordEntity> {
@@ -109,18 +110,20 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
         GROUP BY category_id
         ORDER BY total DESC
       `);
-      return result.map((r: any) => ({
-        categoryId: r.category_id as string,
+      return (result as Array<Record<string, unknown>>).map((r) => ({
+        categoryId: String(r.category_id ?? ''),
         total: Number(r.total),
         count: Number(r.count),
       }));
     });
   }
 
-  private toEntity(row: any): BudgetRecordEntity {
+  private toEntity(row: Record<string, unknown>): BudgetRecordEntity {
     return new BudgetRecordEntity(
-      row.id, row.familyId, row.type, row.categoryId, row.amount,
-      row.description, row.txDate, row.createdBy, row.createdAt, row.updatedAt,
+      String(row.id ?? ''), String(row.familyId ?? ''), row.type as TransactionType,
+      String(row.categoryId ?? ''), Number(row.amount),
+      (row.description as string) ?? null, row.txDate as Date,
+      String(row.createdBy ?? ''), row.createdAt as Date, row.updatedAt as Date,
     );
   }
 }

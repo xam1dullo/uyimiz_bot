@@ -1,18 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Ctx, Update, Command, Start, Help, Action, On } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import { I18nService } from '../infrastructure/i18n/i18n.service';
 
 @Update()
 @Injectable()
 export class BotUpdate {
   private readonly logger = new Logger(BotUpdate.name);
 
+  constructor(private readonly i18n: I18nService) {}
+
   @Start()
   async start(@Ctx() ctx: Context & { scene?: any }) {
-    await ctx.reply('👋 Xush kelibsiz!', {
+    const lang = this.i18n.getUserLang(ctx);
+    await ctx.reply(this.i18n.t(lang, 'common.start'), {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🚀 Boshlash', callback_data: 'start_onboarding' }],
+          [{ text: this.i18n.t(lang, 'common.start_button'), callback_data: 'start_onboarding' }],
         ],
       },
     });
@@ -20,19 +24,8 @@ export class BotUpdate {
 
   @Help()
   async help(@Ctx() ctx: Context) {
-    await ctx.reply(
-      'Mavjud buyruqlar:\n' +
-      '/start - Botni ishga tushirish\n' +
-      '/help - Yordam\n' +
-      '/menu - Asosiy menyu\n' +
-      '/create_family - Oila yaratish\n' +
-      '/join_family - Oilaga qo\'shilish\n' +
-      '/my_family - Oilam\n' +
-      '/balance - Balans\n' +
-      '/income - Oylik hisobot\n' +
-      '/reminders - Eslatmalar\n' +
-      '/add_reminder - Eslatma qo\'shish',
-    );
+    const lang = this.i18n.getUserLang(ctx);
+    await ctx.reply(this.i18n.t(lang, 'common.help'));
   }
 
   @Action('start_onboarding')
@@ -43,14 +36,15 @@ export class BotUpdate {
 
   @Command('menu')
   async menu(@Ctx() ctx: Context) {
-    await ctx.reply('🏠 Asosiy menyu', {
+    const lang = this.i18n.getUserLang(ctx);
+    await ctx.reply(this.i18n.t(lang, 'menu.main'), {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '👨‍👩‍👧‍👦 Oilam', callback_data: 'menu_family' }],
-          [{ text: '💰 Budjet', callback_data: 'menu_budget' }],
-          [{ text: '📋 Yumushlar', callback_data: 'menu_tasks' }],
-          [{ text: '⏰ Eslatmalar', callback_data: 'menu_reminders' }],
-          [{ text: '🎂 Tug\'ilgan kunlar', callback_data: 'menu_birthdays' }],
+          [{ text: this.i18n.t(lang, 'menu.family'), callback_data: 'menu_family' }],
+          [{ text: this.i18n.t(lang, 'menu.budget'), callback_data: 'menu_budget' }],
+          [{ text: this.i18n.t(lang, 'menu.tasks'), callback_data: 'menu_tasks' }],
+          [{ text: this.i18n.t(lang, 'menu.reminders'), callback_data: 'menu_reminders' }],
+          [{ text: this.i18n.t(lang, 'menu.birthdays'), callback_data: 'menu_birthdays' }],
         ],
       },
     });
@@ -58,13 +52,14 @@ export class BotUpdate {
 
   @Action('menu_family')
   async menuFamily(@Ctx() ctx: Context) {
+    const lang = this.i18n.getUserLang(ctx);
     await ctx.answerCbQuery();
-    await ctx.reply('👨‍👩‍👧‍👦 Oila bo\'limi', {
+    await ctx.reply(this.i18n.t(lang, 'family.section'), {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '👥 A\'zolar', callback_data: 'family_members' }],
-          [{ text: '🔑 Taklif kodi', callback_data: 'family_invite' }],
-          [{ text: '🔙 Orqaga', callback_data: 'menu_back' }],
+          [{ text: this.i18n.t(lang, 'family.members_list'), callback_data: 'family_members' }],
+          [{ text: this.i18n.t(lang, 'family.invite_button'), callback_data: 'family_invite' }],
+          [{ text: this.i18n.t(lang, 'common.back'), callback_data: 'menu_back' }],
         ],
       },
     });
@@ -72,15 +67,16 @@ export class BotUpdate {
 
   @Action('menu_budget')
   async menuBudget(@Ctx() ctx: Context) {
+    const lang = this.i18n.getUserLang(ctx);
     await ctx.answerCbQuery();
-    await ctx.reply('💰 Budjet bo\'limi', {
+    await ctx.reply(this.i18n.t(lang, 'budget.section'), {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '➕ Kirim qo\'shish', callback_data: 'budget_income' }],
-          [{ text: '➖ Chiqim qo\'shish', callback_data: 'budget_expense' }],
-          [{ text: '📊 Balans', callback_data: 'budget_balance' }],
-          [{ text: '📈 Hisobot', callback_data: 'budget_report' }],
-          [{ text: '🔙 Orqaga', callback_data: 'menu_back' }],
+          [{ text: this.i18n.t(lang, 'budget.add_income'), callback_data: 'budget_income' }],
+          [{ text: this.i18n.t(lang, 'budget.add_expense'), callback_data: 'budget_expense' }],
+          [{ text: this.i18n.t(lang, 'budget.balance'), callback_data: 'budget_balance' }],
+          [{ text: this.i18n.t(lang, 'budget.report'), callback_data: 'budget_report' }],
+          [{ text: this.i18n.t(lang, 'common.back'), callback_data: 'menu_back' }],
         ],
       },
     });
@@ -88,20 +84,23 @@ export class BotUpdate {
 
   @Action('menu_tasks')
   async menuTasks(@Ctx() ctx: Context) {
+    const lang = this.i18n.getUserLang(ctx);
     await ctx.answerCbQuery();
-    await ctx.reply('📋 Yumushlar bo\'limi (tez kunda)');
+    await ctx.reply(`📋 ${this.i18n.t(lang, 'menu.tasks')} ${this.i18n.t(lang, 'menu.coming_soon')}`);
   }
 
   @Action('menu_reminders')
   async menuReminders(@Ctx() ctx: Context) {
+    const lang = this.i18n.getUserLang(ctx);
     await ctx.answerCbQuery();
-    await ctx.reply('⏰ Eslatmalar bo\'limi. /add_reminder - yangi eslatma');
+    await ctx.reply(`${this.i18n.t(lang, 'reminder.section')}. ${this.i18n.t(lang, 'reminder.new')}`);
   }
 
   @Action('menu_birthdays')
   async menuBirthdays(@Ctx() ctx: Context) {
+    const lang = this.i18n.getUserLang(ctx);
     await ctx.answerCbQuery();
-    await ctx.reply('🎂 Tug\'ilgan kunlar (tez kunda)');
+    await ctx.reply(`🎂 ${this.i18n.t(lang, 'menu.birthdays')} ${this.i18n.t(lang, 'menu.coming_soon')}`);
   }
 
   @Action('menu_back')
@@ -124,13 +123,14 @@ export class BotUpdate {
 
   @Action('budget_balance')
   async budgetBalance(@Ctx() ctx: Context & { session?: any }) {
+    const lang = this.i18n.getUserLang(ctx);
     await ctx.answerCbQuery();
     const familyId = ctx.session?.familyId;
     if (!familyId) {
-      await ctx.reply('Avval oilaga qo\'shiling!');
+      await ctx.reply(this.i18n.t(lang, 'errors.need_family'));
       return;
     }
-    await ctx.reply('Balans hisoblanmoqda... /balance buyrug\'idan foydalaning');
+    await ctx.reply(this.i18n.t(lang, 'budget.balance.calculating'));
   }
 
   @On('text')

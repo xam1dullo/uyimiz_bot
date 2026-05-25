@@ -1,13 +1,10 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type { FastifyRequest } from 'fastify';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class TelegramAuthGuard implements CanActivate {
   private readonly logger = new Logger(TelegramAuthGuard.name);
-
-  constructor(private readonly configService: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
@@ -17,9 +14,9 @@ export class TelegramAuthGuard implements CanActivate {
       throw new UnauthorizedException('Missing Telegram init data');
     }
 
-    const botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    const botToken = process.env.BOT_TOKEN;
     if (!botToken) {
-      this.logger.error('TELEGRAM_BOT_TOKEN not configured');
+      this.logger.error('BOT_TOKEN not configured');
       throw new UnauthorizedException('Auth configuration error');
     }
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IFamilyRepository } from '../../../domain/repositories/family.repository.interface';
 import { MemberEntity } from '../../../domain/entities/member.entity';
+import { JoinFamilyCommand } from './join-family.command';
 
 @Injectable()
 export class JoinFamilyHandler {

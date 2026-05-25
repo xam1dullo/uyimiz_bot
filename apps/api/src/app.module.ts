@@ -13,6 +13,7 @@ import { BudgetModule } from './modules/budget/budget.module';
 import { RemindersModule } from './modules/reminders/reminders.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { I18nModule } from './infrastructure/i18n/i18n.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthModule } from './modules/auth/auth.module';
     RemindersModule,
     OnboardingModule,
     AuthModule,
+    I18nModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

@@ -1,23 +1,84 @@
 {
   "common": {
     "start": "👋 Xush kelibsiz!",
-    "help": "Yordam",
+    "start_button": "🚀 Boshlash",
+    "help": "Mavjud buyruqlar:\n/start - Botni ishga tushirish\n/help - Yordam\n/menu - Asosiy menyu\n/create_family - Oila yaratish\n/join_family - Oilaga qo'shilish\n/my_family - Oilam\n/balance - Balans\n/reminders - Eslatmalar\n/add_reminder - Eslatma qo'shish",
+    "cancel": "/cancel",
     "cancelled": "❌ Bekor qilindi",
+    "back": "🔙 Orqaga",
+    "yes": "✅ Ha",
+    "no": "❌ Yo'q",
     "error": {
+      "general": "❌ Xatolik yuz berdi.",
       "tryAgain": "Xatolik yuz berdi. /cancel bosib qayta urining.",
       "unknown": "Noma'lum xatolik yuz berdi."
     }
   },
+  "onboarding": {
+    "language": {
+      "select": "Tilni tanlang:",
+      "uz": "O'zbekcha 🇺🇿",
+      "ru": "Русский 🇷🇺",
+      "invalid": "Iltimos, tilni tanlang"
+    },
+    "family": {
+      "has": "Sizda oila bormi?",
+      "join": "🔑 Kodni kiriting",
+      "create": "🆕 Yangi oila",
+      "create_name": "Oila nomini kiriting:",
+      "created": "✅ Oilangiz yaratildi!\n\nOila kodi: *{code}*\n\nBu kodni oila a'zolaringizga yuboring, ular /join_family orqali qo'shilishadi.",
+      "no_name": "Iltimos, oila nomini kiriting."
+    },
+    "code": {
+      "enter": "Iltimos, oila kodini kiriting:",
+      "invalid": "Noto'g'ri kod. Qayta urining.",
+      "success": "✅ Oila ga qo'shildingiz! /menu",
+      "not_found": "Kod topilmadi yoki muddati o'tgan."
+    }
+  },
+  "family": {
+    "created": "✅ Oila yaratildi!",
+    "joined": "✅ Oila ga qo'shildingiz!",
+    "not_member": "Siz hech qanday oila a'zosi emassiz. /create_family yoki /join_family",
+    "not_found": "Oila topilmadi.",
+    "members": "A'zolar",
+    "invite_code": "Kod: {code}",
+    "section": "👨‍👩‍👧‍👦 Oila bo'limi",
+    "members_list": "👥 A'zolar",
+    "invite_button": "🔑 Taklif kodi"
+  },
+  "menu": {
+    "main": "🏠 Asosiy menyu",
+    "family": "👨‍👩‍👧‍👦 Oilam",
+    "budget": "💰 Budjet",
+    "tasks": "📋 Yumushlar",
+    "reminders": "⏰ Eslatmalar",
+    "birthdays": "🎂 Tug'ilgan kunlar",
+    "coming_soon": "(tez kunda)"
+  },
+  "errors": {
+    "user_already_in_family": "Siz allaqachon oila a'zosisiz.",
+    "invite_code_invalid": "Kod noto'g'ri yoki muddati o'tgan.",
+    "need_family": "Avval oilaga qo'shiling!"
+  },
   "budget": {
+    "section": "💰 Budjet bo'limi",
+    "add_income": "➕ Kirim qo'shish",
+    "add_expense": "➖ Chiqim qo'shish",
+    "balance": "📊 Balans",
+    "report": "📈 Hisobot",
     "add": {
       "success": "✅ {amount} UZS qo'shildi",
       "error": "❌ Xatolik yuz berdi"
     },
     "balance": {
-      "message": "💰 Balans: {balance}"
+      "message": "💰 Balans: {balance} UZS",
+      "calculating": "Balans hisoblanmoqda..."
     }
   },
   "reminder": {
+    "section": "⏰ Eslatmalar bo'limi",
+    "new": "/add_reminder - yangi eslatma",
     "add": {
       "success": "✅ Eslatma qo'shildi",
       "error": "❌ Xatolik yuz berdi"

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:webhook": "ngrok start --config ngrok.yml api & pnpm dev",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",

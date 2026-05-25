@@ -1,5 +1,14 @@
 {
   "servers": {
+    "obsidian-rag": {
+      "command": "node",
+      "args": ["/Users/admin/Developer/Projects/my-mcp/dist/index.js"],
+      "env": {
+        "OBSIDIAN_API_URL": "https://127.0.0.1:27124",
+        "OBSIDIAN_API_KEY": "0a66f062b15cf92e56e65e353bf29bbbb1d2c8aa1f483d75a6b85a5a00143a29",
+        "OBSIDIAN_VAULT_PATH": "/Users/admin/Developer/Projects/my-mcp/rag_system"
+      }
+    },
     "postgres": {
       "command": "npx",
       "args": ["--yes", "pg-mcp-server", "--transport", "stdio"],

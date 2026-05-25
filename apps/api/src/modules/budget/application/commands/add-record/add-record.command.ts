@@ -1,4 +1,4 @@
-export type TransactionType = 'income' | 'expense';
+import type { TransactionType } from '@uyimiz/shared';
 
 export class AddRecordCommand {
   constructor(
@@ -8,5 +8,6 @@ export class AddRecordCommand {
     public readonly amount: number,
     public readonly createdBy: string,
     public readonly description?: string,
+    public readonly txDate?: Date,
   ) {}
 }

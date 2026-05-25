@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
 export const envSchema = z.object({
+  SENTRY_DSN: z.string().url().optional(),
+  CORS_ORIGIN: z.string().default('*'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.string().url(),

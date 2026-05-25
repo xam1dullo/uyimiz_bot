@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Beads
+.beads/
+.dolt/
+.doltcfg/
+
+# GSD
+.gsd/
+
+# Tests
+coverage/
+*.lcov
+
+# Logs
+*.log
+npm-debug.log*

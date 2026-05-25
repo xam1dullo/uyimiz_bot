@@ -46,11 +46,26 @@ export const inviteCodes = pgTable('invite_codes', {
   codeIdx: uniqueIndex('invite_codes_code_idx').on(t.code),
 }));
 
+export const categoryTypeEnum = pgEnum('category_type', ['income', 'expense']);
+
+export const categories = pgTable('categories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  familyId: uuid('family_id').notNull().references(() => families.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  icon: text('icon'),
+  color: text('color'),
+  type: categoryTypeEnum('type').notNull(),
+  isDefault: boolean('is_default').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  familyTypeIdx: index('categories_family_type_idx').on(t.familyId, t.type),
+}));
+
 export const budgetRecords = pgTable('budget_records', {
   id: uuid('id').primaryKey().defaultRandom(),
   familyId: uuid('family_id').notNull().references(() => families.id, { onDelete: 'cascade' }),
   type: transactionTypeEnum('type').notNull(),
-  categoryId: text('category_id').notNull(),
+  categoryId: uuid('category_id').notNull().references(() => categories.id),
   amount: integer('amount').notNull(),
   description: text('description'),
   txDate: timestamp('tx_date', { withTimezone: true }).notNull(),

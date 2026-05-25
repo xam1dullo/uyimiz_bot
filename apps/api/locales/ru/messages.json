@@ -1,23 +1,84 @@
 {
   "common": {
     "start": "👋 Добро пожаловать!",
-    "help": "Помощь",
+    "start_button": "🚀 Начать",
+    "help": "Доступные команды:\n/start - Запустить бота\n/help - Помощь\n/menu - Главное меню\n/create_family - Создать семью\n/join_family - Присоединиться к семье\n/my_family - Моя семья\n/balance - Баланс\n/reminders - Напоминания\n/add_reminder - Добавить напоминание",
+    "cancel": "/cancel",
     "cancelled": "❌ Отменено",
+    "back": "🔙 Назад",
+    "yes": "✅ Да",
+    "no": "❌ Нет",
     "error": {
+      "general": "❌ Произошла ошибка.",
       "tryAgain": "Произошла ошибка. Нажмите /cancel и попробуйте снова.",
       "unknown": "Произошла неизвестная ошибка."
     }
   },
+  "onboarding": {
+    "language": {
+      "select": "Выберите язык:",
+      "uz": "O'zbekcha 🇺🇿",
+      "ru": "Русский 🇷🇺",
+      "invalid": "Пожалуйста, выберите язык"
+    },
+    "family": {
+      "has": "У вас есть семья?",
+      "join": "🔑 Ввести код",
+      "create": "🆕 Новая семья",
+      "create_name": "Введите название семьи:",
+      "created": "✅ Семья создана!\n\nКод семьи: *{code}*\n\nОтправьте этот код членам семьи, они подключатся через /join_family.",
+      "no_name": "Пожалуйста, введите название семьи."
+    },
+    "code": {
+      "enter": "Введите код семьи:",
+      "invalid": "Неверный код. Попробуйте снова.",
+      "success": "✅ Вы присоединились к семье! /menu",
+      "not_found": "Код не найден или срок действия истёк."
+    }
+  },
+  "family": {
+    "created": "✅ Семья создана!",
+    "joined": "✅ Вы присоединились к семье!",
+    "not_member": "Вы не состоите в семье. /create_family или /join_family",
+    "not_found": "Семья не найдена.",
+    "members": "Члены",
+    "invite_code": "Код: {code}",
+    "section": "👨‍👩‍👧‍👦 Семья",
+    "members_list": "👥 Члены",
+    "invite_button": "🔑 Код приглашения"
+  },
+  "menu": {
+    "main": "🏠 Главное меню",
+    "family": "👨‍👩‍👧‍👦 Семья",
+    "budget": "💰 Бюджет",
+    "tasks": "📋 Задачи",
+    "reminders": "⏰ Напоминания",
+    "birthdays": "🎂 Дни рождения",
+    "coming_soon": "(скоро)"
+  },
+  "errors": {
+    "user_already_in_family": "Вы уже состоите в семье.",
+    "invite_code_invalid": "Неверный или просроченный код.",
+    "need_family": "Сначала присоединитесь к семье!"
+  },
   "budget": {
+    "section": "💰 Бюджет",
+    "add_income": "➕ Добавить доход",
+    "add_expense": "➖ Добавить расход",
+    "balance": "📊 Баланс",
+    "report": "📈 Отчёт",
     "add": {
       "success": "✅ {amount} UZS добавлено",
       "error": "❌ Произошла ошибка"
     },
     "balance": {
-      "message": "💰 Баланс: {balance}"
+      "message": "💰 Баланс: {balance} UZS",
+      "calculating": "Расчёт баланса..."
     }
   },
   "reminder": {
+    "section": "⏰ Напоминания",
+    "new": "/add_reminder - новое напоминание",
     "add": {
       "success": "✅ Напоминание добавлено",
       "error": "❌ Произошла ошибка"

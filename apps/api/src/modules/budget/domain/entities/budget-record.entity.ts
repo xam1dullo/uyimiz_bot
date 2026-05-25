@@ -1,6 +1,5 @@
 import { v4 as uuid } from 'uuid';
-
-export type TransactionType = 'income' | 'expense';
+import type { TransactionType } from '@uyimiz/shared';
 
 export class BudgetRecordEntity {
   constructor(
@@ -9,7 +8,7 @@ export class BudgetRecordEntity {
     public readonly type: TransactionType,
     public readonly categoryId: string,
     public amount: number,
-    public description: string | undefined,
+    public description: string | null,
     public readonly txDate: Date,
     public readonly createdBy: string,
     public readonly createdAt: Date,
@@ -22,12 +21,12 @@ export class BudgetRecordEntity {
     categoryId: string,
     amount: number,
     createdBy: string,
-    description?: string,
+    description?: string | null,
     txDate?: Date,
   ): BudgetRecordEntity {
     if (amount <= 0) throw new Error('BUDGET_AMOUNT_INVALID');
     return new BudgetRecordEntity(
-      uuid(), familyId, type, categoryId, amount, description,
+      uuid(), familyId, type, categoryId, amount, description ?? null,
       txDate ?? new Date(), createdBy, new Date(), new Date(),
     );
   }

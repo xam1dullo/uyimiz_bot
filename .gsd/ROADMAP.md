@@ -2,16 +2,19 @@
 
 > Mirrors beads epics. GSD for high-level direction, beads for detailed task breakdown.
 
-## Sprint 1 — Infra Foundation (`uyimiz_bot-xv9`)
+## Sprint 1 — Infra Foundation (`uyimiz_bot-xv9`) ✅ COMPLETE
 - [x] 1.1 Monorepo Setup
-- [ ] 1.2 Shared Config Package
-- [ ] 1.3 Database Schema
-- [ ] 1.4 Drizzle Migrations + RLS SQL
-- [ ] 1.5 NestJS + Fastify Bootstrap
-- [ ] 1.6 DatabaseModule + PgNotify
-- [ ] 1.7 Docker Compose Dev Environment
-- [ ] 1.9 BotFather Bot Yaratish
-- [ ] 1.10 Webhook Dev Setup (ngrok)
+- [x] 1.2 Shared Config Package
+- [x] 1.3 Database Schema (17 tables + categories)
+- [x] 1.4 Drizzle Migrations + RLS SQL
+- [x] 1.5 NestJS + Fastify Bootstrap
+- [x] 1.6 DatabaseModule + PgNotify
+- [x] 1.7 Docker Compose Dev Environment
+- [x] 1.8 GitHub Actions CI
+- [x] 1.9 BotFather Bot Yaratish
+- [x] 1.10 Webhook Dev Setup (ngrok)
+- [x] 1.11 Sentry Error Tracking
+- [x] 1.12 Environment Docs
 
 ## Sprint 2 — Core Bot + Family (`uyimiz_bot-22b`)
 - [ ] 2.1–2.11 Family module, onboarding, invite, menu, auth, RLS, i18n, errors, session, API

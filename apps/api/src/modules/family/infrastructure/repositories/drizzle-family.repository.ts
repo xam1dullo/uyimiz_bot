@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { FamilyEntity } from '../../domain/entities/family.entity';
 import { MemberEntity } from '../../domain/entities/member.entity';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
-import { DB_TOKEN } from '../../../infrastructure/database/database.module';
+import { DB_TOKEN } from '../../../../infrastructure/database/database.module';
 
 @Injectable()
 export class DrizzleFamilyRepository implements IFamilyRepository {

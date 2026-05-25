@@ -18,9 +18,8 @@ export const FAMILY_REPO = Symbol('IFamilyRepository');
     JoinFamilyHandler,
     GetFamilyHandler,
     { provide: FAMILY_REPO, useClass: DrizzleFamilyRepository },
-    { provide: IFamilyRepository, useExisting: FAMILY_REPO },
     FamilyBotUpdate,
   ],
-  exports: [IFamilyRepository, FAMILY_REPO, CreateFamilyHandler, JoinFamilyHandler],
+  exports: [FAMILY_REPO, CreateFamilyHandler, JoinFamilyHandler],
 })
 export class FamilyModule {}

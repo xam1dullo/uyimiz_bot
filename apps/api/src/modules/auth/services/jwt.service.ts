@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 
-interface JwtPayload {
+export interface JwtPayload {
   sub: string;
   telegramId: string;
   familyId?: string;

@@ -1,23 +1,84 @@
 {
   "common": {
     "start": "👋 Welcome!",
-    "help": "Help",
+    "start_button": "🚀 Get Started",
+    "help": "Available commands:\n/start - Start bot\n/help - Help\n/menu - Main menu\n/create_family - Create family\n/join_family - Join family\n/my_family - My family\n/balance - Balance\n/reminders - Reminders\n/add_reminder - Add reminder",
+    "cancel": "/cancel",
     "cancelled": "❌ Cancelled",
+    "back": "🔙 Back",
+    "yes": "✅ Yes",
+    "no": "❌ No",
     "error": {
+      "general": "❌ An error occurred.",
       "tryAgain": "An error occurred. Press /cancel and try again.",
       "unknown": "An unknown error occurred."
     }
   },
+  "onboarding": {
+    "language": {
+      "select": "Select language:",
+      "uz": "O'zbekcha 🇺🇿",
+      "ru": "Русский 🇷🇺",
+      "invalid": "Please select a language"
+    },
+    "family": {
+      "has": "Do you have a family?",
+      "join": "🔑 Enter code",
+      "create": "🆕 New family",
+      "create_name": "Enter family name:",
+      "created": "✅ Family created!\n\nFamily code: *{code}*\n\nShare this code with family members, they can join via /join_family.",
+      "no_name": "Please enter a family name."
+    },
+    "code": {
+      "enter": "Please enter the family code:",
+      "invalid": "Invalid code. Try again.",
+      "success": "✅ Joined the family! /menu",
+      "not_found": "Code not found or expired."
+    }
+  },
+  "family": {
+    "created": "✅ Family created!",
+    "joined": "✅ Joined the family!",
+    "not_member": "You are not a member of any family. /create_family or /join_family",
+    "not_found": "Family not found.",
+    "members": "Members",
+    "invite_code": "Code: {code}",
+    "section": "👨‍👩‍👧‍👦 Family",
+    "members_list": "👥 Members",
+    "invite_button": "🔑 Invite Code"
+  },
+  "menu": {
+    "main": "🏠 Main Menu",
+    "family": "👨‍👩‍👧‍👦 Family",
+    "budget": "💰 Budget",
+    "tasks": "📋 Tasks",
+    "reminders": "⏰ Reminders",
+    "birthdays": "🎂 Birthdays",
+    "coming_soon": "(coming soon)"
+  },
+  "errors": {
+    "user_already_in_family": "You are already a family member.",
+    "invite_code_invalid": "Invalid or expired code.",
+    "need_family": "Join a family first!"
+  },
   "budget": {
+    "section": "💰 Budget",
+    "add_income": "➕ Add Income",
+    "add_expense": "➖ Add Expense",
+    "balance": "📊 Balance",
+    "report": "📈 Report",
     "add": {
       "success": "✅ {amount} UZS added",
       "error": "❌ An error occurred"
     },
     "balance": {
-      "message": "💰 Balance: {balance}"
+      "message": "💰 Balance: {balance} UZS",
+      "calculating": "Calculating balance..."
     }
   },
   "reminder": {
+    "section": "⏰ Reminders",
+    "new": "/add_reminder - new reminder",
     "add": {
       "success": "✅ Reminder added",
       "error": "❌ An error occurred"

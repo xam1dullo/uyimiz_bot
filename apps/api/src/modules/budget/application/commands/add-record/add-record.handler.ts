@@ -16,6 +16,7 @@ export class AddRecordHandler {
       command.amount,
       command.createdBy,
       command.description,
+      command.txDate,
     );
     return this.repo.create(entity);
   }

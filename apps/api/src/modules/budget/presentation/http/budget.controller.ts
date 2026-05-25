@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/co
 import { AddRecordHandler } from '../../application/commands/add-record/add-record.handler';
 import { GetBalanceHandler } from '../../application/queries/get-balance/get-balance.handler';
 import { GetMonthlySummaryHandler } from '../../application/queries/get-monthly-summary/get-monthly-summary.handler';
-import type { TransactionType } from '../../application/commands/add-record/add-record.command';
+import type { TransactionType } from '@uyimiz/shared';
 
 @Controller('api/budget')
 export class BudgetController {

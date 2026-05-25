@@ -59,3 +59,33 @@ CREATE POLICY audit_logs_family_isolation ON audit_logs
 ALTER TABLE first_aid_items ENABLE ROW LEVEL SECURITY;
 CREATE POLICY first_aid_items_family_isolation ON first_aid_items
   USING (family_id = current_setting('app.current_family_id', true)::uuid);
+
+-- Categories
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+CREATE POLICY categories_family_isolation ON categories
+  USING (family_id = current_setting('app.current_family_id', true)::uuid);
+
+-- Invite Codes (family-scoped)
+ALTER TABLE invite_codes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY invite_codes_family_isolation ON invite_codes
+  USING (family_id = current_setting('app.current_family_id', true)::uuid);
+
+-- Child Activities (via child → family)
+ALTER TABLE child_activities ENABLE ROW LEVEL SECURITY;
+CREATE POLICY child_activities_family_isolation ON child_activities
+  USING (
+    child_id IN (
+      SELECT id FROM children
+      WHERE family_id = current_setting('app.current_family_id', true)::uuid
+    )
+  );
+
+-- User Points (via user → family)
+ALTER TABLE user_points ENABLE ROW LEVEL SECURITY;
+CREATE POLICY user_points_family_isolation ON user_points
+  USING (
+    user_id IN (
+      SELECT id FROM users
+      WHERE family_id = current_setting('app.current_family_id', true)::uuid
+    )
+  );
