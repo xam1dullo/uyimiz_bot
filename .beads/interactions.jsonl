@@ -47,3 +47,8 @@
 {"id":"int-0dba9d05","kind":"field_change","created_at":"2026-05-25T21:16:34.074354Z","actor":"khamidullo","issue_id":"uyimiz_bot-8xo.7","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
 {"id":"int-6b187fa1","kind":"field_change","created_at":"2026-05-25T21:16:34.748268Z","actor":"khamidullo","issue_id":"uyimiz_bot-8xo.8","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
 {"id":"int-01472235","kind":"field_change","created_at":"2026-05-25T21:16:35.388211Z","actor":"khamidullo","issue_id":"uyimiz_bot-8xo.9","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-8fff393d","kind":"field_change","created_at":"2026-05-25T21:23:05.406434Z","actor":"khamidullo","issue_id":"uyimiz_bot-wim","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-3cfd2083","kind":"field_change","created_at":"2026-05-25T21:23:06.295203Z","actor":"khamidullo","issue_id":"uyimiz_bot-vm5","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-823e335a","kind":"field_change","created_at":"2026-05-25T21:23:06.862338Z","actor":"khamidullo","issue_id":"uyimiz_bot-kfe","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-3bdc5fb9","kind":"field_change","created_at":"2026-05-25T21:23:07.44541Z","actor":"khamidullo","issue_id":"uyimiz_bot-dt7","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-3caa5e91","kind":"field_change","created_at":"2026-05-25T21:23:08.016519Z","actor":"khamidullo","issue_id":"uyimiz_bot-9vh","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
