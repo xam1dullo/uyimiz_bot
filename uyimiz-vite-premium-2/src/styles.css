@@ -215,6 +215,12 @@ img, svg { max-width: 100%; display: block; }
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(20px);
   font-weight: 950;
+  transition: transform .15s ease;
+}
+
+.icon-button:active,
+.theme-toggle:active {
+  transform: scale(.92);
 }
 
 html[data-theme="dark"] .theme-toggle,
@@ -366,6 +372,11 @@ html[data-theme="dark"] .phone-preview {
   gap: 9px;
   font-weight: 920;
   text-align: center;
+  transition: transform .1s ease, opacity .15s ease;
+}
+
+.button:active {
+  transform: scale(.96);
 }
 
 .button.primary {
@@ -1075,6 +1086,10 @@ textarea.input {
   background: rgba(255, 255, 255, .86);
   box-shadow: var(--shadow);
   backdrop-filter: blur(24px);
+}
+
+html[data-theme="dark"] .button.primary {
+  box-shadow: 0 18px 44px rgba(85, 199, 122, .18);
 }
 
 html[data-theme="dark"] .bottom-nav {
