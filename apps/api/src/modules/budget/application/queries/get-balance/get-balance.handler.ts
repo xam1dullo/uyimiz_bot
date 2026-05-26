@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IBudgetRepository } from '../../../domain/repositories/budget.repository.interface';
 import { GetBalanceQuery } from './get-balance.query';
-import { BUDGET_REPO } from '../../../budget.module';
+import { BUDGET_REPO } from '../../../budget.tokens';
 
 @Injectable()
 export class GetBalanceHandler {

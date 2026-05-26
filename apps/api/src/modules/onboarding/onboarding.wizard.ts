@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Wizard, WizardStep, Ctx, Hears } from 'nestjs-telegraf';
 import type { WizardContext } from 'telegraf/scenes';
 import { CreateFamilyHandler } from '../family/application/commands/create-family/create-family.handler';
@@ -15,7 +15,7 @@ export class OnboardingWizard {
     private readonly createFamily: CreateFamilyHandler,
     private readonly joinFamily: JoinFamilyHandler,
     private readonly i18n: I18nService,
-    private readonly stream: StreamingService,
+    @Inject(forwardRef(() => StreamingService)) private readonly stream: StreamingService,
   ) {}
 
   private lang(ctx: WizardContext): string {

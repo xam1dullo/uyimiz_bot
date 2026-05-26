@@ -1,9 +1,10 @@
+import { TASK_REPO } from './tasks.tokens';
 import { Module } from '@nestjs/common';
 import { CreateTaskHandler } from './application/commands/create-task/create-task.handler';
 import { ListTasksHandler } from './application/queries/list-tasks/list-tasks.handler';
 import { DrizzleTaskRepository } from './infrastructure/repositories/drizzle-task.repository';
 
-export const TASK_REPO = Symbol('ITaskRepository');
+
 
 @Module({
   providers: [

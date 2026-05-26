@@ -1,3 +1,4 @@
+import { FAMILY_REPO } from './family.tokens';
 import { Module } from '@nestjs/common';
 import { CreateFamilyHandler } from './application/commands/create-family/create-family.handler';
 import { JoinFamilyHandler } from './application/commands/join-family/join-family.handler';
@@ -9,7 +10,6 @@ import { FamilyController } from './presentation/http/family.controller';
 import { FamilyMembersController } from './presentation/http/family-members.controller';
 import { InviteController } from './presentation/http/invite.controller';
 
-export const FAMILY_REPO = Symbol('IFamilyRepository');
 
 @Module({
   controllers: [FamilyController, FamilyMembersController, InviteController],

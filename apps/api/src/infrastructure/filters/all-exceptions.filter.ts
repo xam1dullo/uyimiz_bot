@@ -6,6 +6,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost): void {
+    // Only handle HTTP context (not Telegraf/RPC/WebSocket)
+    if (host.getType() !== 'http') return;
+
     const ctx = host.switchToHttp();
     const reply = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
@@ -28,7 +31,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const safeMsg = exception instanceof Error && message.startsWith('BUDGET_') ? message : String(status);
     this.logger.error(`HTTP ${status} ${request.method} ${request.url}: ${safeMsg}`);
 
-    reply.status(status).send({
+    reply.code(status).send({
       statusCode: status,
       message,
       timestamp: new Date().toISOString(),

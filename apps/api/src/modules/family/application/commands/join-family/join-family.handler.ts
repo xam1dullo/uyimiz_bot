@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { FAMILY_REPO } from '../../../family.tokens';
+import { Injectable, Inject } from '@nestjs/common';
 import { IFamilyRepository } from '../../../domain/repositories/family.repository.interface';
 import { MemberEntity } from '../../../domain/entities/member.entity';
 import { JoinFamilyCommand } from './join-family.command';
 
 @Injectable()
 export class JoinFamilyHandler {
-  constructor(private readonly repo: IFamilyRepository) {}
+  constructor(@Inject(FAMILY_REPO) private readonly repo: IFamilyRepository) {}
 
   async execute(command: JoinFamilyCommand): Promise<MemberEntity> {
     const existing = await this.repo.findMemberByTelegramId(command.telegramId);

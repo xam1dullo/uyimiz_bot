@@ -1,13 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { session } from 'telegraf';
 
 // Core
 import { BotUpdate } from './core/bot.update';
-import { KeyboardFactory } from './core/keyboard.factory';
-import { StreamingService } from './core/streaming.service';
-import { MessageManager } from './core/message-manager';
-import { BotAnalytics } from './core/bot-analytics';
 
 // Handlers
 import { StartHandler } from './handlers/start.handler';
@@ -27,12 +23,13 @@ import { budgetMenu } from './menus/budget.menu';
 import { settingsMenu } from './menus/settings.menu';
 
 // Wizards
-import { OnboardingWizard } from '../modules/onboarding/onboarding.wizard';
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
+import { BudgetBotUpdate } from '../modules/budget/presentation/bot/budget.update';
 
 // Dependencies
 import { FamilyModule } from '../modules/family/family.module';
 import { BudgetModule } from '../modules/budget/budget.module';
+import { OnboardingModule } from '../modules/onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -49,17 +46,19 @@ import { BudgetModule } from '../modules/budget/budget.module';
         };
       },
     }),
-    FamilyModule, BudgetModule,
+    forwardRef(() => FamilyModule),
+    forwardRef(() => BudgetModule),
+    OnboardingModule,
   ],
   providers: [
-    BotUpdate, KeyboardFactory, MenuRegistry, StreamingService, MessageManager, BotAnalytics,
+    BotUpdate, MenuRegistry,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
-    OnboardingWizard, BudgetAddWizard,
+    BudgetAddWizard, BudgetBotUpdate,
     { provide: 'MAIN_MENU', useValue: mainMenu },
     { provide: 'FAMILY_MENU', useValue: familyMenu },
     { provide: 'BUDGET_MENU', useValue: budgetMenu },
     { provide: 'SETTINGS_MENU', useValue: settingsMenu },
   ],
-  exports: [KeyboardFactory, MenuRegistry, StreamingService],
+  exports: [MenuRegistry],
 })
 export class BotModule {}

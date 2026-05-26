@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Delete, Param, Body, NotFoundException, Inject } from '@nestjs/common';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
-import { FAMILY_REPO } from '../../family.module';
+import { FAMILY_REPO } from '../../family.tokens';
 
 @Controller('api/families')
 export class FamilyMembersController {

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Wizard, WizardStep, Ctx, Hears } from 'nestjs-telegraf';
 import type { WizardContext } from 'telegraf/scenes';
 import { AddRecordHandler } from '../../application/commands/add-record/add-record.handler';
@@ -15,7 +15,7 @@ export class BudgetAddWizard {
     private readonly addRecord: AddRecordHandler,
     private readonly categories: CategorySystem,
     private readonly i18n: I18nService,
-    private readonly stream: StreamingService,
+    @Inject(forwardRef(() => StreamingService)) private readonly stream: StreamingService,
   ) {}
 
   @WizardStep(0)

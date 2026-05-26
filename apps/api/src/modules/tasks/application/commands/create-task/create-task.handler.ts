@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ITaskRepository } from '../../../domain/repositories/task.repository.interface';
 import { TaskEntity } from '../../../domain/entities/task.entity';
 import { CreateTaskCommand } from './create-task.command';
-import { TASK_REPO } from '../../../tasks.module';
+import { TASK_REPO } from '../../../tasks.tokens';
 
 @Injectable()
 export class CreateTaskHandler {

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BirthdayEntity } from '../../../domain/entities/birthday.entity';
-import { BIRTHDAY_REPO } from '../../../birthdays.module';
+import { BIRTHDAY_REPO } from '../../../birthdays.tokens';
 import type { DrizzleBirthdayRepository } from '../../../infrastructure/repositories/drizzle-birthday.repository';
 
 export class CreateBirthdayCommand {

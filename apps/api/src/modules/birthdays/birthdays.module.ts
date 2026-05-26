@@ -1,9 +1,9 @@
+import { BIRTHDAY_REPO } from './birthdays.tokens';
 import { Module } from '@nestjs/common';
 import { DrizzleBirthdayRepository } from './infrastructure/repositories/drizzle-birthday.repository';
 import { CreateBirthdayHandler } from './application/commands/create/create-birthday.handler';
 import { ListBirthdaysHandler } from './application/queries/list/list-birthdays.handler';
 
-export const BIRTHDAY_REPO = Symbol('IBirthdayRepository');
 
 @Module({
   providers: [

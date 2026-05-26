@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { REMINDER_REPO } from '../../../reminders.tokens';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { IReminderRepository } from '../../../domain/repositories/reminder.repository.interface';
 import { SnoozeReminderCommand } from './snooze-reminder.command';
 
@@ -6,7 +7,7 @@ import { SnoozeReminderCommand } from './snooze-reminder.command';
 export class SnoozeReminderHandler {
   private readonly logger = new Logger(SnoozeReminderHandler.name);
 
-  constructor(private readonly repo: IReminderRepository) {}
+  constructor(@Inject(REMINDER_REPO) private readonly repo: IReminderRepository) {}
 
   async execute(command: SnoozeReminderCommand): Promise<void> {
     const reminder = await this.repo.findById(command.reminderId);

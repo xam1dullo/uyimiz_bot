@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IBudgetRepository } from '../../../domain/repositories/budget.repository.interface';
+import { BUDGET_REPO } from '../../../budget.tokens';
 import { GetCategoryReportQuery } from './get-category-report.query';
 
 interface CategoryReportItem {
@@ -11,7 +12,7 @@ interface CategoryReportItem {
 
 @Injectable()
 export class GetCategoryReportHandler {
-  constructor(private readonly repo: IBudgetRepository) {}
+  constructor(@Inject(BUDGET_REPO) private readonly repo: IBudgetRepository) {}
 
   async execute(query: GetCategoryReportQuery): Promise<{ items: CategoryReportItem[]; total: number }> {
     const summary = await this.repo.getMonthlySummary(query.familyId, query.year, query.month);

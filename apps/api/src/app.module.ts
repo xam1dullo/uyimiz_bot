@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from './infrastructure/filters/all-exceptions.filter';
+import { HttpOnlyThrottlerGuard } from './infrastructure/guards/throttler.guard';
 import { LoggingInterceptor } from './infrastructure/interceptors/logging.interceptor';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 import { QueueModule } from './infrastructure/queues/queue.module';
 import { BotModule } from './bot/bot.module';
+import { BotCoreModule } from './bot/core/bot-core.module';
 import { FamilyModule } from './modules/family/family.module';
 import { BudgetModule } from './modules/budget/budget.module';
 import { RemindersModule } from './modules/reminders/reminders.module';
@@ -23,6 +25,7 @@ import { WebSocketModule } from './infrastructure/websocket/websocket.module';
     DatabaseModule,
     CacheModule,
     QueueModule,
+    BotCoreModule,
     BotModule,
     FamilyModule,
     BudgetModule,
@@ -37,7 +40,7 @@ import { WebSocketModule } from './infrastructure/websocket/websocket.module';
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: HttpOnlyThrottlerGuard },
   ],
 })
 export class AppModule {}
