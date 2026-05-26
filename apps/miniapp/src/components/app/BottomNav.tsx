@@ -1,43 +1,31 @@
-import { useRouter } from '@tanstack/react-router';
-import { AppIcon, type AppIconName } from './icons';
-import { triggerSelection, useTelegramThemeStyle } from './telegram-theme';
+import { Link, useRouterState } from '@tanstack/react-router';
 
-const TABS: ReadonlyArray<{ to: string; icon: AppIconName; label: string }> = [
-  { to: '/', icon: 'home', label: 'Bosh' },
-  { to: '/budget', icon: 'wallet', label: 'Byudjet' },
-  { to: '/tasks', icon: 'tasks', label: 'Yumush' },
-  { to: '/birthdays', icon: 'gift', label: 'T.kunlar' },
-  { to: '/settings', icon: 'settings', label: 'Men' },
+const items = [
+  { to: '/', icon: '🏠', label: 'Home' },
+  { to: '/budget', icon: '💰', label: 'Byudjet' },
+  { to: '/tasks', icon: '📋', label: 'Vazifalar' },
+  { to: '/reminders', icon: '🔔', label: 'Eslatma' },
+  { to: '/settings', icon: '⚙️', label: 'Sozlamalar' },
 ];
 
-function isActiveTab(currentPath: string, tabPath: string) {
-  return tabPath === '/' ? currentPath === '/' : currentPath.startsWith(tabPath);
-}
-
-export function BottomNav() {
-  const router = useRouter();
-  const currentPath = router.state.location.pathname;
-  const themeStyle = useTelegramThemeStyle();
+export default function BottomNav() {
+  const router = useRouterState();
+  const currentPath = router.location.pathname;
 
   return (
-    <nav className="bottom-nav" style={themeStyle} aria-label="Mini App navigation">
-      {TABS.map((tab) => {
-        const isActive = isActiveTab(currentPath, tab.to);
-
+    <nav className="bottom-nav">
+      {items.map((item) => {
+        const isActive = currentPath === item.to || (item.to !== '/' && currentPath.startsWith(item.to));
         return (
-          <button
-            key={tab.to}
-            type="button"
-            aria-current={isActive ? 'page' : undefined}
-            onClick={() => {
-              triggerSelection();
-              router.navigate({ to: tab.to });
-            }}
-            className={`bottom-nav__item ${isActive ? 'is-active' : ''}`}
+          <Link
+            key={item.to}
+            to={item.to}
+            className={`nav-item${isActive ? ' active' : ''}`}
+            style={{ textDecoration: 'none' }}
           >
-            <AppIcon name={tab.icon} />
-            <small>{tab.label}</small>
-          </button>
+            <span className="icon">{item.icon}</span>
+            <small>{item.label}</small>
+          </Link>
         );
       })}
     </nav>

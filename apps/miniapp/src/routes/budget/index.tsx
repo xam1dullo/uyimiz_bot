@@ -1,231 +1,144 @@
-import { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { apiClient, getBalance, getBudgets, type BudgetRecordDto } from '@/lib/api';
-import { useFamilyId } from '@/hooks';
-import {
-  AppShell,
-  EmptyState,
-  FloatingActionButton,
-  FloatingSheet,
-  ListCard,
-  PremiumCard,
-  PrimaryButton,
-  SecondaryButton,
-  SegmentedControl,
-  SkeletonList,
-  StatCard,
-  StatusPill,
-} from '@/components/app/premium';
-import { triggerNotification } from '@/components/app/telegram-theme';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getBalance, addBudgetRecord, getBudgetCategories } from '../lib/api';
 
-const CATEGORIES = [
-  'Oziq-ovqat',
-  'Uy-joy',
-  'Transport',
-  "Sog'liq",
-  "Ta'lim",
-  "Ko'ngilochar",
-  'Kiyim',
-  'Boshqa',
-] as const;
-
-type BudgetType = 'expense' | 'income';
-
-interface AddBudgetPayload {
-  familyId: string;
-  amount: number;
-  category: string;
-  note: string;
-  type: BudgetType;
-}
-
-function formatMoney(value?: number) {
-  return `${(value ?? 0).toLocaleString('uz-UZ')} UZS`;
-}
-
-function recordTitle(record: BudgetRecordDto) {
-  return record.category ?? record.categoryId ?? 'Byudjet yozuvi';
-}
-
-function recordSubtitle(record: BudgetRecordDto) {
-  return record.note ?? record.description ?? record.txDate?.slice(0, 10) ?? record.createdAt?.slice(0, 10) ?? 'Bugun';
-}
-
-export function BudgetPage() {
-  const familyId = useFamilyId();
+export default function BudgetPage() {
+  const familyId = localStorage.getItem('familyId') ?? 'unknown';
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(CATEGORIES[0]);
   const [note, setNote] = useState('');
-  const [type, setType] = useState<BudgetType>('expense');
+  const [selectedCat, setSelectedCat] = useState<{ id: string; type: string } | null>(null);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['budget', familyId],
-    queryFn: () => getBudgets(familyId!),
-    enabled: !!familyId,
+  const { data: balance } = useQuery({
+    queryKey: ['balance', familyId],
+    queryFn: () => getBalance(familyId), enabled: !!familyId,
   });
 
-  const { data: report } = useQuery({
-    queryKey: ['budget', familyId, 'balance'],
-    queryFn: () => getBalance(familyId!),
-    enabled: !!familyId,
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => getBudgetCategories(),
   });
 
   const addMutation = useMutation({
-    mutationFn: (payload: AddBudgetPayload) => apiClient.post('/budget/records', payload),
+    mutationFn: (payload: any) => addBudgetRecord(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budget', familyId] });
-      queryClient.invalidateQueries({ queryKey: ['budget', familyId, 'balance'] });
-      setShowAdd(false);
-      setAmount('');
-      setNote('');
-      triggerNotification('success');
+      queryClient.invalidateQueries({ queryKey: ['balance', familyId] });
+      setShowAdd(false); setAmount(''); setNote(''); setSelectedCat(null);
     },
-    onError: () => triggerNotification('error'),
   });
 
-  const handleAdd = () => {
-    const parsedAmount = Number.parseInt(amount, 10);
-    if (!familyId || !parsedAmount || parsedAmount <= 0) {
-      return;
-    }
-
-    addMutation.mutate({ familyId, amount: parsedAmount, category, note, type });
-  };
-
-  const records = data?.data ?? [];
-  const chartData = useMemo(
-    () =>
-      report?.categories?.map((item) => ({
-        name: item.name ?? item.category ?? 'Boshqa',
-        amount: item.amount ?? 0,
-      })) ?? [],
-    [report?.categories],
-  );
-
-  if (!familyId) {
-    return (
-      <AppShell eyebrow="Byudjet" title="Oilaga ulanmagan" description="Byudjet oilaviy kontekst ochilgandan keyin ishlaydi.">
-        <EmptyState icon="wallet" title="Family context yo'q" description="Bot orqali oilaga qo'shiling yoki yangi oila yarating." />
-      </AppShell>
-    );
-  }
-
   return (
-    <AppShell
-      eyebrow="Moliyaviy yozuvlar"
-      title="Byudjet"
-      description="Daromad, xarajat va kategoriya hisobotlari."
-      actions={<SecondaryButton onClick={() => setShowAdd(true)}>Qo'shish</SecondaryButton>}
-      fab={<FloatingActionButton label="Byudjet yozuvi qo'shish" onClick={() => setShowAdd(true)} />}
-    >
-      <PremiumCard tone="mint">
-        <div className="stats-grid">
-          <StatCard value={formatMoney(report?.income)} label="Daromad" tone="mint" />
-          <StatCard value={formatMoney(report?.expense)} label="Xarajat" tone="red" />
-          <StatCard value={formatMoney(report?.balance)} label="Balans" tone="blue" />
-        </div>
-      </PremiumCard>
+    <div style={{ animation: 'fadeIn .3s ease' }}>
+      <div className="screen-title">
+        <div className="eyebrow">moliyaviy</div>
+        <h1>Byudjet</h1>
+      </div>
 
-      {chartData.length ? (
-        <PremiumCard>
-          <section className="section-head mt-0">
-            <h2>Bu oy xarajatlari</h2>
-          </section>
-          <div className="chart-shell">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--app-line)" />
-                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip />
-                <Bar dataKey="amount" fill="var(--app-primary)" radius={[10, 10, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+      {/* ─── Balance Hero ─── */}
+      <div className="hero-card" style={{ marginBottom: 18 }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="eyebrow">jami balans</div>
+          <strong style={{ fontSize: 42, fontWeight: 950, color: 'var(--mint)', letterSpacing: '-1.5px' }}>
+            {(balance ?? 0).toLocaleString()} UZS
+          </strong>
+        </div>
+        <div className="stats-grid" style={{ marginTop: 18 }}>
+          <div className="stat-card"><strong>+1.2M</strong><span>Bu oy kirim</span></div>
+          <div className="stat-card" style={{ '--mint': 'var(--red)' } as any}><strong>-800K</strong><span>Bu oy chiqim</span></div>
+          <div className="stat-card"><strong>3</strong><span>Kategoriya</span></div>
+        </div>
+      </div>
+
+      {/* ─── Pills: Income/Expense ─── */}
+      <div className="pills" style={{ marginBottom: 14 }}>
+        <button onClick={() => { setShowAdd(true); setSelectedCat(null); }} className="btn-primary" style={{ minHeight: 40, padding: '9px 12px', fontSize: 13, borderRadius: 15 }}>
+          + Yangi yozuv
+        </button>
+      </div>
+
+      {/* ─── Categories Grid ─── */}
+      <div className="section-head">
+        <h3>Kategoriyalar</h3>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 11 }}>
+        {categories?.slice(0, 9).map((c: any) => (
+          <div
+            key={c.id}
+            className="card"
+            style={{ minHeight: 112, display: 'grid', placeItems: 'center', textAlign: 'center', padding: 16, borderRadius: 28, cursor: 'pointer' }}
+            onClick={() => { setSelectedCat(c); setShowAdd(true); }}
+          >
+            <span style={{ fontSize: 28 }}>{c.icon}</span>
+            <span style={{ fontSize: 12, fontWeight: 900, color: 'var(--muted)', marginTop: 6 }}>{c.name}</span>
           </div>
-        </PremiumCard>
-      ) : null}
+        ))}
+      </div>
 
-      <section className="section-head">
-        <h2>Yozuvlar</h2>
-        <StatusPill tone="blue">{records.length}</StatusPill>
-      </section>
+      {/* ─── Add Sheet ─── */}
+      {showAdd && (
+        <>
+          <div className="scrim" onClick={() => setShowAdd(false)} />
+          <div className="sheet" style={{ animation: 'slideUp .35s ease' }}>
+            <div className="sheet__handle" />
+            <div className="sheet__head">
+              <h3>Yangi yozuv</h3>
+              <button onClick={() => setShowAdd(false)} className="btn-secondary" style={{ minHeight: 40, padding: '9px 12px', borderRadius: 15, fontSize: 13 }}>
+                ✕
+              </button>
+            </div>
 
-      {isLoading ? (
-        <SkeletonList count={3} />
-      ) : records.length ? (
-        <div className="stack">
-          {records.slice(0, 20).map((record) => {
-            const isExpense = record.type === 'expense';
-
-            return (
-              <ListCard
-                key={record.id}
-                icon="wallet"
-                title={recordTitle(record)}
-                subtitle={recordSubtitle(record)}
-                tone={isExpense ? 'red' : 'mint'}
-                action={
-                  <span className={`amount ${isExpense ? 'amount--expense' : ''}`}>
-                    {isExpense ? '-' : '+'}
-                    {formatMoney(record.amount)}
-                  </span>
-                }
+            <div className="amount-input">
+              <small>UZS</small>
+              <input
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0"
+                style={{
+                  border: 'none', textAlign: 'center', fontSize: 42, fontWeight: 950,
+                  background: 'transparent', color: 'var(--text)', width: '100%',
+                  outline: 'none', letterSpacing: '-1.5px',
+                }}
               />
-            );
-          })}
-        </div>
-      ) : (
-        <EmptyState icon="wallet" title="Yozuvlar yo'q" description="Birinchi xarajat yoki daromad yozuvini qo'shing." />
-      )}
+            </div>
 
-      <FloatingSheet
-        open={showAdd}
-        title="Byudjet yozuvi"
-        description="Miqdor, tur va kategoriya kiriting."
-        onClose={() => setShowAdd(false)}
-      >
-        <div className="sheet-form">
-          <SegmentedControl
-            label="Yozuv turi"
-            value={type}
-            onChange={setType}
-            options={[
-              { value: 'expense', label: 'Xarajat' },
-              { value: 'income', label: 'Daromad' },
-            ]}
-          />
-          <label className="form-label">
-            Miqdor
-            <input
-              className="input"
-              inputMode="numeric"
-              type="number"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              placeholder="285000"
-            />
-          </label>
-          <label className="form-label">
-            Kategoriya
-            <select className="input" value={category} onChange={(event) => setCategory(event.target.value as (typeof CATEGORIES)[number])}>
-              {CATEGORIES.map((item) => (
-                <option key={item}>{item}</option>
+            <div className="keypad">
+              {[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map((k) => (
+                <button key={k} onClick={() => {
+                  if (k === '⌫') setAmount(a => a.slice(0, -1));
+                  else if (k !== '') setAmount(a => a + k);
+                }}>
+                  {k}
+                </button>
               ))}
-            </select>
-          </label>
-          <label className="form-label">
-            Izoh
-            <input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ixtiyoriy" />
-          </label>
-          <PrimaryButton onClick={handleAdd} disabled={addMutation.isPending}>
-            {addMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
-          </PrimaryButton>
-          {addMutation.isError ? <StatusPill tone="red">Xatolik yuz berdi</StatusPill> : null}
-        </div>
-      </FloatingSheet>
-    </AppShell>
+            </div>
+
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Izoh (ixtiyoriy)"
+              className="input"
+              style={{ marginBottom: 12 }}
+            />
+
+            <button
+              className="btn-primary full"
+              onClick={() => {
+                if (!amount || !selectedCat) return;
+                addMutation.mutate({
+                  familyId,
+                  type: selectedCat.type || 'expense',
+                  categoryId: selectedCat.id,
+                  amount: Number(amount),
+                  description: note || undefined,
+                });
+              }}
+            >
+              💾 Saqlash
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }

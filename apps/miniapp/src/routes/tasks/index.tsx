@@ -1,208 +1,128 @@
-import { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  apiClient,
-  completeTask,
-  getTasks,
-  type ApiListResponse,
-  type TaskDto,
-} from '@/lib/api';
-import { useFamilyId } from '@/hooks';
-import {
-  AppShell,
-  EmptyState,
-  FloatingActionButton,
-  FloatingSheet,
-  ListCard,
-  PrimaryButton,
-  SegmentedControl,
-  SkeletonList,
-  StatusPill,
-} from '@/components/app/premium';
-import { triggerNotification } from '@/components/app/telegram-theme';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getTasks, createTask, completeTask } from '../../lib/api';
 
-const TASK_CATEGORIES = ['Oshxona', 'Tozalash', 'Xarid', 'Bola', "Ta'mirlash", 'Boshqa'] as const;
-const STATUS_FILTERS = [
-  { value: 'all', label: 'Hammasi' },
-  { value: 'new', label: 'Yangi' },
-  { value: 'active', label: 'Faol' },
-  { value: 'done', label: 'Bajarildi' },
-] as const;
-
-type TaskCategory = (typeof TASK_CATEGORIES)[number];
-type StatusFilter = (typeof STATUS_FILTERS)[number]['value'];
-
-interface CreateTaskPayload {
-  familyId: string;
-  title: string;
-  category: TaskCategory;
-}
-
-interface MutationContext {
-  previous?: ApiListResponse<TaskDto>;
-}
-
-function taskTone(task: TaskDto) {
-  if (task.status === 'done' || task.status === 'completed') {
-    return 'mint' as const;
-  }
-
-  if (task.priority === 'high' || task.priority === 'urgent') {
-    return 'yellow' as const;
-  }
-
-  return 'purple' as const;
-}
-
-function statusLabel(status?: string) {
-  if (status === 'done' || status === 'completed') {
-    return 'Bajarildi';
-  }
-
-  if (status === 'new' || status === 'pending') {
-    return 'Yangi';
-  }
-
-  return 'Faol';
-}
-
-export function TasksPage() {
-  const familyId = useFamilyId();
+export default function TasksPage() {
+  const familyId = localStorage.getItem('familyId') ?? 'unknown';
   const queryClient = useQueryClient();
-  const [showCreate, setShowCreate] = useState(false);
+  const [filter, setFilter] = useState<'pending' | 'all'>('pending');
+  const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<TaskCategory>(TASK_CATEGORIES[0]);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const tasksQueryKey = useMemo(
-    () => ['tasks', familyId, { status: statusFilter === 'all' ? undefined : statusFilter }] as const,
-    [familyId, statusFilter],
-  );
-
-  const { data, isLoading } = useQuery({
-    queryKey: tasksQueryKey,
-    queryFn: () => getTasks(familyId!, statusFilter === 'all' ? undefined : statusFilter),
+  const { data: tasks, isLoading } = useQuery({
+    queryKey: ['tasks', familyId, filter],
+    queryFn: () => getTasks(familyId, filter === 'all' ? undefined : 'pending'),
     enabled: !!familyId,
   });
 
-  const createMutation = useMutation({
-    mutationFn: (payload: CreateTaskPayload) => apiClient.post('/tasks', payload),
+  const addMutation = useMutation({
+    mutationFn: (data: any) => createTask(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', familyId] });
-      setShowCreate(false);
-      setTitle('');
-      triggerNotification('success');
+      setShowAdd(false); setTitle('');
     },
-    onError: () => triggerNotification('error'),
   });
 
-  const completeMutation = useMutation<void, Error, string, MutationContext>({
-    mutationFn: async (taskId: string) => {
-      await completeTask(taskId);
-    },
-    onMutate: async (taskId: string) => {
-      await queryClient.cancelQueries({ queryKey: tasksQueryKey });
-      const previous = queryClient.getQueryData<ApiListResponse<TaskDto>>(tasksQueryKey);
-      queryClient.setQueryData<ApiListResponse<TaskDto>>(tasksQueryKey, (old) => ({
-        data: old?.data?.map((task) => (task.id === taskId ? { ...task, status: 'done' } : task)) ?? [],
-        meta: old?.meta,
-      }));
-      return { previous };
-    },
-    onError: (_error, _taskId, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(tasksQueryKey, context.previous);
-      }
-      triggerNotification('error');
-    },
-    onSuccess: () => triggerNotification('success'),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['tasks', familyId] }),
+  const completeMutation = useMutation({
+    mutationFn: (taskId: string) => completeTask(taskId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks', familyId] }),
   });
 
-  const handleCreate = () => {
-    if (!familyId || !title.trim()) {
-      return;
-    }
-
-    createMutation.mutate({ familyId, title: title.trim(), category });
-  };
-
-  if (!familyId) {
-    return (
-      <AppShell eyebrow="Yumushlar" title="Oilaga ulanmagan" description="Yumushlar oilaviy kontekst bilan ochiladi.">
-        <EmptyState icon="tasks" title="Family context yo'q" description="Bot orqali oilaga qo'shiling yoki yangi oila yarating." />
-      </AppShell>
-    );
-  }
-
-  const tasks = data?.data ?? [];
+  const stats = tasks?.length
+    ? { total: tasks.length, done: tasks.filter((t: any) => t.status === 'completed').length }
+    : { total: 0, done: 0 };
 
   return (
-    <AppShell
-      eyebrow="Yumushlar"
-      title="Vazifalar"
-      description="Kim nima qiladi, holati va ballari aniq ko'rinadi."
-      fab={<FloatingActionButton label="Yangi vazifa yaratish" onClick={() => setShowCreate(true)} />}
-    >
-      <SegmentedControl label="Vazifa holati" value={statusFilter} onChange={setStatusFilter} options={STATUS_FILTERS} />
+    <div style={{ animation: 'fadeIn .3s ease' }}>
+      <div className="screen-title">
+        <div className="eyebrow">oilaviy</div>
+        <h1>Yumushlar</h1>
+      </div>
 
+      {/* ─── Stats ─── */}
+      <div className="stats-grid" style={{ marginBottom: 18 }}>
+        <div className="stat-card"><strong>{stats.total}</strong><span>Jami</span></div>
+        <div className="stat-card"><strong>{stats.done}</strong><span>Bajarildi</span></div>
+        <div className="stat-card" style={{ '--mint': 'var(--blue)' } as any}><strong>{stats.total - stats.done}</strong><span>Kutilmoqda</span></div>
+      </div>
+
+      {/* ─── Pills ─── */}
+      <div className="pills" style={{ marginBottom: 14 }}>
+        <button className={`pill${filter === 'pending' ? ' active' : ''}`} onClick={() => setFilter('pending')}>Faol</button>
+        <button className={`pill${filter === 'all' ? ' active' : ''}`} onClick={() => setFilter('all')}>Barchasi</button>
+        <button onClick={() => setShowAdd(true)} className="btn-primary" style={{ minHeight: 40, padding: '9px 12px', fontSize: 13, borderRadius: 15, marginLeft: 'auto' }}>
+          + Qo'shish
+        </button>
+      </div>
+
+      {/* ─── Task List ─── */}
       {isLoading ? (
-        <SkeletonList count={4} />
-      ) : tasks.length ? (
         <div className="stack">
-          {tasks.map((task) => {
-            const isDone = task.status === 'done' || task.status === 'completed';
-
-            return (
-              <ListCard
-                key={task.id}
-                icon="tasks"
-                title={task.title}
-                subtitle={task.category ?? task.description ?? 'Oilaviy yumush'}
-                tone={taskTone(task)}
-                completed={isDone}
-                action={
-                  <div className="list-card__action">
-                    <StatusPill tone={isDone ? 'mint' : 'yellow'}>{statusLabel(task.status)}</StatusPill>
-                    {!isDone ? (
-                      <PrimaryButton onClick={() => completeMutation.mutate(task.id)} disabled={completeMutation.isPending}>
-                        Bajar
-                      </PrimaryButton>
-                    ) : null}
-                  </div>
-                }
-              />
-            );
-          })}
+          {[1,2,3,4].map(i => (
+            <div key={i} className="skeleton">
+              <div style={{ width: 52, height: 52, borderRadius: 18, float: 'left', marginRight: 14 }} />
+              <div style={{ width: '60%', height: 18, margin: '6px 0 12px' }} />
+              <div style={{ width: '42%', height: 14 }} />
+            </div>
+          ))}
+        </div>
+      ) : tasks?.length ? (
+        <div className="stack">
+          {tasks.map((t: any) => (
+            <div key={t.id} className={`list-card${t.status === 'overdue' ? ' is-overdue' : ''}${t.status === 'completed' ? ' is-completed' : ''}`}>
+              <button
+                className="check"
+                style={{ border: '3px solid var(--mint)', borderRadius: '50%', width: 42, height: 42, display: 'grid', placeItems: 'center', background: t.status === 'completed' ? 'var(--mint)' : 'transparent', color: t.status === 'completed' ? 'white' : 'transparent', cursor: 'pointer', fontWeight: 950 }}
+                onClick={() => t.status !== 'completed' && completeMutation.mutate(t.id)}
+              >
+                ✓
+              </button>
+              <div className="meta">
+                <strong>{t.title}</strong>
+                <span>{t.points ? `⭐ ${t.points} ball` : 'Yangi'} · {t.status === 'completed' ? 'Bajarildi' : 'Kutilmoqda'}</span>
+              </div>
+              <span className="badge" style={{ minWidth: 26, height: 26, borderRadius: 999, padding: '0 9px', display: 'inline-grid', placeItems: 'center', background: t.status === 'completed' ? 'var(--mint-soft)' : 'var(--red-soft)', color: t.status === 'completed' ? 'var(--mint)' : 'var(--red)', fontSize: 12, fontWeight: 950 }}>
+                {t.priority ?? 'M'}
+              </span>
+            </div>
+          ))}
         </div>
       ) : (
-        <EmptyState icon="check" title="Vazifalar yo'q" description="Yangi yumush yarating va oilaga taqsimlang." />
+        <div className="empty-state">
+          <div className="icon-box icon-mint" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>📋</div>
+          <p style={{ color: 'var(--muted)', fontSize: 16 }}>Yumushlar yo'q</p>
+          <button onClick={() => setShowAdd(true)} className="btn-primary" style={{ marginTop: 8 }}>
+            Birinchi yumushni qo'shish
+          </button>
+        </div>
       )}
 
-      <FloatingSheet
-        open={showCreate}
-        title="Yangi vazifa"
-        description="Yumush nomi va kategoriyasini kiriting."
-        onClose={() => setShowCreate(false)}
-      >
-        <div className="sheet-form">
-          <label className="form-label">
-            Vazifa nomi
-            <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Uyni tozalash" />
-          </label>
-          <label className="form-label">
-            Kategoriya
-            <select className="input" value={category} onChange={(event) => setCategory(event.target.value as TaskCategory)}>
-              {TASK_CATEGORIES.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
-          </label>
-          <PrimaryButton onClick={handleCreate} disabled={createMutation.isPending}>
-            {createMutation.isPending ? 'Saqlanmoqda...' : 'Yaratish'}
-          </PrimaryButton>
-        </div>
-      </FloatingSheet>
-    </AppShell>
+      {/* ─── Add Sheet ─── */}
+      {showAdd && (
+        <>
+          <div className="scrim" onClick={() => setShowAdd(false)} />
+          <div className="sheet">
+            <div className="sheet__handle" />
+            <div className="sheet__head">
+              <h3>Yangi yumush</h3>
+              <button onClick={() => setShowAdd(false)} className="btn-secondary" style={{ minHeight: 40, padding: '9px 12px', borderRadius: 15, fontSize: 13 }}>✕</button>
+            </div>
+            <label style={{ display: 'grid', gap: 8, color: 'var(--text)', fontWeight: 900, marginBottom: 14 }}>
+              Nomi
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="input" placeholder="Idishlarni yuvish" />
+            </label>
+            <button
+              className="btn-primary full"
+              onClick={() => {
+                if (!title.trim()) return;
+                addMutation.mutate({ familyId, title: title.trim(), priority: 'medium', points: 10 });
+              }}
+            >
+              Qo'shish
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }

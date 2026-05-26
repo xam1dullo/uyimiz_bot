@@ -1,134 +1,107 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { getBalance, getTasks, type TaskDto } from '@/lib/api';
-import { useFamilyId } from '@/hooks';
-import {
-  AppShell,
-  EmptyState,
-  IconBadge,
-  ListCard,
-  PremiumCard,
-  SkeletonList,
-  StatCard,
-  StatusPill,
-} from '@/components/app/premium';
+import { getBalance, getTasks } from '../lib/api';
 
-function formatMoney(value?: number) {
-  return `${(value ?? 0).toLocaleString('uz-UZ')} UZS`;
+function StatCard({ value, label, type }: { value: string; label: string; type?: 'danger' }) {
+  return (
+    <div className="stat-card">
+      <strong style={type === 'danger' ? { color: 'var(--red)' } : {}}>{value}</strong>
+      <span>{label}</span>
+    </div>
+  );
 }
 
-function taskSubtitle(task: TaskDto) {
-  const parts = [task.assignedTo, task.category, task.priority].filter(Boolean);
-  return parts.length ? parts.join(' · ') : 'Oilaviy yumush';
+function ListCard({ title, subtitle, icon, status }: { title: string; subtitle: string; icon: string; status?: 'overdue' | 'completed' }) {
+  return (
+    <div className={`list-card${status === 'overdue' ? ' is-overdue' : ''}${status === 'completed' ? ' is-completed' : ''}`}>
+      <div className="icon-box icon-mint">{icon}</div>
+      <div className="meta">
+        <strong>{title}</strong>
+        <span>{subtitle}</span>
+      </div>
+    </div>
+  );
 }
 
-function taskTone(task: TaskDto) {
-  if (task.status === 'completed' || task.status === 'done') {
-    return 'mint' as const;
-  }
-
-  if (task.priority === 'high' || task.priority === 'urgent') {
-    return 'yellow' as const;
-  }
-
-  return 'purple' as const;
-}
-
-export function DashboardPage() {
-  const familyId = useFamilyId();
-
-  const { data: balance, isLoading: isBalanceLoading } = useQuery({
-    queryKey: ['budget', familyId, 'balance'],
-    queryFn: () => getBalance(familyId!),
+export default function Dashboard() {
+  const familyId = localStorage.getItem('familyId') ?? 'unknown';
+  
+  const { data: balance } = useQuery({
+    queryKey: ['balance', familyId],
+    queryFn: () => getBalance(familyId),
     enabled: !!familyId,
   });
 
-  const { data: tasksResponse, isLoading: areTasksLoading } = useQuery({
-    queryKey: ['tasks', familyId, { status: 'active' }],
-    queryFn: () => getTasks(familyId!, 'active'),
+  const { data: tasks, isLoading } = useQuery({
+    queryKey: ['tasks', familyId, 'active'],
+    queryFn: () => getTasks(familyId, 'active'),
     enabled: !!familyId,
   });
-
-  if (!familyId) {
-    return (
-      <AppShell
-        eyebrow="Onboarding"
-        title="Uyimiz"
-        description="Mini App oilaga ulanganidan keyin dashboard ochiladi."
-      >
-        <EmptyState
-          icon="home"
-          title="Oilaga ulanmagan"
-          description="Iltimos, avval bot orqali ro'yxatdan o'ting yoki invite link orqali oilaga qo'shiling."
-        />
-      </AppShell>
-    );
-  }
-
-  const tasks = tasksResponse?.data ?? [];
-  const activeTasks = tasks.slice(0, 4);
 
   return (
-    <AppShell eyebrow="Bugun" title="Boshqaruv paneli" description="Oila ishlari, byudjet va eslatmalar bir joyda.">
-      <PremiumCard tone="mint">
-        <div className="row">
+    <div style={{ animation: 'fadeIn .3s ease' }}>
+      <div className="screen-title">
+        <div className="eyebrow">oilangiz</div>
+        <h1>Dashboard</h1>
+      </div>
+
+      {/* ─── Balance Hero ─── */}
+      <div className="hero-card" style={{ marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+          <div className="icon-box icon-mint" style={{ width: 60, height: 60, borderRadius: 24, fontSize: 26 }}>💰</div>
           <div>
-            <p className="eyebrow">Bu oy</p>
-            <h2>Oilaviy balans</h2>
+            <div className="eyebrow" style={{ marginBottom: 2 }}>balans</div>
+            <strong style={{ fontSize: 32, fontWeight: 950, color: 'var(--mint)' }}>
+              {(balance ?? 0).toLocaleString()} UZS
+            </strong>
           </div>
-          <IconBadge icon="spark" tone="mint" />
         </div>
-        <div className="stats-grid mt-4">
-          <StatCard value={formatMoney(balance?.income)} label="Daromad" tone="mint" />
-          <StatCard value={formatMoney(balance?.expense)} label="Xarajat" tone="red" />
-          <StatCard value={formatMoney(balance?.balance)} label="Balans" tone="blue" />
+        <div className="stats-grid">
+          <StatCard value="+500K" label="Kirim" />
+          <StatCard value="-200K" label="Chiqim" type="danger" />
+          <StatCard value="3/5" label="Bugun" />
         </div>
-        {isBalanceLoading ? <p>Balans yangilanmoqda...</p> : null}
-      </PremiumCard>
+      </div>
 
-      <section className="section-head">
-        <h2>Faol yumushlar</h2>
-        <Link to="/tasks">{tasks.length} ta</Link>
-      </section>
+      {/* ─── Tasks ─── */}
+      <div className="section-head">
+        <h3>Faol yumushlar</h3>
+        <Link to="/tasks" className="soft-link" style={{ color: 'var(--mint)', fontWeight: 900, textDecoration: 'none' }}>
+          Barchasi →
+        </Link>
+      </div>
 
-      {areTasksLoading ? (
-        <SkeletonList count={3} />
-      ) : activeTasks.length ? (
+      {isLoading ? (
         <div className="stack">
-          {activeTasks.map((task) => (
+          {[1,2,3].map(i => (
+            <div key={i} className="skeleton">
+              <div style={{ width: 52, height: 52, borderRadius: 18, float: 'left', marginRight: 14 }} />
+              <div style={{ width: '60%', height: 18, margin: '6px 0 12px' }} />
+              <div style={{ width: '42%', height: 14 }} />
+            </div>
+          ))}
+        </div>
+      ) : tasks?.length ? (
+        <div className="stack">
+          {tasks.map((t: any) => (
             <ListCard
-              key={task.id}
-              icon="tasks"
-              title={task.title}
-              subtitle={taskSubtitle(task)}
-              tone={taskTone(task)}
-              action={
-                typeof task.points === 'number' ? (
-                  <StatusPill tone="purple">+{task.points}</StatusPill>
-                ) : null
-              }
+              key={t.id}
+              title={t.title}
+              subtitle={t.status === 'completed' ? '✅ Bajarilgan' : '⏳ Kutilmoqda'}
+              icon="📋"
+              status={t.status === 'overdue' ? 'overdue' : t.status === 'completed' ? 'completed' : undefined}
             />
           ))}
         </div>
       ) : (
-        <EmptyState icon="check" title="Faol yumush yo'q" description="Bugungi vazifalar bajarilgan yoki hali yaratilmagan." />
+        <div className="empty-state">
+          <div className="icon-box icon-mint" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>📋</div>
+          <p style={{ color: 'var(--muted)', fontSize: 16 }}>Hozircha yumushlar yo'q</p>
+          <Link to="/tasks" className="btn-primary" style={{ textDecoration: 'none', marginTop: 8 }}>
+            Yumush qo'shish
+          </Link>
+        </div>
       )}
-
-      <section className="section-head">
-        <h2>Tezkor ko'rinish</h2>
-      </section>
-      <div className="grid-2">
-        <PremiumCard tone="yellow">
-          <IconBadge icon="bell" tone="yellow" />
-          <h2 className="mt-4">Eslatmalar</h2>
-          <p>Muhim vaqtlar va oilaviy xabarlar.</p>
-        </PremiumCard>
-        <PremiumCard tone="blue">
-          <IconBadge icon="gift" tone="blue" />
-          <h2 className="mt-4">Tug'ilgan kunlar</h2>
-          <p>Yaqin sanalar nazoratda.</p>
-        </PremiumCard>
-      </div>
-    </AppShell>
+    </div>
   );
 }

@@ -1,15 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, getBirthdays, type BirthdayDto } from '@/lib/api';
+import { addBirthday, getBirthdays, type BirthdayDto, type CreateBirthdayInput } from '@/lib/api';
 import { useFamilyId } from '@/hooks';
 import {
   AppShell,
   EmptyState,
   FloatingActionButton,
   FloatingSheet,
+  IconBadge,
   ListCard,
   PremiumCard,
   PrimaryButton,
+  SegmentedControl,
   SkeletonList,
   StatusPill,
 } from '@/components/app/premium';
@@ -30,40 +32,116 @@ const MONTHS = [
   'Dekabr',
 ] as const;
 
-interface AddBirthdayPayload {
-  familyId: string;
-  name: string;
-  date: {
-    day: number;
-    month: number;
-  };
-  relation: string;
+const RELATION_OPTIONS = [
+  { value: 'ota', label: 'Ota' },
+  { value: 'ona', label: 'Ona' },
+  { value: 'aka-opa', label: 'Aka/opa' },
+  { value: 'dost', label: "Do'st" },
+] as const;
+
+const NOTIFY_OPTIONS = [7, 3, 1] as const;
+
+type RelationOption = (typeof RELATION_OPTIONS)[number]['value'];
+
+interface BirthdayDateParts {
+  day?: number;
+  month: number;
+  year?: number;
+}
+
+function parseDateParts(value?: string): BirthdayDateParts | null {
+  if (!value) {
+    return null;
+  }
+
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+
+  if (isoMatch) {
+    return {
+      year: Number.parseInt(isoMatch[1] ?? '', 10),
+      month: Number.parseInt(isoMatch[2] ?? '', 10),
+      day: Number.parseInt(isoMatch[3] ?? '', 10),
+    };
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? null
+    : { year: parsed.getFullYear(), month: parsed.getMonth() + 1, day: parsed.getDate() };
+}
+
+function getBirthdayParts(birthday: BirthdayDto): BirthdayDateParts {
+  if (typeof birthday.day === 'number' && typeof birthday.month === 'number') {
+    return { day: birthday.day, month: birthday.month };
+  }
+
+  return parseDateParts(birthday.birthDate ?? birthday.date) ?? { month: 1 };
 }
 
 function getBirthdayMonth(birthday: BirthdayDto) {
-  if (typeof birthday.month === 'number') {
-    return birthday.month;
-  }
-
-  if (birthday.date) {
-    const parsed = new Date(birthday.date);
-    return Number.isNaN(parsed.getTime()) ? 1 : parsed.getMonth() + 1;
-  }
-
-  return 1;
+  return getBirthdayParts(birthday).month;
 }
 
-function getBirthdayDay(birthday: BirthdayDto) {
-  if (typeof birthday.day === 'number') {
-    return birthday.day;
+function monthName(month: number) {
+  return MONTHS[month - 1] ?? MONTHS[0];
+}
+
+function getDaysUntilBirthday(birthday: BirthdayDto) {
+  const { day, month } = getBirthdayParts(birthday);
+
+  if (!day) {
+    return null;
   }
 
-  if (birthday.date) {
-    const parsed = new Date(birthday.date);
-    return Number.isNaN(parsed.getTime()) ? undefined : parsed.getDate();
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const nextBirthday = new Date(now.getFullYear(), month - 1, day);
+
+  if (nextBirthday < today) {
+    nextBirthday.setFullYear(now.getFullYear() + 1);
   }
 
-  return undefined;
+  return Math.ceil((nextBirthday.getTime() - today.getTime()) / 86_400_000);
+}
+
+function formatDaysLeft(days: number | null) {
+  if (days === null) {
+    return 'Yaqinda';
+  }
+
+  if (days === 0) {
+    return 'Bugun';
+  }
+
+  if (days === 1) {
+    return 'Ertaga';
+  }
+
+  return `${days} kun qoldi`;
+}
+
+function formatBirthdayDate(birthday: BirthdayDto) {
+  const { day, month } = getBirthdayParts(birthday);
+  return `${day ?? '—'}-${monthName(month).toLowerCase()}`;
+}
+
+function formatBirthdayAge(birthday: BirthdayDto) {
+  const { day, month, year } = getBirthdayParts(birthday);
+
+  if (!day || !year) {
+    return birthday.relation ?? 'Oila';
+  }
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const nextBirthday = new Date(now.getFullYear(), month - 1, day);
+  const nextBirthdayYear = nextBirthday < today ? now.getFullYear() + 1 : now.getFullYear();
+
+  return `${nextBirthdayYear - year} yosh bo'ladi`;
+}
+
+function buildBirthDate(day: number, month: number, year: number) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
 export function BirthdaysPage() {
@@ -73,7 +151,9 @@ export function BirthdaysPage() {
   const [name, setName] = useState('');
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('1');
-  const [relation, setRelation] = useState('');
+  const [year, setYear] = useState('');
+  const [relation, setRelation] = useState<RelationOption>('ota');
+  const [notifyDays, setNotifyDays] = useState<number[]>([7, 3, 1]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['birthdays', familyId],
@@ -82,42 +162,65 @@ export function BirthdaysPage() {
   });
 
   const addMutation = useMutation({
-    mutationFn: (payload: AddBirthdayPayload) => apiClient.post('/birthdays', payload),
+    mutationFn: (payload: CreateBirthdayInput) => addBirthday(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['birthdays', familyId] });
       setShowAdd(false);
       setName('');
       setDay('');
-      setRelation('');
+      setMonth('1');
+      setYear('');
+      setRelation('ota');
+      setNotifyDays([7, 3, 1]);
       triggerNotification('success');
     },
     onError: () => triggerNotification('error'),
   });
 
-  const handleAdd = () => {
+  const handleAdd = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     const parsedDay = Number.parseInt(day, 10);
     const parsedMonth = Number.parseInt(month, 10);
+    const parsedYear = Number.parseInt(year, 10);
 
-    if (!familyId || !name.trim() || !parsedDay) {
+    if (!familyId || !name.trim() || !parsedDay || !parsedMonth || !parsedYear) {
       return;
     }
 
     addMutation.mutate({
       familyId,
       name: name.trim(),
-      date: { day: parsedDay, month: parsedMonth },
-      relation,
+      birthDate: buildBirthDate(parsedDay, parsedMonth, parsedYear),
+      notifyDaysBefore: notifyDays.length ? notifyDays : [1],
     });
   };
 
+  const toggleNotifyDay = (value: number) => {
+    setNotifyDays((current) =>
+      current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value].sort((first, second) => second - first),
+    );
+  };
+
   const birthdays = data?.data ?? [];
+  const sortedBirthdays = useMemo(
+    () =>
+      [...birthdays].sort((first, second) => {
+        const firstDays = getDaysUntilBirthday(first) ?? Number.POSITIVE_INFINITY;
+        const secondDays = getDaysUntilBirthday(second) ?? Number.POSITIVE_INFINITY;
+        return firstDays - secondDays;
+      }),
+    [birthdays],
+  );
   const grouped = useMemo(() => {
-    return birthdays.reduce<Record<number, BirthdayDto[]>>((acc, birthday) => {
+    return sortedBirthdays.reduce<Record<number, BirthdayDto[]>>((acc, birthday) => {
       const birthdayMonth = getBirthdayMonth(birthday);
       acc[birthdayMonth] = [...(acc[birthdayMonth] ?? []), birthday];
       return acc;
     }, {});
-  }, [birthdays]);
+  }, [sortedBirthdays]);
 
   if (!familyId) {
     return (
@@ -127,25 +230,22 @@ export function BirthdaysPage() {
     );
   }
 
-  const nextBirthday = birthdays[0];
+  const nextBirthday = sortedBirthdays[0];
 
   return (
     <AppShell
-      eyebrow="Oilaviy sanalar"
       title="Tug'ilgan kunlar"
-      description="Yaqin tug'ilgan kunlar va munosabatlar."
-      fab={<FloatingActionButton label="Tug'ilgan kun qo'shish" onClick={() => setShowAdd(true)} icon="gift" />}
+      fab={<FloatingActionButton label="Tug'ilgan kun qo'shish" onClick={() => setShowAdd(true)} />}
     >
       {nextBirthday ? (
-        <PremiumCard tone="yellow">
+        <PremiumCard className="hero-card" tone="yellow">
           <div className="row">
-            <div>
-              <p className="eyebrow">Yaqin sana</p>
-              <h2>{nextBirthday.name}</h2>
-              <p>
-                {getBirthdayDay(nextBirthday) ?? '—'}-{MONTHS[getBirthdayMonth(nextBirthday) - 1]} ·{' '}
-                {nextBirthday.relation ?? 'Oila'}
-              </p>
+            <IconBadge icon="gift" tone="yellow" />
+            <div className="list-card__body">
+              <strong>{formatDaysLeft(getDaysUntilBirthday(nextBirthday))}</strong>
+              <span>
+                {nextBirthday.name} · {formatBirthdayDate(nextBirthday)} · {formatBirthdayAge(nextBirthday)}
+              </span>
             </div>
             <StatusPill tone="yellow">Soon</StatusPill>
           </div>
@@ -161,8 +261,7 @@ export function BirthdaysPage() {
             .map(([monthNumber, items]) => (
               <section key={monthNumber}>
                 <div className="section-head">
-                  <h2>{MONTHS[Number.parseInt(monthNumber, 10) - 1]}</h2>
-                  <StatusPill tone="purple">{items.length}</StatusPill>
+                  <h2>{monthName(Number.parseInt(monthNumber, 10)).toUpperCase()}</h2>
                 </div>
                 <div className="stack">
                   {items.map((birthday, index) => (
@@ -170,9 +269,9 @@ export function BirthdaysPage() {
                       key={birthday.id ?? `${birthday.name}-${index}`}
                       icon="gift"
                       title={birthday.name}
-                      subtitle={birthday.relation ?? 'Oila'}
+                      subtitle={`${formatBirthdayDate(birthday)} · ${birthday.relation ?? 'Oila'} · ${formatBirthdayAge(birthday)}`}
                       tone="yellow"
-                      action={<StatusPill tone="yellow">{getBirthdayDay(birthday) ?? '—'}</StatusPill>}
+                      action={<strong>{formatDaysLeft(getDaysUntilBirthday(birthday))}</strong>}
                     />
                   ))}
                 </div>
@@ -185,19 +284,33 @@ export function BirthdaysPage() {
 
       <FloatingSheet
         open={showAdd}
-        title="Tug'ilgan kun"
-        description="Ism, sana va munosabatni kiriting."
+        title="Tug'ilgan kun qo'shish"
         onClose={() => setShowAdd(false)}
       >
-        <div className="sheet-form">
-          <label className="form-label">
+        <form className="sheet-form" onSubmit={handleAdd}>
+          <label className="form-label" htmlFor="birthday-name">
             Ism
-            <input className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Jasur Karimov" />
+            <input
+              id="birthday-name"
+              name="name"
+              className="input"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Jasur Karimov"
+              autoComplete="name"
+              required
+            />
           </label>
-          <div className="form-grid">
-            <label className="form-label">
+          <div className="form-label">
+            Kim?
+            <SegmentedControl label="Munosabat" value={relation} onChange={setRelation} options={RELATION_OPTIONS} />
+          </div>
+          <div className="form-grid three-grid">
+            <label className="form-label" htmlFor="birthday-day">
               Kun
               <input
+                id="birthday-day"
+                name="day"
                 className="input"
                 inputMode="numeric"
                 type="number"
@@ -206,11 +319,12 @@ export function BirthdaysPage() {
                 value={day}
                 onChange={(event) => setDay(event.target.value)}
                 placeholder="12"
+                required
               />
             </label>
-            <label className="form-label">
+            <label className="form-label" htmlFor="birthday-month">
               Oy
-              <select className="input" value={month} onChange={(event) => setMonth(event.target.value)}>
+              <select id="birthday-month" name="month" className="input" value={month} onChange={(event) => setMonth(event.target.value)}>
                 {MONTHS.map((item, index) => (
                   <option key={item} value={index + 1}>
                     {item}
@@ -218,15 +332,43 @@ export function BirthdaysPage() {
                 ))}
               </select>
             </label>
+            <label className="form-label" htmlFor="birthday-year">
+              Yil
+              <input
+                id="birthday-year"
+                name="year"
+                className="input"
+                inputMode="numeric"
+                type="number"
+                min={1900}
+                max={new Date().getFullYear()}
+                value={year}
+                onChange={(event) => setYear(event.target.value)}
+                placeholder="1988"
+                required
+              />
+            </label>
           </div>
-          <label className="form-label">
-            Munosabat
-            <input className="input" value={relation} onChange={(event) => setRelation(event.target.value)} placeholder="Ota, ona, do'st..." />
-          </label>
-          <PrimaryButton onClick={handleAdd} disabled={addMutation.isPending}>
+          <div className="form-label">
+            Eslatish
+            <div className="pills" role="group" aria-label="Eslatish kunlari">
+              {NOTIFY_OPTIONS.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={`pill ${notifyDays.includes(item) ? 'is-active' : ''}`}
+                  aria-pressed={notifyDays.includes(item)}
+                  onClick={() => toggleNotifyDay(item)}
+                >
+                  {item} kun
+                </button>
+              ))}
+            </div>
+          </div>
+          <PrimaryButton type="submit" disabled={addMutation.isPending}>
             {addMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
           </PrimaryButton>
-        </div>
+        </form>
       </FloatingSheet>
     </AppShell>
   );

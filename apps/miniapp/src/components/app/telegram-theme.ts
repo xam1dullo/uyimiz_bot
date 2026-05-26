@@ -9,9 +9,12 @@ import {
   isThemeParamsMounted,
   mountThemeParamsSync,
   themeParamsBackgroundColor,
+  themeParamsBottomBarBgColor,
   themeParamsButtonColor,
   themeParamsButtonTextColor,
+  themeParamsDestructiveTextColor,
   themeParamsHintColor,
+  themeParamsLinkColor,
   themeParamsSecondaryBackgroundColor,
   themeParamsSectionBackgroundColor,
   themeParamsSectionSeparatorColor,
@@ -53,6 +56,18 @@ export function useTelegramThemeStyle(): ThemeStyle {
   const lineColor = useSignal(themeParamsSectionSeparatorColor);
   const buttonColor = useSignal(themeParamsButtonColor);
   const buttonTextColor = useSignal(themeParamsButtonTextColor);
+  const linkColor = useSignal(themeParamsLinkColor);
+  const destructiveTextColor = useSignal(themeParamsDestructiveTextColor);
+  const bottomBarBgColor = useSignal(themeParamsBottomBarBgColor);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+
+    const themeColorMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeColorMeta && buttonColor) {
+      themeColorMeta.content = buttonColor;
+    }
+  }, [buttonColor, isDark]);
 
   return useMemo(
     () => ({
@@ -65,14 +80,20 @@ export function useTelegramThemeStyle(): ThemeStyle {
       '--tg-theme-section-separator-color': lineColor,
       '--tg-theme-button-color': buttonColor,
       '--tg-theme-button-text-color': buttonTextColor,
+      '--tg-theme-link-color': linkColor,
+      '--tg-theme-destructive-text-color': destructiveTextColor,
+      '--tg-theme-bottom-bar-bg-color': bottomBarBgColor,
       colorScheme: isDark ? 'dark' : 'light',
     }),
     [
       bgColor,
+      bottomBarBgColor,
       buttonColor,
       buttonTextColor,
+      destructiveTextColor,
       isDark,
       lineColor,
+      linkColor,
       mutedColor,
       secondaryBgColor,
       subtitleColor,

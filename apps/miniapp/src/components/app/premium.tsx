@@ -26,19 +26,18 @@ export function AppShell({
   const themeStyle = useTelegramThemeStyle();
 
   return (
-    <main className={`mini-shell ${className}`} style={themeStyle}>
-      <header className="app-topbar">
-        <div className="brand-lockup" aria-label="@uyimiz">
+    <main className={`mobile-shell mini-shell has-nav ${className}`} style={themeStyle}>
+      <header className="topbar app-topbar">
+        <div className="brand compact" aria-label="@uyimiz">
           <span className="logo-mark">u</span>
-          <div>
-            <strong>Uyimiz</strong>
-            <span>Family assistant</span>
-          </div>
+          <span>Uyimiz</span>
         </div>
-        <div className="avatar-stack" aria-label="Family members">
-          <span>ZI</span>
-          <span>JA</span>
-          <span>SA</span>
+        <div className="topbar-actions">
+          <div className="avatar-stack" aria-label="Family members">
+            <span className="avatar">ZI</span>
+            <span className="avatar">JA</span>
+            <span className="avatar">SA</span>
+          </div>
         </div>
       </header>
 
@@ -65,7 +64,7 @@ export interface IconBadgeProps {
 
 export function IconBadge({ icon, tone = 'mint', label }: IconBadgeProps) {
   return (
-    <span className={`icon-badge icon-badge--${tone}`} aria-label={label}>
+    <span className={`icon icon-badge icon-${tone} icon-badge--${tone}`} aria-label={label}>
       <AppIcon name={icon} />
     </span>
   );
@@ -78,7 +77,7 @@ export interface PremiumCardProps {
 }
 
 export function PremiumCard({ children, className = '', tone = 'neutral' }: PremiumCardProps) {
-  return <section className={`premium-card premium-card--${tone} ${className}`}>{children}</section>;
+  return <section className={`hero-card premium-card premium-card--${tone} ${className}`}>{children}</section>;
 }
 
 export interface StatCardProps {
@@ -89,7 +88,7 @@ export interface StatCardProps {
 
 export function StatCard({ value, label, tone = 'mint' }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card--${tone}`}>
+    <div className={`stat-card ${tone === 'red' ? 'danger' : ''} stat-card--${tone}`}>
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
@@ -223,10 +222,10 @@ export function FloatingSheet({ title, description, open, onClose, children }: F
 
   return (
     <>
-      <button className="sheet-scrim" type="button" aria-label="Close sheet" onClick={onClose} />
-      <section className="floating-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-        <div className="sheet-handle" />
-        <header className="sheet-head">
+      <button className="scrim sheet-scrim" type="button" aria-label="Close sheet" onClick={onClose} />
+      <section className="sheet floating-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <div className="sheet__handle sheet-handle" />
+        <header className="sheet__head sheet-head">
           <div>
             <h2 id="sheet-title">{title}</h2>
             {description ? <p>{description}</p> : null}
@@ -266,7 +265,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   return (
     <PremiumCard className="empty-state" tone="mint">
       <IconBadge icon={icon} tone="mint" />
-      <h2>{title}</h2>
+      <h1>{title}</h1>
       <p>{description}</p>
       {action}
     </PremiumCard>
@@ -287,7 +286,7 @@ export function PrimaryButton({
   return (
     <button
       type={type}
-      className="button button--primary"
+      className="button primary button--primary full"
       disabled={disabled}
       onClick={() => {
         triggerImpact('medium');
@@ -311,7 +310,7 @@ export function SecondaryButton({
   return (
     <button
       type="button"
-      className="button button--secondary"
+      className="button secondary button--secondary full"
       disabled={disabled}
       onClick={() => {
         triggerImpact();
@@ -324,5 +323,37 @@ export function SecondaryButton({
 }
 
 export function StatusPill({ children, tone = 'mint' }: { children: ReactNode; tone?: Tone }) {
-  return <span className={`status-pill status-pill--${tone}`}>{children}</span>;
+  return (
+    <span className={`score-badge badge status-pill badge--${tone} status-pill--${tone}`}>
+      {children}
+    </span>
+  );
+}
+
+export function ScoreBadge({ children, tone = 'mint' }: { children: ReactNode; tone?: Tone }) {
+  return <StatusPill tone={tone}>{children}</StatusPill>;
+}
+
+export function CheckControl({
+  done = false,
+  label,
+  onClick,
+}: {
+  done?: boolean;
+  label: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`check ${done ? 'done' : ''}`}
+      aria-label={label}
+      onClick={() => {
+        triggerImpact();
+        onClick?.();
+      }}
+    >
+      <AppIcon name="check" />
+    </button>
+  );
 }

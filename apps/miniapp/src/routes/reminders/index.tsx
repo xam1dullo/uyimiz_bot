@@ -1,138 +1,85 @@
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, getReminders } from '@/lib/api';
-import { useFamilyId } from '@/hooks';
-import {
-  AppShell,
-  EmptyState,
-  FloatingActionButton,
-  FloatingSheet,
-  ListCard,
-  PrimaryButton,
-  SkeletonList,
-  StatusPill,
-} from '@/components/app/premium';
-import { triggerNotification } from '@/components/app/telegram-theme';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getReminders, createReminder } from '../../lib/api';
 
-interface CreateReminderPayload {
-  familyId: string;
-  title: string;
-  text: string;
-  remindAt: string;
-}
-
-function formatReminderDate(value?: string) {
-  if (!value) {
-    return 'Vaqt belgilanmagan';
-  }
-
-  return new Date(value).toLocaleString('uz-UZ', { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-export function RemindersPage() {
-  const familyId = useFamilyId();
+export default function RemindersPage() {
+  const familyId = localStorage.getItem('familyId') ?? 'unknown';
   const queryClient = useQueryClient();
-  const [showCreate, setShowCreate] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState('');
-  const [text, setText] = useState('');
-  const [remindAt, setRemindAt] = useState('');
+  const [scheduledAt, setScheduledAt] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data: reminders, isLoading } = useQuery({
     queryKey: ['reminders', familyId],
-    queryFn: () => getReminders(familyId!),
+    queryFn: () => getReminders(familyId),
     enabled: !!familyId,
   });
 
-  const createMutation = useMutation({
-    mutationFn: (payload: CreateReminderPayload) => apiClient.post('/reminders', payload),
+  const addMutation = useMutation({
+    mutationFn: (data: any) => createReminder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reminders', familyId] });
-      setShowCreate(false);
-      setTitle('');
-      setText('');
-      setRemindAt('');
-      triggerNotification('success');
+      setShowAdd(false); setTitle(''); setScheduledAt('');
     },
-    onError: () => triggerNotification('error'),
   });
 
-  const handleCreate = () => {
-    if (!familyId || !title.trim() || !remindAt) {
-      return;
-    }
-
-    createMutation.mutate({ familyId, title: title.trim(), text: text.trim(), remindAt });
-  };
-
-  if (!familyId) {
-    return (
-      <AppShell eyebrow="Eslatmalar" title="Oilaga ulanmagan" description="Eslatmalar family context bilan ishlaydi.">
-        <EmptyState icon="bell" title="Family context yo'q" description="Bot orqali oilaga qo'shiling yoki yangi oila yarating." />
-      </AppShell>
-    );
-  }
-
-  const reminders = data?.data ?? [];
-
   return (
-    <AppShell
-      eyebrow="Scheduler"
-      title="Eslatmalar"
-      description="Telegram ichida vaqtli xabarlar va muhim ishlar."
-      fab={<FloatingActionButton label="Yangi eslatma yaratish" onClick={() => setShowCreate(true)} icon="bell" />}
-    >
-      {isLoading ? (
-        <SkeletonList count={3} />
-      ) : reminders.length ? (
-        <div className="stack">
-          {reminders.map((reminder, index) => {
-            const scheduledAt = reminder.remindAt ?? reminder.scheduledAt;
+    <div style={{ animation: 'fadeIn .3s ease' }}>
+      <div className="screen-title">
+        <div className="eyebrow">unutmaslik uchun</div>
+        <h1>Eslatmalar</h1>
+      </div>
 
-            return (
-              <ListCard
-                key={reminder.id}
-                icon="bell"
-                title={reminder.title}
-                subtitle={reminder.text ?? reminder.description ?? formatReminderDate(scheduledAt)}
-                tone={index === 0 ? 'yellow' : 'blue'}
-                meta={reminder.text || reminder.description ? formatReminderDate(scheduledAt) : undefined}
-                action={
-                  <StatusPill tone={reminder.confirmedAt ? 'mint' : 'yellow'}>
-                    {reminder.confirmedAt ? 'Qabul qilingan' : 'Kutilmoqda'}
-                  </StatusPill>
-                }
-              />
-            );
-          })}
+      <button onClick={() => setShowAdd(true)} className="btn-primary" style={{ minHeight: 40, padding: '9px 12px', fontSize: 13, borderRadius: 15, marginBottom: 18 }}>
+        + Yangi eslatma
+      </button>
+
+      {isLoading ? (
+        <div className="stack">
+          {[1,2,3].map(i => <div key={i} className="skeleton"><div style={{ width: 52, height: 52, borderRadius: 18, float: 'left', marginRight: 14 }} /><div style={{ width: '60%', height: 18, margin: '6px 0 12px' }} /><div style={{ width: '42%', height: 14 }} /></div>)}
+        </div>
+      ) : reminders?.length ? (
+        <div className="stack">
+          {reminders.map((r: any) => (
+            <div key={r.id} className={`list-card${!r.isActive ? ' is-completed' : ''}`}>
+              <div className={`icon-box ${r.isActive ? 'icon-blue' : 'icon-mint'}`}>{r.isActive ? '🔔' : '🔕'}</div>
+              <div className="meta">
+                <strong>{r.title}</strong>
+                <span>{new Date(r.scheduledAt).toLocaleString()} · {r.isActive ? 'Faol' : 'O\'chirilgan'}</span>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
-        <EmptyState icon="bell" title="Eslatmalar yo'q" description="Muhim ishlar uchun birinchi eslatmani yarating." />
+        <div className="empty-state">
+          <div className="icon-box icon-blue" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>🔔</div>
+          <p style={{ color: 'var(--muted)', fontSize: 16 }}>Hozircha eslatmalar yo'q</p>
+        </div>
       )}
 
-      <FloatingSheet
-        open={showCreate}
-        title="Eslatma qo'shish"
-        description="Sarlavha, matn va vaqtni belgilang."
-        onClose={() => setShowCreate(false)}
-      >
-        <div className="sheet-form">
-          <label className="form-label">
-            Sarlavha
-            <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Bank to'lovi" />
-          </label>
-          <label className="form-label">
-            Matn
-            <textarea className="input" rows={3} value={text} onChange={(event) => setText(event.target.value)} placeholder="Kartani to'ldirish kerak" />
-          </label>
-          <label className="form-label">
-            Vaqt
-            <input className="input" type="datetime-local" value={remindAt} onChange={(event) => setRemindAt(event.target.value)} />
-          </label>
-          <PrimaryButton onClick={handleCreate} disabled={createMutation.isPending}>
-            {createMutation.isPending ? 'Saqlanmoqda...' : 'Yaratish'}
-          </PrimaryButton>
-        </div>
-      </FloatingSheet>
-    </AppShell>
+      {showAdd && (
+        <>
+          <div className="scrim" onClick={() => setShowAdd(false)} />
+          <div className="sheet">
+            <div className="sheet__handle" />
+            <div className="sheet__head">
+              <h3>Yangi eslatma</h3>
+              <button onClick={() => setShowAdd(false)} className="btn-secondary" style={{ minHeight: 40, padding: '9px 12px', borderRadius: 15, fontSize: 13 }}>✕</button>
+            </div>
+            <label style={{ display: 'grid', gap: 8, color: 'var(--text)', fontWeight: 900, marginBottom: 14 }}>
+              Matn
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="input" placeholder="Dorini ichish" />
+            </label>
+            <label style={{ display: 'grid', gap: 8, color: 'var(--text)', fontWeight: 900, marginBottom: 14 }}>
+              Vaqt
+              <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="input" />
+            </label>
+            <button className="btn-primary full" onClick={() => addMutation.mutate({ familyId, title, scheduledAt, type: 'one_time', description: '' })}>
+              Qo'shish
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }

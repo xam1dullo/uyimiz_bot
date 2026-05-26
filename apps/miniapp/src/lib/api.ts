@@ -8,6 +8,12 @@ export interface ApiListResponse<TItem> {
   meta?: Record<string, unknown>;
 }
 
+type ApiCollectionPayload<TItem> = TItem[] | ApiListResponse<TItem>;
+
+function normalizeListResponse<TItem>(payload: ApiCollectionPayload<TItem>): ApiListResponse<TItem> {
+  return Array.isArray(payload) ? { data: payload } : payload;
+}
+
 export interface BudgetRecordDto {
   id: string;
   type?: 'income' | 'expense';
@@ -47,22 +53,53 @@ export interface TaskDto {
 
 export interface ReminderDto {
   id: string;
+  familyId?: string;
   title: string;
   text?: string;
   description?: string;
+  type?: ReminderType;
   remindAt?: string;
   scheduledAt?: string;
   confirmedAt?: string | null;
+  snoozedUntil?: string | null;
   isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type ReminderType = 'one_time' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+export interface CreateReminderInput {
+  familyId: string;
+  title: string;
+  description?: string;
+  type?: ReminderType;
+  scheduledAt: string;
+  createdBy?: string;
 }
 
 export interface BirthdayDto {
   id?: string;
+  familyId?: string;
+  userId?: string | null;
   name: string;
   relation?: string;
   day?: number;
   month?: number;
   date?: string;
+  birthDate?: string;
+  notifyDaysBefore?: number[];
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateBirthdayInput {
+  familyId: string;
+  name: string;
+  birthDate: string;
+  notifyDaysBefore?: number[];
+  createdBy?: string;
 }
 
 export const apiClient = axios.create({
@@ -138,23 +175,18 @@ export const completeTask = (taskId: string) =>
 
 // ═══ Reminders ═══
 export const getReminders = (familyId: string) =>
-  apiClient.get<ApiListResponse<ReminderDto>>(`/reminders?familyId=${familyId}`).then(r => r.data);
+  apiClient
+    .get<ApiCollectionPayload<ReminderDto>>(`/reminders?familyId=${familyId}`)
+    .then(r => normalizeListResponse(r.data));
 
-export const createReminder = (data: {
-  familyId: string;
-  title: string;
-  description?: string;
-  type?: string;
-  scheduledAt: string;
-}) => apiClient.post('/reminders', data).then(r => r.data);
+export const createReminder = (data: CreateReminderInput) =>
+  apiClient.post<ReminderDto>('/reminders', data).then(r => r.data);
 
 // ═══ Birthdays ═══
 export const getBirthdays = (familyId: string) =>
-  apiClient.get<ApiListResponse<BirthdayDto>>(`/birthdays?familyId=${familyId}`).then(r => r.data);
+  apiClient
+    .get<ApiCollectionPayload<BirthdayDto>>(`/birthdays?familyId=${familyId}`)
+    .then(r => normalizeListResponse(r.data));
 
-export const addBirthday = (data: {
-  familyId: string;
-  name: string;
-  birthDate: string;
-  notifyDaysBefore?: number[];
-}) => apiClient.post('/birthdays', data).then(r => r.data);
+export const addBirthday = (data: CreateBirthdayInput) =>
+  apiClient.post<BirthdayDto>('/birthdays', data).then(r => r.data);
