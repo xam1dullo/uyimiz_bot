@@ -280,6 +280,21 @@ cp -rf source dest          # NOT: cp -r source dest
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
 ---
+## Agent skills
+
+### Issue tracker
+
+Issues tracked in **beads** (local Dolt database, sync via `bd dolt push/pull`). See [`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md).
+
+### Triage labels
+
+Beads statuses mapped to canonical triage roles (`open`→`needs-triage`, `ready`→`ready-for-agent`, `blocked`→`needs-info`). See [`docs/agents/triage-labels.md`](docs/agents/triage-labels.md).
+
+### Domain docs
+
+Single-context repo: [`CONTEXT.md`](CONTEXT.md) + [`docs/adr/`](docs/adr/) at root. See [`docs/agents/domain.md`](docs/agents/domain.md).
+
+---
 ## 🔁 AI Workflow Orchestratsiyasi: GSD-2 + beads + AGENTS.md
 
 Bu loyihada BARCHA AI agentlar (Codex, Copilot Agent, Claude Code, Cursor, boshqalar)
