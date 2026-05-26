@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Ctx, On } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
+import { Ctx, On, Update } from 'nestjs-telegraf';
 
+@Update()
 @Injectable()
 export class ChatMemberHandler {
   constructor(private readonly i18n: I18nService) {}

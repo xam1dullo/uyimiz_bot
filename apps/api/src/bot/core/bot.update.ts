@@ -1,7 +1,7 @@
 // ─── BotUpdate — Streaming + Smart Edit Router ───
 
 import { Injectable, Logger } from '@nestjs/common';
-import { Ctx, Update, Command, Action, On } from 'nestjs-telegraf';
+import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { KeyboardFactory } from './keyboard.factory';
@@ -29,9 +29,7 @@ export class BotUpdate {
 
   @Command('menu')
   async menu(@Ctx() ctx: Context) {
-    // Progressive menu loading
-    await this.stream.answerFirst(ctx);
-    await this.menus.render('main', ctx, this.i18n, this.kb);
+    await this.menus.render('main', ctx);
   }
 
   @Action(/.*/)
@@ -80,10 +78,5 @@ export class BotUpdate {
     await this.stream.editOrReply(ctx, `🚧 ${this.i18n.t(l, 'menu.coming_soon')}`);
   }
 
-  @On('text')
-  async onText(@Ctx() ctx: Context) {
-    const text = (ctx as any).message?.text;
-    const userId = String(ctx.from?.id);
-    this.logger.log(`Message from ${userId}: ${text}`);
-  }
+  // Removed @On('text') — was blocking @Start() handler chain
 }

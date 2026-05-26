@@ -23,7 +23,8 @@ async function bootstrap() {
     maxAge: 86400,
   });
 
-  app.setGlobalPrefix('api');
+  // Controllers already have 'api' prefix
+  // app.setGlobalPrefix('api');
 
   // Swagger
   const swaggerConfig = new DocumentBuilder()

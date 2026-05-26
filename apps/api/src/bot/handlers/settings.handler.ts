@@ -1,11 +1,12 @@
 // ─── Settings Handler (Language Switch) ───
 
 import { Injectable } from '@nestjs/common';
-import { Ctx, Command } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { KeyboardFactory } from '../core/keyboard.factory';
+import { Command, Ctx, Update } from 'nestjs-telegraf';
 
+@Update()
 @Injectable()
 export class SettingsHandler {
   constructor(

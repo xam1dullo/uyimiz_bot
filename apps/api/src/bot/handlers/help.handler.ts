@@ -1,12 +1,13 @@
 // ─── Help Handler ───
 
 import { Injectable } from '@nestjs/common';
-import { Ctx, Help } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { KeyboardFactory } from '../core/keyboard.factory';
 import { BotPerformance } from '../core/bot-performance';
+import { Ctx, Help, Update } from 'nestjs-telegraf';
 
+@Update()
 @Injectable()
 export class HelpHandler {
   constructor(
