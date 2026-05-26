@@ -14,7 +14,7 @@ export class DeleteReminderHandler {
 
   async execute(command: DeleteReminderCommand): Promise<void> {
     // Find reminder to get jobId
-    const reminder = await this.repo.findById(command.reminderId);
+    const reminder = await this.repo.findById(command.reminderId, command.familyId);
     if (!reminder) return;
 
     // Cancel scheduled job
@@ -23,6 +23,6 @@ export class DeleteReminderHandler {
     }
 
     // Delete from DB
-    await this.repo.delete(command.reminderId);
+    await this.repo.delete(command.reminderId, reminder.familyId);
   }
 }

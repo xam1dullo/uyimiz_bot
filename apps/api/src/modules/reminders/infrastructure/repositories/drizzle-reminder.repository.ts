@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { reminders, type DB } from '@uyimiz/db';
+import { reminders, withFamilyContext, type DB } from '@uyimiz/db';
 import { eq, and, lte, isNull } from 'drizzle-orm';
 import { ReminderEntity } from '../../domain/entities/reminder.entity';
 import { IReminderRepository } from '../../domain/repositories/reminder.repository.interface';
@@ -10,7 +10,8 @@ export class DrizzleReminderRepository implements IReminderRepository {
   constructor(@Inject(DB_TOKEN) private readonly db: DB) {}
 
   async create(reminder: ReminderEntity): Promise<ReminderEntity> {
-    const [row] = await this.db.insert(reminders).values({
+    return withFamilyContext(reminder.familyId, async (tx) => {
+      const [row] = await tx.insert(reminders).values({
       id: reminder.id,
       familyId: reminder.familyId,
       title: reminder.title,
@@ -25,11 +26,14 @@ export class DrizzleReminderRepository implements IReminderRepository {
       updatedAt: reminder.updatedAt,
     }).returning();
     return this.toEntity(row);
+    }, this.db);
   }
 
-  async findById(id: string): Promise<ReminderEntity | null> {
-    const [row] = await this.db.select().from(reminders).where(eq(reminders.id, id));
-    return row ? this.toEntity(row) : null;
+  async findById(id: string, familyId: string): Promise<ReminderEntity | null> {
+    return withFamilyContext(familyId, async (tx) => {
+      const [row] = await tx.select().from(reminders).where(eq(reminders.id, id));
+      return row ? this.toEntity(row) : null;
+    }, this.db);
   }
 
   async findByFamilyId(familyId: string): Promise<ReminderEntity[]> {
@@ -54,7 +58,8 @@ export class DrizzleReminderRepository implements IReminderRepository {
   }
 
   async update(reminder: ReminderEntity): Promise<ReminderEntity> {
-    const [row] = await this.db.update(reminders)
+    return withFamilyContext(reminder.familyId, async (tx) => {
+      const [row] = await tx.update(reminders)
       .set({
         title: reminder.title,
         description: reminder.description,
@@ -66,11 +71,14 @@ export class DrizzleReminderRepository implements IReminderRepository {
       })
       .where(eq(reminders.id, reminder.id))
       .returning();
-    return this.toEntity(row);
+      return this.toEntity(row);
+    }, this.db);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.delete(reminders).where(eq(reminders.id, id));
+  async delete(id: string, familyId: string): Promise<void> {
+    return withFamilyContext(familyId, async (tx) => {
+      await tx.delete(reminders).where(eq(reminders.id, id));
+    }, this.db);
   }
 
   async findByJobId(jobId: string): Promise<ReminderEntity | null> {

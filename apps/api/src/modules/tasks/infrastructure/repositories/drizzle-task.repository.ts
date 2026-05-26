@@ -31,9 +31,11 @@ export class DrizzleTaskRepository implements ITaskRepository {
     });
   }
 
-  async findById(id: string): Promise<TaskEntity | null> {
-    const [row] = await this.db.select().from(tasks).where(eq(tasks.id, id));
-    return row ? this.toEntity(row) : null;
+  async findById(id: string, familyId: string): Promise<TaskEntity | null> {
+    return withFamilyContext(familyId, async (tx) => {
+      const [row] = await tx.select().from(tasks).where(eq(tasks.id, id));
+      return row ? this.toEntity(row) : null;
+    }, this.db);
   }
 
   async findByFamilyId(familyId: string, options?: { status?: string; assignedTo?: string; limit?: number; offset?: number }): Promise<TaskEntity[]> {
@@ -68,12 +70,14 @@ export class DrizzleTaskRepository implements ITaskRepository {
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.delete(tasks).where(eq(tasks.id, id));
+  async delete(id: string, familyId: string): Promise<void> {
+    return withFamilyContext(familyId, async (tx) => {
+      await tx.delete(tasks).where(eq(tasks.id, id));
+    }, this.db);
   }
 
-  async completeTask(id: string): Promise<TaskEntity | null> {
-    const task = await this.findById(id);
+  async completeTask(id: string, familyId: string): Promise<TaskEntity | null> {
+    const task = await this.findById(id, familyId);
     if (!task) return null;
     task.complete();
     return this.update(task);

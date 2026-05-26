@@ -30,9 +30,11 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
     });
   }
 
-  async findById(id: string): Promise<BudgetRecordEntity | null> {
-    const [row] = await this.db.select().from(budgetRecords).where(eq(budgetRecords.id, id));
-    return row ? this.toEntity(row) : null;
+  async findById(id: string, familyId: string): Promise<BudgetRecordEntity | null> {
+    return withFamilyContext(familyId, async (tx) => {
+      const [row] = await tx.select().from(budgetRecords).where(eq(budgetRecords.id, id));
+      return row ? this.toEntity(row) : null;
+    }, this.db);
   }
 
   async findByFamilyId(familyId: string, options?: { type?: TransactionType; categoryId?: string; limit?: number; offset?: number }): Promise<BudgetRecordEntity[]> {
@@ -58,8 +60,10 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.delete(budgetRecords).where(eq(budgetRecords.id, id));
+  async delete(id: string, familyId: string): Promise<void> {
+    return withFamilyContext(familyId, async (tx) => {
+      await tx.delete(budgetRecords).where(eq(budgetRecords.id, id));
+    }, this.db);
   }
 
   async getBalance(familyId: string): Promise<number> {

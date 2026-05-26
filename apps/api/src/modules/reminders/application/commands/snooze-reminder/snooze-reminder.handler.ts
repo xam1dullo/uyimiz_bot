@@ -10,7 +10,7 @@ export class SnoozeReminderHandler {
   constructor(@Inject(REMINDER_REPO) private readonly repo: IReminderRepository) {}
 
   async execute(command: SnoozeReminderCommand): Promise<void> {
-    const reminder = await this.repo.findById(command.reminderId);
+    const reminder = await this.repo.findById(command.reminderId, command.familyId);
     if (!reminder) throw new Error('REMINDER_NOT_FOUND');
     reminder.snooze(command.until);
     await this.repo.update(reminder);

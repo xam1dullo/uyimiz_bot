@@ -7,16 +7,19 @@ import { DeleteReminderHandler } from './application/commands/delete-reminder/de
 import { DrizzleReminderRepository } from './infrastructure/repositories/drizzle-reminder.repository';
 import { ReminderBotUpdate } from './presentation/bot/reminder.update';
 import { ReminderController } from './presentation/http/reminder.controller';
+import { ReminderProcessor } from './application/processors/reminder.processor';
+import { BullModule } from '@nestjs/bull';
+import { QUEUES } from '../../infrastructure/queues/queue.constants';
 
 @Module({
-  imports: [QueueModule],
+  imports: [QueueModule, BullModule.registerQueue({ name: QUEUES.REMINDERS })],
   controllers: [ReminderController],
   providers: [
     CreateReminderHandler,
     SnoozeReminderHandler,
     DeleteReminderHandler,
     { provide: REMINDER_REPO, useClass: DrizzleReminderRepository },
-    ReminderBotUpdate,
+    ReminderBotUpdate, ReminderProcessor,
   ],
   exports: [REMINDER_REPO],
 })

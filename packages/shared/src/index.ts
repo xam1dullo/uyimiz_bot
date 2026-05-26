@@ -59,3 +59,4 @@ export { LIMITS } from './constants/limits';
 // Utils
 export { formatDate, formatTime, formatRelative } from './utils/date';
 export { formatCurrency, parseCurrency } from './utils/currency';
+export * from './errors/result';
