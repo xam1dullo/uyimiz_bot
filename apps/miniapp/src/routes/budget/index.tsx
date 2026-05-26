@@ -73,11 +73,11 @@ export default function BudgetPage() {
           {step === 'type' && (
             <div className="two-grid">
               <button className="choice-card" onClick={() => { setAddType('expense'); setStep('amount'); }}>
-                <div className="icon-box icon-red" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>💸</div>
+                <div className="icon icon-red" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>💸</div>
                 <h3>Xarajat</h3>
               </button>
               <button className="choice-card" onClick={() => { setAddType('income'); setStep('amount'); }}>
-                <div className="icon-box icon-mint" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>💚</div>
+                <div className="icon icon-mint" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>💚</div>
                 <h3>Daromad</h3>
               </button>
             </div>

@@ -14,7 +14,7 @@ export default function SettingsPage() {
           { icon: '👨‍👩‍👧‍👦', title: 'Oila sozlamalari', subtitle: '3 a\'zo', action: 'family' },
         ].map((item) => (
           <div key={item.action} className="list-card" style={{ cursor: 'pointer' }}>
-            <div className="icon-box icon-mint">{item.icon}</div>
+            <div className="icon icon-mint">{item.icon}</div>
             <div className="meta">
               <strong>{item.title}</strong>
               <span>{item.subtitle}</span>

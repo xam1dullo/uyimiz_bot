@@ -42,7 +42,7 @@ export default function RemindersPage() {
         <div className="stack">
           {(reminders as unknown as any[]).map((r: any) => (
             <div key={r.id} className={`list-card${!r.isActive ? ' is-completed' : ''}`}>
-              <div className={`icon-box ${r.isActive ? 'icon-blue' : 'icon-mint'}`}>{r.isActive ? '🔔' : '🔕'}</div>
+              <div className={`icon ${r.isActive ? 'icon-blue' : 'icon-mint'}`}>{r.isActive ? '🔔' : '🔕'}</div>
               <div className="meta">
                 <strong>{r.title}</strong>
                 <span>{new Date(r.scheduledAt).toLocaleString()} · {r.isActive ? 'Faol' : 'O\'chirilgan'}</span>
@@ -52,7 +52,7 @@ export default function RemindersPage() {
         </div>
       ) : (
         <div className="empty-state">
-          <div className="icon-box icon-blue" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>🔔</div>
+          <div className="icon icon-blue" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>🔔</div>
           <p style={{ color: 'var(--muted)', fontSize: 16 }}>Hozircha eslatmalar yo'q</p>
         </div>
       )}

@@ -6,7 +6,7 @@ export function Card({ icon, title, sub, tone = 'mint', after, href }: {
 }) {
   const content = (
     <div className="list-card">
-      <div className={`icon-box icon-${tone}`}>{icon}</div>
+      <div className={`icon icon-${tone}`}>{icon}</div>
       <div className="meta">
         <strong>{title}</strong>
         {sub && <span>{sub}</span>}
@@ -44,7 +44,7 @@ export function Sheet({ title, children, onClose }: { title: string; children: R
 export function EmptyState({ icon, title, action }: { icon: string; title: string; action?: ReactNode }) {
   return (
     <section className="empty-state">
-      <div className="icon-box icon-mint icon-large">{icon}</div>
+      <div className="icon icon-mint icon-large">{icon}</div>
       <p style={{ color: 'var(--muted)', fontSize: 16 }}>{title}</p>
       {action}
     </section>
