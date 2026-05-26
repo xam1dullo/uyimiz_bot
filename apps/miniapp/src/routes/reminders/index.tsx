@@ -38,9 +38,9 @@ export default function RemindersPage() {
         <div className="stack">
           {[1,2,3].map(i => <div key={i} className="skeleton"><div style={{ width: 52, height: 52, borderRadius: 18, float: 'left', marginRight: 14 }} /><div style={{ width: '60%', height: 18, margin: '6px 0 12px' }} /><div style={{ width: '42%', height: 14 }} /></div>)}
         </div>
-      ) : ((reminders as any)?.data ?? reminders ?? [])?.length ? (
+      ) : (reminders as unknown as any[])?.length ? (
         <div className="stack">
-          {((reminders as any)?.data ?? reminders ?? []).map((r: any) => (
+          {(reminders as unknown as any[]).map((r: any) => (
             <div key={r.id} className={`list-card${!r.isActive ? ' is-completed' : ''}`}>
               <div className={`icon-box ${r.isActive ? 'icon-blue' : 'icon-mint'}`}>{r.isActive ? '🔔' : '🔕'}</div>
               <div className="meta">

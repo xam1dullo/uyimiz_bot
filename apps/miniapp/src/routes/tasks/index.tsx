@@ -23,7 +23,7 @@ export default function TasksPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks', familyId] }),
   });
 
-  const tasksArr = (tasks as any)?.data ?? (tasks as any[]) ?? [];
+  const tasksArr = (tasks as unknown as any[]) ?? [];
   const done = tasksArr.filter((t: any) => t.status === 'completed').length;
   const active = tasksArr.length - done;
 

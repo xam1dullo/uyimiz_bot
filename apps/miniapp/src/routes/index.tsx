@@ -14,7 +14,7 @@ export default function Dashboard() {
     queryFn: () => getTasks(familyId, 'active'), enabled: !!familyId,
   });
 
-  const tasksArr = (tasks as any)?.data ?? (tasks as any[]) ?? [];
+  const tasksArr = (tasks as unknown as any[]) ?? [];
 
   return (
     <div style={{ animation: 'fadeIn .3s ease' }}>

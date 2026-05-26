@@ -7,8 +7,18 @@ import RemindersPage from './routes/reminders/index';
 import BirthdaysPage from './routes/birthdays/index';
 import SettingsPage from './routes/settings/index';
 import BottomNav from './components/app/BottomNav';
+import AppTopbar from './components/app/Topbar';
 
-const rootRoute = createRootRoute({ component: () => <><Outlet /><BottomNav /></> });
+function RootLayout() {
+  return (
+    <main className="mobile-shell has-nav">
+      <AppTopbar />
+      <Outlet />
+    </main>
+  );
+}
+
+const rootRoute = createRootRoute({ component: () => <><RootLayout /><BottomNav /></> });
 
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: DashboardPage });
 const budgetRoute = createRoute({ getParentRoute: () => rootRoute, path: '/budget', component: BudgetPage });
