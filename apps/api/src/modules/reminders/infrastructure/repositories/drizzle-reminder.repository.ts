@@ -39,7 +39,7 @@ export class DrizzleReminderRepository implements IReminderRepository {
     return rows.map(this.toEntity);
   }
 
-  async findDue(): Promise<ReminderEntity[]> {
+  async findDue(limit = 100): Promise<ReminderEntity[]> {
     const rows = await this.db.select().from(reminders)
       .where(
         and(
@@ -47,7 +47,9 @@ export class DrizzleReminderRepository implements IReminderRepository {
           lte(reminders.scheduledAt, new Date()),
           isNull(reminders.snoozedUntil),
         ),
-      );
+      )
+      .orderBy(reminders.scheduledAt)
+      .limit(limit);
     return rows.map(this.toEntity);
   }
 

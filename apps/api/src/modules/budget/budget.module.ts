@@ -1,5 +1,6 @@
 import { BUDGET_REPO } from './budget.tokens';
 import { Module, forwardRef } from '@nestjs/common';
+import { CacheModule } from '../../infrastructure/cache/cache.module';
 import { AddRecordHandler } from './application/commands/add-record/add-record.handler';
 import { GetBalanceHandler } from './application/queries/get-balance/get-balance.handler';
 import { GetMonthlySummaryHandler } from './application/queries/get-monthly-summary/get-monthly-summary.handler';
@@ -10,6 +11,7 @@ import { BudgetController } from './presentation/http/budget.controller';
 import { BudgetCategoriesController } from './presentation/http/budget-categories.controller';
 
 @Module({
+  imports: [CacheModule],
   controllers: [BudgetController, BudgetCategoriesController],
   providers: [
     AddRecordHandler,

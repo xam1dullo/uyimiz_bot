@@ -10,4 +10,6 @@ export interface IBudgetRepository {
   getBalance(familyId: string): Promise<number>;
   getMonthlySummary(familyId: string, year: number, month: number): Promise<{ income: number; expense: number }>;
   getCategorySummary(familyId: string, year: number, month: number): Promise<Array<{ categoryId: string; total: number; count: number }>>;
+  /** Combined report: total expense + category breakdown in one round trip */
+  getCategoryReport(familyId: string, year: number, month: number): Promise<{ total: number; categories: Array<{ categoryId: string; total: number; count: number }> }>;
 }

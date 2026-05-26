@@ -96,6 +96,47 @@ export class DrizzleBudgetRepository implements IBudgetRepository {
     });
   }
 
+  async getCategoryReport(familyId: string, year: number, month: number): Promise<{ total: number; categories: Array<{ categoryId: string; total: number; count: number }> }> {
+    return withFamilyContext(familyId, async (tx) => {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0, 23, 59, 59);
+
+      // Single CTE query: month total + per-category breakdown
+      const result = await tx.execute(sql`
+        WITH month_data AS (
+          SELECT category_id, amount, type
+          FROM budget_records
+          WHERE family_id = ${familyId}
+            AND tx_date >= ${startDate.toISOString()}::timestamp
+            AND tx_date <= ${endDate.toISOString()}::timestamp
+        ),
+        total AS (
+          SELECT COALESCE(SUM(amount) FILTER (WHERE type = 'expense'), 0) as total_expense
+          FROM month_data
+        )
+        SELECT 
+          category_id, 
+          SUM(amount) as total, 
+          COUNT(*) as count,
+          (SELECT total_expense FROM total) as overall_total
+        FROM month_data
+        WHERE type = 'expense'
+        GROUP BY category_id
+        ORDER BY total DESC
+      `);
+
+      const rows = result as Array<Record<string, unknown>>;
+      const total = rows.length > 0 ? Number(rows[0]!.overall_total) : 0;
+      const categories = rows.map((r) => ({
+        categoryId: String(r.category_id ?? ''),
+        total: Number(r.total),
+        count: Number(r.count),
+      }));
+
+      return { total, categories };
+    });
+  }
+
   async getCategorySummary(familyId: string, year: number, month: number): Promise<Array<{ categoryId: string; total: number; count: number }>> {
     return withFamilyContext(familyId, async (tx) => {
       const startDate = new Date(year, month - 1, 1);

@@ -28,7 +28,10 @@ export class DrizzleBirthdayRepository implements IBirthdayRepository {
   }
 
   async findByFamilyId(familyId: string): Promise<BirthdayEntity[]> {
-    const rows = await this.db.select().from(birthdays).where(eq(birthdays.familyId, familyId));
+    const rows = await this.db.select().from(birthdays)
+      .where(eq(birthdays.familyId, familyId))
+      .orderBy(birthdays.birthDate)
+      .limit(200);
     return rows.map((r) => this.toEntity(r));
   }
 
