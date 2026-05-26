@@ -1,12 +1,12 @@
 // ─── Router (TanStack Router) ───
 import { createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
-import { DashboardPage } from './routes/index';
-import { BudgetPage } from './routes/budget/index';
-import { TasksPage } from './routes/tasks/index';
-import { RemindersPage } from './routes/reminders/index';
-import { BirthdaysPage } from './routes/birthdays/index';
-import { SettingsPage } from './routes/settings/index';
-import { BottomNav } from './components/app/BottomNav';
+import DashboardPage from './routes/index';
+import BudgetPage from './routes/budget/index';
+import TasksPage from './routes/tasks/index';
+import RemindersPage from './routes/reminders/index';
+import BirthdaysPage from './routes/birthdays/index';
+import SettingsPage from './routes/settings/index';
+import BottomNav from './components/app/BottomNav';
 
 const rootRoute = createRootRoute({ component: () => <><Outlet /><BottomNav /></> });
 

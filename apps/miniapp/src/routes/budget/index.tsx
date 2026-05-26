@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBalance, addBudgetRecord, getBudgetCategories } from '../lib/api';
+import { getBalance, addBudgetRecord, getBudgetCategories } from '../../lib/api';
 
 export default function BudgetPage() {
   const familyId = localStorage.getItem('familyId') ?? 'unknown';

@@ -144,7 +144,7 @@ function buildBirthDate(day: number, month: number, year: number) {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-export function BirthdaysPage() {
+export default function BirthdaysPage() {
   const familyId = useFamilyId();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);

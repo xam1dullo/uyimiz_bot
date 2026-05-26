@@ -81,9 +81,9 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
-      ) : tasks?.length ? (
+      ) : ((tasks as any)?.data ?? tasks ?? [])?.length ? (
         <div className="stack">
-          {tasks.map((t: any) => (
+          {((tasks as any)?.data ?? tasks ?? []).map((t: any) => (
             <ListCard
               key={t.id}
               title={t.title}

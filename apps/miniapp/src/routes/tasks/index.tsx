@@ -28,8 +28,9 @@ export default function TasksPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks', familyId] }),
   });
 
-  const stats = tasks?.length
-    ? { total: tasks.length, done: tasks.filter((t: any) => t.status === 'completed').length }
+  const tasksArr = (tasks as any)?.data ?? tasks ?? [];
+  const stats = tasksArr.length
+    ? { total: tasksArr.length, done: tasksArr.filter((t: any) => t.status === 'completed').length }
     : { total: 0, done: 0 };
 
   return (
@@ -66,9 +67,9 @@ export default function TasksPage() {
             </div>
           ))}
         </div>
-      ) : tasks?.length ? (
+      ) : (tasksArr as any[]).length ? (
         <div className="stack">
-          {tasks.map((t: any) => (
+          {(tasksArr as any[]).map((t: any) => (
             <div key={t.id} className={`list-card${t.status === 'overdue' ? ' is-overdue' : ''}${t.status === 'completed' ? ' is-completed' : ''}`}>
               <button
                 className="check"
