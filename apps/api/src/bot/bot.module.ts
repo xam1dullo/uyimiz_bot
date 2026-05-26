@@ -22,7 +22,6 @@ import { MenuRegistry } from './menus/menu.registry';
 
 // Wizards
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
-import { TaskAddWizard } from '../modules/tasks/presentation/bot/task.wizard';
 import { BudgetBotUpdate } from '../modules/budget/presentation/bot/budget.update';
 
 // Dependencies
@@ -54,7 +53,7 @@ import { TasksModule } from '../modules/tasks/tasks.module';
   providers: [
     BotUpdate, ActionRouter, MenuRegistry,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
-    BudgetAddWizard, BudgetBotUpdate, TaskAddWizard,
+    BudgetAddWizard, BudgetBotUpdate,
   ],
   exports: [MenuRegistry],
 })
