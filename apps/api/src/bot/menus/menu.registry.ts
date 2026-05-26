@@ -35,15 +35,16 @@ export class MenuRegistry {
 
     const markup = menu.build(ctx, this.i18n, this.kb);
     const l = this.i18n.getUserLang(ctx);
+    const text = this.i18n.t(l, `menu.${id}`);
 
     const cbMsg = (ctx as any).callbackQuery?.message;
     if (cbMsg) {
       try {
-        await ctx.editMessageText(this.i18n.t(l, `menu.${id}`), markup);
+        await ctx.editMessageText(text, { reply_markup: markup.inline_keyboard ? markup : { inline_keyboard: [] } });
         return;
       } catch { /* fall through */ }
     }
-    await ctx.reply(this.i18n.t(l, `menu.${id}`), markup);
+    await ctx.reply(text, markup.inline_keyboard ? markup : undefined);
   }
 
   async routeCallback(data: string, ctx: Context): Promise<boolean> {

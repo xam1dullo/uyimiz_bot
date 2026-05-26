@@ -189,13 +189,18 @@ export class OnboardingWizard {
   }
 
   private async showMainMenu(ctx: any, l: string): Promise<void> {
-    const { Markup } = require('telegraf');
     await ctx.reply(
       '📋 Asosiy menyu:',
-      Markup.keyboard([
-        ['💰 Byudjet', '📋 Yumushlar'],
-        ['🔔 Eslatmalar', '⚙️ Sozlamalar'],
-      ]).resize(),
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '💰 Byudjet', callback_data: 'menu:budget:open' }],
+            [{ text: '📋 Yumushlar', callback_data: 'menu:tasks:open' }],
+            [{ text: '🔔 Eslatmalar', callback_data: 'menu:reminders:open' }],
+            [{ text: '⚙️ Sozlamalar', callback_data: 'menu:settings:open' }],
+          ],
+        },
+      },
     );
   }
 

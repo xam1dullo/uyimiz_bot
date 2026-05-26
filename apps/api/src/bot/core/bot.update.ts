@@ -25,6 +25,8 @@ export class BotUpdate {
     this.menus.register(require('../menus/family.menu').familyMenu);
     this.menus.register(require('../menus/budget.menu').budgetMenu);
     this.menus.register(require('../menus/settings.menu').settingsMenu);
+    this.menus.register(require('../menus/tasks.menu').tasksMenu);
+    this.menus.register(require('../menus/reminders.menu').remindersMenu);
   }
 
   @Command('menu')
@@ -50,32 +52,56 @@ export class BotUpdate {
 
   private async handleAction(data: string, ctx: Context) {
     const l = this.i18n.getUserLang(ctx);
+    const fid = (ctx as any).session?.familyId;
 
+    // ─── Onboarding ───
     if (data === 'action:start_onboarding') {
       await (ctx as any).scene?.enter('ONBOARDING');
       return;
     }
 
+    // ─── Budget ───
     if (data === 'action:budget_income' || data === 'action:budget_expense') {
       await (ctx as any).scene?.enter('BUDGET_ADD');
       return;
     }
 
     if (data === 'action:budget_balance') {
-      const fid = (ctx as any).session?.familyId;
-      if (!fid) {
-        await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family'));
-        return;
-      }
-      // Progressive: loading → result
-      await this.stream.stream(ctx, [
-        { emoji: '💰', placeholder: this.i18n.t(l, 'budget.balance.calculating'), compute: async () => '💰 Balans: hisoblanmoqda...' },
-      ]);
+      await this.stream.editOrReply(ctx, '💰 Balans: ' + this.i18n.t(l, 'menu.coming_soon'));
       return;
     }
 
-    // Generic: coming soon with emoji
-    await this.stream.editOrReply(ctx, `🚧 ${this.i18n.t(l, 'menu.coming_soon')}`);
+    if (data === 'action:budget_report') {
+      await this.stream.editOrReply(ctx, '📊 Hisobot: ' + this.i18n.t(l, 'menu.coming_soon'));
+      return;
+    }
+
+    // ─── Tasks ───
+    if (data === 'action:task_add') {
+      await this.stream.editOrReply(ctx, '📝 Yangi yumush: ' + this.i18n.t(l, 'menu.coming_soon'));
+      return;
+    }
+
+    if (data === 'action:task_list') {
+      if (!fid) { await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family')); return; }
+      await this.stream.editOrReply(ctx, '📋 Yumushlar: ' + this.i18n.t(l, 'menu.coming_soon'));
+      return;
+    }
+
+    // ─── Reminders ───
+    if (data === 'action:reminder_add') {
+      await this.stream.editOrReply(ctx, '🔔 Yangi eslatma: ' + this.i18n.t(l, 'menu.coming_soon'));
+      return;
+    }
+
+    if (data === 'action:reminder_list') {
+      if (!fid) { await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family')); return; }
+      await this.stream.editOrReply(ctx, '📋 Eslatmalar: ' + this.i18n.t(l, 'menu.coming_soon'));
+      return;
+    }
+
+    // Generic
+    await this.stream.editOrReply(ctx, '🚧 ' + this.i18n.t(l, 'menu.coming_soon'));
   }
 
   // Removed @On('text') — was blocking @Start() handler chain
