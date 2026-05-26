@@ -18,7 +18,6 @@ import { InlineHandler } from './handlers/inline.handler';
 import { PollHandler } from './handlers/poll.handler';
 import { ChatMemberHandler } from './handlers/chat-member.handler';
 import { PhotoHandler } from './handlers/photo.handler';
-import { AdminHandler } from './handlers/admin.handler';
 
 // Menus
 import { MenuRegistry } from './menus/menu.registry';
@@ -31,15 +30,9 @@ import { settingsMenu } from './menus/settings.menu';
 import { OnboardingWizard } from '../modules/onboarding/onboarding.wizard';
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
 
-// Module handlers
-import { BirthdayBotUpdate } from '../modules/birthdays/presentation/bot/birthday.update';
-import { MedicationBotUpdate } from '../modules/medications/presentation/bot/medication.update';
-
 // Dependencies
 import { FamilyModule } from '../modules/family/family.module';
 import { BudgetModule } from '../modules/budget/budget.module';
-import { BirthdaysModule } from '../modules/birthdays/birthdays.module';
-import { MedicationsModule } from '../modules/medications/medications.module';
 
 @Module({
   imports: [
@@ -56,14 +49,12 @@ import { MedicationsModule } from '../modules/medications/medications.module';
         };
       },
     }),
-    FamilyModule, BudgetModule, BirthdaysModule, MedicationsModule,
+    FamilyModule, BudgetModule,
   ],
   providers: [
     BotUpdate, KeyboardFactory, MenuRegistry, StreamingService, MessageManager, BotAnalytics,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
-    AdminHandler,
     OnboardingWizard, BudgetAddWizard,
-    BirthdayBotUpdate, MedicationBotUpdate,
     { provide: 'MAIN_MENU', useValue: mainMenu },
     { provide: 'FAMILY_MENU', useValue: familyMenu },
     { provide: 'BUDGET_MENU', useValue: budgetMenu },
