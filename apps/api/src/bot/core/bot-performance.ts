@@ -11,7 +11,7 @@ export class BotPerformance {
 
   /** Batch reply: edit message if possible, else send new */
   static async smartReply(ctx: Context, text: string, extra?: any): Promise<any> {
-    const callbackQuery = (ctx as any).callbackQuery;
+    const callbackQuery = ctx.callbackQuery;
     if (callbackQuery?.message) {
       try {
         return await ctx.editMessageText(text, extra);
@@ -26,7 +26,7 @@ export class BotPerformance {
   static async autoDelete(ctx: Context, delayMs = 30_000): Promise<void> {
     setTimeout(async () => {
       try {
-        if ((ctx as any).callbackQuery?.message) {
+        if (ctx.callbackQuery?.message) {
           await ctx.deleteMessage();
         }
       } catch { /* message might already be deleted */ }

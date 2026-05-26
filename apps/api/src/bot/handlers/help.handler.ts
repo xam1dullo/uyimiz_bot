@@ -2,6 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../core/bot-context.types';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { KeyboardFactory } from '../core/keyboard.factory';
 import { BotPerformance } from '../core/bot-performance';
@@ -16,7 +17,7 @@ export class HelpHandler {
   ) {}
 
   @Help()
-  async handle(@Ctx() ctx: Context) {
+  async handle(@Ctx() ctx: BotContext) {
     const l = this.i18n.getUserLang(ctx);
     await BotPerformance.withTyping(ctx, 'typing', async () => {
       await ctx.reply(this.i18n.t(l, 'common.help_text'), {

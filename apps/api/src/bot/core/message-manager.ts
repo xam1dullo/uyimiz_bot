@@ -65,7 +65,7 @@ export class MessageManager {
 
     // Send new and track
     const msg = await ctx.reply(text, extra);
-    const msgId = (msg as any).message_id;
+    const msgId = msg.message_id;
     
     this.messages.set(k, {
       chatId: ctx.chat!.id,

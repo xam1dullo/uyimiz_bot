@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../../../../bot/core/bot-context.types';
 import { CreateFamilyHandler } from '../../application/commands/create-family/create-family.handler';
 import { JoinFamilyHandler } from '../../application/commands/join-family/join-family.handler';
 import { GetFamilyHandler } from '../../application/queries/get-family/get-family.handler';
@@ -23,7 +24,7 @@ export class FamilyBotUpdate {
   }
 
   @Command('create_family')
-  async create(@Ctx() ctx: Context) {
+  async create(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
     try {
       const telegramId = String(ctx.from?.id);
@@ -47,14 +48,14 @@ export class FamilyBotUpdate {
   }
 
   @Command('join_family')
-  async join(@Ctx() ctx: Context) {
+  async join(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
     await ctx.reply(this.i18n.t(l, 'onboarding.code.enter'));
     ctx.session = { ...ctx.session, awaitingFamilyCode: true };
   }
 
   @Command('my_family')
-  async myFamily(@Ctx() ctx: Context) {
+  async myFamily(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
     try {
       const telegramId = String(ctx.from?.id);

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../../../../bot/core/bot-context.types';
 import { AddRecordHandler } from '../../application/commands/add-record/add-record.handler';
 import { GetBalanceHandler } from '../../application/queries/get-balance/get-balance.handler';
 import { GetMonthlySummaryHandler } from '../../application/queries/get-monthly-summary/get-monthly-summary.handler';
@@ -20,14 +21,14 @@ export class BudgetBotUpdate {
   ) {}
 
   private lang(ctx: Context): string {
-    return (ctx as any).session?.lang ?? 'uz';
+    return ctx.session.lang ?? 'uz';
   }
 
   @Command('balance')
-  async balance(@Ctx() ctx: Context) {
+  async balance(@Ctx() ctx: BotContext) {
     try {
       const l = this.lang(ctx);
-      const familyId = (ctx as any).session?.familyId;
+      const familyId = ctx.session.familyId;
       if (!familyId) {
         await ctx.reply(this.i18n.t(l, 'budget.no_family'));
         return;
@@ -42,9 +43,9 @@ export class BudgetBotUpdate {
   }
 
   @Command('income')
-  async income(@Ctx() ctx: Context) {
+  async income(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
-    const familyId = (ctx as any).session?.familyId;
+    const familyId = ctx.session.familyId;
     if (!familyId) {
       await ctx.reply(this.i18n.t(l, 'budget.no_family'));
       return;
@@ -63,14 +64,14 @@ export class BudgetBotUpdate {
   }
 
   @Action('action:budget_balance')
-  async onBalanceAction(@Ctx() ctx: Context) {
-    await (ctx as any).answerCbQuery();
+  async onBalanceAction(@Ctx() ctx: BotContext) {
+    await ctx.answerCbQuery();
     return this.balance(ctx);
   }
 
   @Action('action:budget_report')
-  async onReportAction(@Ctx() ctx: Context) {
-    await (ctx as any).answerCbQuery();
+  async onReportAction(@Ctx() ctx: BotContext) {
+    await ctx.answerCbQuery();
     return this.income(ctx);
   }
 }

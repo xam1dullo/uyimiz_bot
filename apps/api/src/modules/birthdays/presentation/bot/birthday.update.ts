@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Ctx, Update, Command } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../../../../bot/core/bot-context.types';
 import { ListBirthdaysHandler } from '../../application/queries/list/list-birthdays.handler';
 import { CreateBirthdayHandler } from '../../application/commands/create/create-birthday.handler';
 import { I18nService } from '../../../../infrastructure/i18n/i18n.service';
@@ -17,13 +18,13 @@ export class BirthdayBotUpdate {
   ) {}
 
   private lang(ctx: Context): string {
-    return (ctx as any).session?.lang ?? 'uz';
+    return ctx.session.lang ?? 'uz';
   }
 
   @Command('birthdays')
-  async list(@Ctx() ctx: Context) {
+  async list(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
-    const familyId = (ctx as any).session?.familyId;
+    const familyId = ctx.session.familyId;
     if (!familyId) {
       await ctx.reply(this.i18n.t(l, 'budget.no_family'));
       return;

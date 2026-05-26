@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../core/bot-context.types';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { Ctx, InlineQuery, Update } from 'nestjs-telegraf';
 
@@ -9,8 +10,8 @@ export class InlineHandler {
   constructor(private readonly i18n: I18nService) {}
 
   @InlineQuery(/.*/)
-  async handle(@Ctx() ctx: Context) {
-    const query = (ctx as any).inlineQuery?.query ?? '';
+  async handle(@Ctx() ctx: BotContext) {
+    const query = ctx.inlineQuery?.query ?? '';
     const l = this.i18n.getUserLang(ctx);
 
     // Provide quick actions via inline mode

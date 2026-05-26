@@ -21,7 +21,7 @@ export const settingsMenu: MenuDefinition = {
     if (action === 'lang') {
       const lang = params[0] as 'uz' | 'ru' | 'en';
       if (lang) {
-        (ctx as any).session = { ...(ctx as any).session, lang };
+        ctx.session = { ...ctx.session, lang };
         const msgs: Record<string, string> = {
           uz: '✅ Til O\'zbekchaga o\'zgartirildi',
           ru: '✅ Язык изменён на Русский',

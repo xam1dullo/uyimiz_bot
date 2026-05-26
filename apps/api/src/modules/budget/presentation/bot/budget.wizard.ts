@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Wizard, WizardStep, Ctx, Hears } from 'nestjs-telegraf';
 import type { WizardContext } from 'telegraf/scenes';
+import type { WizardState } from '../../../../bot/core/bot-context.types';
 import { AddRecordHandler } from '../../application/commands/add-record/add-record.handler';
 import { CategorySystem } from './category.system';
 import { I18nService } from '../../../../infrastructure/i18n/i18n.service';
@@ -19,7 +20,7 @@ export class BudgetAddWizard {
   ) {}
 
   private lang(ctx: WizardContext): string {
-    return (ctx as any).session?.lang ?? 'uz';
+    return (ctx.session as { lang?: string }).lang ?? 'uz';
   }
 
   @WizardStep(0)
@@ -36,9 +37,9 @@ export class BudgetAddWizard {
 
   @WizardStep(1)
   async stepAmount(@Ctx() ctx: WizardContext) {
-    const data = (ctx as any).callbackQuery?.data;
+    const data = (ctx.callbackQuery as { data: string })?.data;
     if (data?.startsWith('wiz:cat:')) {
-      (ctx.wizard as any).state.categoryId = data.split(':')[2];
+      (ctx.wizard.state as { categoryId?: string }).categoryId = data.split(':')[2];
       await ctx.answerCbQuery();
       const l = this.lang(ctx);
       await ctx.editMessageText(this.i18n.t(l, 'budget.enter_amount'));
@@ -49,21 +50,21 @@ export class BudgetAddWizard {
   @WizardStep(2)
   async stepProcess(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
-    const amount = Number((ctx as any).message?.text?.replace(/[^0-9]/g, ''));
+    const amount = Number((ctx.message as { text: string })?.text?.replace(/[^0-9]/g, ''));
     if (!amount || amount <= 0) {
       await ctx.reply(this.i18n.t(l, 'budget.invalid_amount'));
       return;
     }
 
-    const state = (ctx.wizard as any).state;
+    const state = ctx.wizard.state as { categoryId?: string; [k: string]: unknown };
     const cat = this.categories.getById(state.categoryId ?? '');
-    const familyId = (ctx as any).session?.familyId ?? 'unknown';
+    const familyId = (ctx as any).session.familyId ?? 'unknown';
 
     await this.stream.stream(ctx as any, [
       { emoji: '💾', placeholder: 'Saqlanmoqda...', compute: async () => {
         await this.addRecord.execute({
           familyId, type: cat?.type ?? 'expense',
-          categoryId: state.categoryId,
+          categoryId: state.categoryId ?? '',
           amount, createdBy: String(ctx.from?.id),
         });
         return this.i18n.t(l, 'budget.saved')

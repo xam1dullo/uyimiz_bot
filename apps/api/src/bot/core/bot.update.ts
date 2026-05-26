@@ -4,6 +4,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import type { BotContext } from './bot-context.types';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { MenuRegistry } from '../menus/menu.registry';
 import { ActionRouter } from './action-router';
@@ -28,14 +29,14 @@ export class BotUpdate implements OnModuleInit {
   }
 
   @Command('menu')
-  async menu(@Ctx() ctx: Context) {
+  async menu(@Ctx() ctx: BotContext) {
     await this.menus.render('main', ctx);
   }
 
   /** All callback_data routes through ActionRouter */
   @Action(/.*/)
-  async onAction(@Ctx() ctx: Context) {
-    const data: string = (ctx as any).callbackQuery?.data;
+  async onAction(@Ctx() ctx: BotContext) {
+    const data = (ctx.callbackQuery as { data: string })?.data;
     if (!data) return;
 
     // Answer callback FIRST (Telegram timeout = 0.5s)

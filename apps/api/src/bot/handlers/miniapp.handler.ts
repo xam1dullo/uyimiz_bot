@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../core/bot-context.types';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
 import { KeyboardFactory } from '../core/keyboard.factory';
 import { Command, Ctx, Update } from 'nestjs-telegraf';
@@ -13,7 +14,7 @@ export class MiniAppHandler {
   ) {}
 
   @Command('app')
-  async openMiniApp(@Ctx() ctx: Context) {
+  async openMiniApp(@Ctx() ctx: BotContext) {
     const l = this.i18n.getUserLang(ctx);
     const miniAppUrl = process.env.MINIAPP_URL ?? 'https://t.me/uyimiz_bot/app';
 

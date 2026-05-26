@@ -37,7 +37,7 @@ export class MenuRegistry {
     const l = this.i18n.getUserLang(ctx);
     const text = this.i18n.t(l, `menu.${id}`);
 
-    const cbMsg = (ctx as any).callbackQuery?.message;
+    const cbMsg = ctx.callbackQuery?.message;
     if (cbMsg) {
       try {
         await ctx.editMessageText(text, { reply_markup: markup.inline_keyboard ? markup : { inline_keyboard: [] } });

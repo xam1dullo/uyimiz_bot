@@ -9,8 +9,15 @@
 
 | Term | Definition |
 |------|-----------|
-| **Family (Oila)** | RLS boundary. Group of users sharing budget, tasks, reminders. Has name + unique invite code. |
+| **Family (Oila)** | Tenant root. Group of users sharing budget, tasks, reminders. Has name + unique invite code. |
+| **Family Isolation** | Non-negotiable invariant: family-scoped data is visible and mutable only inside the current family context. |
+| **Family Context** | The current tenant context for one request, command, wizard step, job, or worker action. |
+| **Tenant-Owned Data** | Data that belongs to exactly one Family. It must have a required family reference and must not use nullable tenant fields. |
+| **Orphan Tenant Row** | Tenant-owned row without a Family. Invalid state; migrations must not silently assign it to a Family. |
 | **Family Member** | Telegram user in one family. Role: `admin` | `parent` | `child` | `guest`. |
+| **Cross-Family Lookup** | Identity lookup before a family context exists. Allowed only to resolve a Telegram user's membership during onboarding/auth, not to read family-owned data. |
+| **Pre-Context Flow** | Controlled onboarding/auth flow that runs before a Family Context exists. It may resolve identity or invite data, then must enter a Family Context before reading or mutating family-owned data. |
+| **Platform Audit Event** | Audit event about platform operation rather than one Family. It belongs outside family-domain audit logs. |
 | **Invite Code** | Short code for joining a family. One-time use, time-limited. |
 | **Onboarding** | FSM wizard: language → has-family? → enter/create → menu. |
 

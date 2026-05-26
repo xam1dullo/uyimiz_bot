@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Ctx, Update, Command } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import type { BotContext } from '../../../../bot/core/bot-context.types';
 import { I18nService } from '../../../../infrastructure/i18n/i18n.service';
 import { CreateReminderHandler } from '../../application/commands/create-reminder/create-reminder.handler';
 import { REMINDER_REPO } from '../../reminders.tokens';
@@ -19,13 +20,13 @@ export class ReminderBotUpdate {
   ) {}
 
   private lang(ctx: Context): string {
-    return (ctx as any).session?.lang ?? 'uz';
+    return ctx.session.lang ?? 'uz';
   }
 
   @Command('reminders')
-  async list(@Ctx() ctx: Context) {
+  async list(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
-    const familyId = (ctx as any).session?.familyId;
+    const familyId = ctx.session.familyId;
     if (!familyId) {
       await ctx.reply(this.i18n.t(l, 'budget.no_family'));
       return;
@@ -42,7 +43,7 @@ export class ReminderBotUpdate {
   }
 
   @Command('add_reminder')
-  async add(@Ctx() ctx: Context) {
+  async add(@Ctx() ctx: BotContext) {
     const l = this.lang(ctx);
     await ctx.reply(this.i18n.t(l, 'reminders.add_prompt'));
   }

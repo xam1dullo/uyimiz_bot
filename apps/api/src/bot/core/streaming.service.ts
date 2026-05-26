@@ -4,6 +4,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import type { Context } from 'telegraf';
+import type { BotContext } from './bot-context.types';
 
 export interface StreamStep {
   /** Emoji for typing indicator */
@@ -22,7 +23,7 @@ export class StreamingService {
    * Progressive streaming: show each step as it completes.
    * User sees: "🔍 Qidirilmoqda..." → "🔍 Topildi: 5 ta" → "📊 Hisoblanmoqda..." → "✅ Natija: ..."
    */
-  async stream(ctx: Context, steps: StreamStep[]): Promise<string> {
+  async stream(ctx: Context | BotContext, steps: StreamStep[]): Promise<string> {
     let messageId: number | undefined;
     let finalResult = '';
 
@@ -36,7 +37,7 @@ export class StreamingService {
       // First step: send new message
       if (!messageId) {
         const msg = await ctx.reply(`${step.emoji} ${step.placeholder}...`);
-        messageId = (msg as any).message_id;
+        messageId = msg.message_id;
       } else {
         // Update existing message
         await ctx.telegram.editMessageText(
@@ -65,11 +66,11 @@ export class StreamingService {
    * Loading with progress: show skeleton → fill in details
    * Pattern: "⏳ Yuklanmoqda..." → add lines one by one
    */
-  async progressiveReveal(ctx: Context, title: string, lines: () => AsyncGenerator<string>): Promise<void> {
+  async progressiveReveal(ctx: Context | BotContext, title: string, lines: () => AsyncGenerator<string>): Promise<void> {
     await ctx.sendChatAction('typing').catch(() => {});
     
     const msg = await ctx.reply(`⏳ ${title}\n\n▬▬▬▬▬▬▬▬`);
-    const messageId = (msg as any).message_id;
+    const messageId = msg.message_id;
     let content = '';
 
     for await (const line of lines()) {
@@ -97,8 +98,8 @@ export class StreamingService {
    * Safe edit: try to edit, fallback to reply.
    * Updates existing message instead of sending new one.
    */
-  async editOrReply(ctx: Context, text: string, extra?: any): Promise<void> {
-    const cbMsg = (ctx as any).callbackQuery?.message;
+  async editOrReply(ctx: Context | BotContext, text: string, extra?: any): Promise<void> {
+    const cbMsg = ctx.callbackQuery?.message;
     
     if (cbMsg?.message_id) {
       try {
