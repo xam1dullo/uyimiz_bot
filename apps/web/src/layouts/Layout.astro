@@ -1,34 +1,80 @@
 ---
-// ─── Main Layout ───
+export interface Props { title?: string; lang?: string }
+const { title = '@uyimiz', lang = 'uz' } = Astro.props;
 ---
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Uyimiz — Oilaviy boshqaruv platformasi</title>
-  <meta name="description" content="Oilangizning kundalik hayotini Telegram orqali boshqaring: byudjet, yumushlar, eslatmalar, sog'liq va tug'ilgan kunlar." />
-</head>
-<body class="bg-white text-gray-900">
-  <header class="border-b">
-    <nav class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <a href="/" class="text-xl font-bold text-indigo-600">🏠 Uyimiz</a>
-      <div class="flex gap-6 text-sm font-medium">
-        <a href="/uz/features">Imkoniyatlar</a>
-        <a href="/uz/pricing">Narxlar</a>
-        <a href="/uz/docs">Hujjatlar</a>
-        <a href="/uz/blog">Blog</a>
-        <a href="https://t.me/uyimiz_bot" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg">Boshlash</a>
-      </div>
-    </nav>
-  </header>
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#55c77a" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style is:global>
+      :root {
+        --bg: #f7faf8; --bg-soft: #edf9f2; --surface: #ffffff; --surface-soft: #f0f7f3;
+        --surface-mint: #effbf4; --text: #203547; --text-soft: #31485a; --muted: #82919d;
+        --line: #e4edf0; --mint: #55c77a; --mint-strong: #26bf69; --mint-soft: #dff7e9;
+        --red: #ef6461; --red-soft: #fff0ef; --blue: #7d8ff4; --blue-soft: #eef1ff;
+        --purple: #9b6df1; --purple-soft: #f3edff; --yellow: #f6bd4a; --yellow-soft: #fff6dc;
+        --shadow: 0 24px 80px rgba(24,49,73,.12); --shadow-soft: 0 12px 38px rgba(28,56,78,.08);
+        --radius-xl: 34px; --radius-lg: 28px; --radius-md: 22px; --max-domain: 1120px;
+      }
 
-  <main>
-    <slot />
-  </main>
+      [data-theme="dark"] {
+        --bg: #0b141b; --bg-soft: #101d26; --surface: #111f29; --surface-soft: #162a35;
+        --surface-mint: #132b22; --text: #f4f8f7; --text-soft: #dbe6e4; --muted: #9ba8ae;
+        --line: #263843; --mint: #62d286; --red: #ff7676; --red-soft: #371b1f;
+        --blue: #91a0ff; --blue-soft: #1c2648; --shadow: 0 28px 90px rgba(0,0,0,.46); --shadow-soft: 0 14px 44px rgba(0,0,0,.28);
+      }
 
-  <footer class="border-t mt-20 py-8 text-center text-sm text-gray-500">
-    <p>© 2026 Uyimiz. Barcha huquqlar himoyalangan. Telegram orqali ishlaydi.</p>
-  </footer>
-</body>
+      * { box-sizing: border-box; }
+      body { min-height: 100vh; margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: var(--text); background: radial-gradient(circle at 8% -8%, rgba(85,199,122,.22), transparent 34%), radial-gradient(circle at 108% 0%, rgba(125,143,244,.14), transparent 32%), linear-gradient(180deg, var(--bg), var(--bg-soft)); }
+
+      .domain-shell { width: min(var(--max-domain), 100%); margin: 0 auto; padding: 32px 20px 72px; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 60px; }
+      .brand { display: inline-flex; align-items: center; gap: 9px; color: var(--mint); font-weight: 950; font-size: 20px; text-decoration: none; }
+      .logo-mark { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 14px; background: var(--mint); color: white; box-shadow: 0 14px 28px rgba(85,199,122,.34); font-weight: 950; font-size: 16px; }
+      .nav-links { display: flex; gap: 8px; align-items: center; }
+      .nav-links a, .nav-cta { padding: 11px 14px; border-radius: 999px; color: var(--muted); font-weight: 850; text-decoration: none; }
+      .nav-cta { background: var(--mint); color: white !important; box-shadow: 0 14px 34px rgba(85,199,122,.32); }
+      .hero { text-align: center; padding: 60px 0; }
+      .hero h1 { font-size: clamp(44px, 6vw, 72px); font-weight: 950; letter-spacing: -2px; line-height: 1.02; margin: 0 0 18px; }
+      .hero p { font-size: 20px; color: var(--muted); max-width: 600px; margin: 0 auto 30px; line-height: 1.5; }
+      .button { min-height: 52px; border: 0; border-radius: 20px; padding: 14px 24px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-weight: 920; text-decoration: none; font-size: 17px; cursor: pointer; }
+      .button.primary { background: var(--mint); color: white; box-shadow: 0 18px 44px rgba(85,199,122,.34); }
+      .button.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+      .button-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 60px 0; }
+      .feature-card { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--surface); box-shadow: var(--shadow-soft); }
+      .feature-card:hover { border-color: rgba(85,199,122,.32); }
+      .feature-card h3 { font-size: 18px; font-weight: 920; margin: 0 0 8px; }
+      .feature-card p { color: var(--muted); margin: 0; line-height: 1.5; }
+      .feature-card .icon { font-size: 32px; margin-bottom: 14px; display: block; }
+      footer { text-align: center; color: var(--muted); padding: 40px 0; font-size: 14px; }
+      @media (max-width: 820px) { .feature-grid { grid-template-columns: 1fr 1fr; } .hero { padding: 30px 0; } }
+      @media (max-width: 430px) { .feature-grid { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="domain-shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <span class="logo-mark">u</span>
+          <span>@uyimiz</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/uz/features">Xususiyatlar</a>
+          <a href="/uz/pricing">Narxlar</a>
+          <a href="/ru/">🇷🇺</a>
+          <a href="/en/">🇬🇧</a>
+          <a class="nav-cta" href="https://t.me/uyimiz_bot">🤖 Botni ochish</a>
+        </nav>
+      </header>
+      <slot />
+      <footer>© 2026 @uyimiz. Barcha huquqlar himoyalangan.</footer>
+    </div>
+  </body>
 </html>

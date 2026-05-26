@@ -482,3 +482,58 @@ echo "Design tokens + CSS migrated ✅"
   font-weight: 900;
   text-decoration: none;
 }
+
+/* ─── Premium: skeleton-card, switch, progress, stepper ─── */
+.skeleton-card {
+  min-height: 92px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+.skeleton-card i, .skeleton-card b, .skeleton-card span {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--surface-soft), var(--line), var(--surface-soft));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+.skeleton-card i { width: 52px; height: 52px; border-radius: 18px; float: left; margin-right: 14px; }
+.skeleton-card b { width: 60%; height: 18px; margin: 6px 0 12px; }
+.skeleton-card span { width: 42%; height: 14px; }
+
+.switch { width: 62px; height: 36px; padding: 4px; border-radius: 999px; background: var(--mint); display: block; }
+.switch i { display: block; width: 28px; height: 28px; margin-left: auto; border-radius: 50%; background: white; }
+
+.progress { height: 9px; margin-top: 10px; border-radius: 999px; background: var(--surface-soft); overflow: hidden; }
+.progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), #8be5a6); }
+
+.stepper { height: 10px; border-radius: 999px; background: var(--surface-soft); overflow: hidden; margin-bottom: 18px; }
+.stepper span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), #8be5a6); }
+
+.report-row { padding: 16px; display: flex; align-items: center; gap: 14px; }
+
+.donut { width: 218px; height: 218px; margin: 8px auto; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--blue) 0 38%, rgba(239,100,97,.25) 38% 63%, var(--mint-soft) 63% 82%, var(--surface-soft) 82% 100%); }
+.donut > div { width: 138px; height: 138px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); text-align: center; }
+.donut strong { display: block; font-size: 30px; font-weight: 950; }
+.donut span { display: block; color: var(--muted); font-weight: 800; }
+
+.icon-large { width: 76px; height: 76px; border-radius: 28px; font-size: 30px; }
+.icon-button { width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 18px; display: grid; place-items: center; background: rgba(255,255,255,.72); color: var(--mint); box-shadow: var(--shadow-soft); backdrop-filter: blur(20px); font-weight: 950; cursor: pointer; font-size: 18px; }
+
+.choice-card { padding: 20px; min-height: 150px; border: 1px solid var(--line); border-radius: 28px; background: var(--surface); box-shadow: var(--shadow-soft); }
+.filter-card { padding: 20px; min-height: 124px; border: 1px solid var(--line); border-radius: 28px; background: var(--surface); box-shadow: var(--shadow-soft); color: var(--muted); font-weight: 900; }
+.filter-card.is-active { border-color: var(--mint); color: var(--mint); background: var(--mint-soft); }
+
+.category-card { padding: 20px; min-height: 112px; border: 1px solid var(--line); border-radius: 28px; background: var(--surface); box-shadow: var(--shadow-soft); display: grid; place-items: center; text-align: center; }
+.category-card span { font-size: 28px; }
+.category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+
+.fab { position: fixed; right: 18px; bottom: calc(94px + 24px + env(safe-area-inset-bottom)); z-index: 35; width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: white; font-size: 34px; font-weight: 900; box-shadow: 0 20px 46px rgba(85,199,122,.4); text-decoration: none; cursor: pointer; }
+
+/* ─── Responsive ─── */
+@media (max-width: 430px) {
+  .stats-grid, .three-grid { grid-template-columns: 1fr 1fr; }
+  .category-grid { grid-template-columns: 1fr 1fr; }
+}

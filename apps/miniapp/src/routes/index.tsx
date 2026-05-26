@@ -1,106 +1,51 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
 import { getBalance, getTasks } from '../lib/api';
-
-function StatCard({ value, label, type }: { value: string; label: string; type?: 'danger' }) {
-  return (
-    <div className="stat-card">
-      <strong style={type === 'danger' ? { color: 'var(--red)' } : {}}>{value}</strong>
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function ListCard({ title, subtitle, icon, status }: { title: string; subtitle: string; icon: string; status?: 'overdue' | 'completed' }) {
-  return (
-    <div className={`list-card${status === 'overdue' ? ' is-overdue' : ''}${status === 'completed' ? ' is-completed' : ''}`}>
-      <div className="icon-box icon-mint">{icon}</div>
-      <div className="meta">
-        <strong>{title}</strong>
-        <span>{subtitle}</span>
-      </div>
-    </div>
-  );
-}
+import { StatCard, Card, SkeletonCard, EmptyState } from '../components/ui/premium';
 
 export default function Dashboard() {
   const familyId = localStorage.getItem('familyId') ?? 'unknown';
   
   const { data: balance } = useQuery({
     queryKey: ['balance', familyId],
-    queryFn: () => getBalance(familyId),
-    enabled: !!familyId,
+    queryFn: () => getBalance(familyId), enabled: !!familyId,
   });
-
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['tasks', familyId, 'active'],
-    queryFn: () => getTasks(familyId, 'active'),
-    enabled: !!familyId,
+    queryFn: () => getTasks(familyId, 'active'), enabled: !!familyId,
   });
+
+  const tasksArr = (tasks as any)?.data ?? (tasks as any[]) ?? [];
 
   return (
     <div style={{ animation: 'fadeIn .3s ease' }}>
-      <div className="screen-title">
-        <div className="eyebrow">oilangiz</div>
+      <section className="screen-title">
+        <p className="eyebrow">oilangiz</p>
         <h1>Dashboard</h1>
-      </div>
+      </section>
 
-      {/* ─── Balance Hero ─── */}
-      <div className="hero-card" style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-          <div className="icon-box icon-mint" style={{ width: 60, height: 60, borderRadius: 24, fontSize: 26 }}>💰</div>
-          <div>
-            <div className="eyebrow" style={{ marginBottom: 2 }}>balans</div>
-            <strong style={{ fontSize: 32, fontWeight: 950, color: 'var(--mint)' }}>
-              {(balance ?? 0).toLocaleString()} UZS
-            </strong>
-          </div>
-        </div>
+      <section className="hero-card balance-card" style={{ marginBottom: 18 }}>
         <div className="stats-grid">
-          <StatCard value="+500K" label="Kirim" />
-          <StatCard value="-200K" label="Chiqim" type="danger" />
-          <StatCard value="3/5" label="Bugun" />
+          <StatCard value="{(balance ?? 0).toLocaleString()} UZS" label="Balans" />
+          <StatCard value="+1.2M" label="Bu oy kirim" />
+          <StatCard value="-800K" label="Bu oy chiqim" tone="danger" />
         </div>
-      </div>
+      </section>
 
-      {/* ─── Tasks ─── */}
-      <div className="section-head">
-        <h3>Faol yumushlar</h3>
-        <Link to="/tasks" className="soft-link" style={{ color: 'var(--mint)', fontWeight: 900, textDecoration: 'none' }}>
-          Barchasi →
-        </Link>
-      </div>
+      <section className="section-head">
+        <h2>Faol vazifalar</h2>
+        <a href="/tasks" className="soft-link">Barchasi →</a>
+      </section>
 
       {isLoading ? (
+        <div className="stack">{Array.from({length:3}).map((_,i) => <SkeletonCard key={i} />)}</div>
+      ) : tasksArr.length ? (
         <div className="stack">
-          {[1,2,3].map(i => (
-            <div key={i} className="skeleton">
-              <div style={{ width: 52, height: 52, borderRadius: 18, float: 'left', marginRight: 14 }} />
-              <div style={{ width: '60%', height: 18, margin: '6px 0 12px' }} />
-              <div style={{ width: '42%', height: 14 }} />
-            </div>
-          ))}
-        </div>
-      ) : ((tasks as any)?.data ?? tasks ?? [])?.length ? (
-        <div className="stack">
-          {((tasks as any)?.data ?? tasks ?? []).map((t: any) => (
-            <ListCard
-              key={t.id}
-              title={t.title}
-              subtitle={t.status === 'completed' ? '✅ Bajarilgan' : '⏳ Kutilmoqda'}
-              icon="📋"
-              status={t.status === 'overdue' ? 'overdue' : t.status === 'completed' ? 'completed' : undefined}
-            />
+          {tasksArr.map((t: any) => (
+            <Card key={t.id} icon="📋" title={t.title} sub={`${t.points ?? 0} ball · ${t.status}`} tone={t.status==='overdue'?'red':'mint'} />
           ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <div className="icon-box icon-mint" style={{ width: 76, height: 76, borderRadius: 28, fontSize: 30 }}>📋</div>
-          <p style={{ color: 'var(--muted)', fontSize: 16 }}>Hozircha yumushlar yo'q</p>
-          <Link to="/tasks" className="btn-primary" style={{ textDecoration: 'none', marginTop: 8 }}>
-            Yumush qo'shish
-          </Link>
-        </div>
+        <EmptyState icon="📋" title="Hozircha vazifalar yo'q" action={<a href="/tasks" className="button primary">Vazifa qo'shish</a>} />
       )}
     </div>
   );
