@@ -4,7 +4,7 @@
     "start_button": "🚀 Get Started",
     "help": "Available commands:\n/start - Start bot\n/help - Help\n/menu - Main menu\n/create_family - Create family\n/join_family - Join family\n/my_family - My family\n/balance - Balance\n/reminders - Reminders\n/add_reminder - Add reminder",
     "cancel": "/cancel",
-    "cancelled": "❌ Cancelled",
+    "cancelled": "Cancelled",
     "back": "🔙 Back",
     "yes": "✅ Yes",
     "no": "❌ No",
@@ -19,7 +19,9 @@
     "welcome_short": "Hello",
     "welcome_desc": "@uyimiz_bot — your family management assistant.",
     "ready": "Ready",
-    "choose_action": "👇 What would you like to do?"
+    "choose_action": "👇 What would you like to do?",
+    "balance": "💰 Balance: {amount}",
+    "error_prefix": "❌"
   },
   "onboarding": {
     "language": {
@@ -87,7 +89,15 @@
     "add": {
       "success": "✅ {amount} UZS added",
       "error": "❌ An error occurred"
-    }
+    },
+    "select_category": "📂 Select category:",
+    "enter_amount": "💵 Enter amount (UZS):",
+    "invalid_amount": "⚠️ Please enter a valid amount.",
+    "cancelled": "❌ Cancelled",
+    "no_family": "Join a family first! /join_family",
+    "add_description": "📝 Enter description (or /skip):",
+    "saved": "✅ Saved: {amount} UZS — {category}",
+    "error": "❌ An error occurred."
   },
   "reminder": {
     "section": "⏰ Reminders",
@@ -100,5 +110,20 @@
   "miniapp": {
     "open": "📱 Open the Mini App",
     "open_btn": "Open App"
+  },
+  "tasks": {
+    "empty": "📋 No tasks yet.",
+    "list": "📋 Tasks:",
+    "add_prompt": "📝 Enter task title:",
+    "created": "✅ Task created: {title}"
+  },
+  "reminders": {
+    "empty": "🔔 No reminders yet.",
+    "list": "🔔 Reminders:",
+    "add_prompt": "🔔 Enter reminder text:",
+    "created": "✅ Reminder created: {title}"
+  },
+  "birthdays": {
+    "empty": "🎂 No birthdays yet."
   }
 }

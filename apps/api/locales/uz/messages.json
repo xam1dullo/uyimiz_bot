@@ -4,7 +4,7 @@
     "start_button": "🚀 Boshlash",
     "help": "Mavjud buyruqlar:\n/start - Botni ishga tushirish\n/help - Yordam\n/menu - Asosiy menyu\n/create_family - Oila yaratish\n/join_family - Oilaga qo'shilish\n/my_family - Oilam\n/balance - Balans\n/reminders - Eslatmalar\n/add_reminder - Eslatma qo'shish",
     "cancel": "/cancel",
-    "cancelled": "❌ Bekor qilindi",
+    "cancelled": "Bekor qilindi",
     "back": "🔙 Orqaga",
     "yes": "✅ Ha",
     "no": "❌ Yo'q",
@@ -19,7 +19,9 @@
     "welcome_short": "Salom",
     "welcome_desc": "@uyimiz_bot — oilaviy boshqaruv yordamchingiz.",
     "ready": "Tayyor",
-    "choose_action": "👇 Nima qilamiz?"
+    "choose_action": "👇 Nima qilamiz?",
+    "balance": "💰 Balans: {amount}",
+    "error_prefix": "❌"
   },
   "onboarding": {
     "language": {
@@ -87,7 +89,15 @@
     "add": {
       "success": "✅ {amount} UZS qo'shildi",
       "error": "❌ Xatolik yuz berdi"
-    }
+    },
+    "select_category": "📂 Kategoriyani tanlang:",
+    "enter_amount": "💵 Miqdorni kiriting (UZS):",
+    "invalid_amount": "⚠️ Iltimos, to'g'ri miqdor kiriting.",
+    "cancelled": "❌ Bekor qilindi",
+    "no_family": "Avval oilaga qo'shiling! /join_family",
+    "add_description": "📝 Izoh kiriting (yoki /skip):",
+    "saved": "✅ Saqlandi: {amount} UZS — {category}",
+    "error": "❌ Xatolik yuz berdi."
   },
   "reminder": {
     "section": "⏰ Eslatmalar bo'limi",
@@ -100,5 +110,20 @@
   "miniapp": {
     "open": "📱 Mini Ilovani oching",
     "open_btn": "Ilovani ochish"
+  },
+  "tasks": {
+    "empty": "📋 Hozircha yumushlar yo'q.",
+    "list": "📋 Yumushlar:",
+    "add_prompt": "📝 Yangi yumush nomini kiriting:",
+    "created": "✅ Yumush qo'shildi: {title}"
+  },
+  "reminders": {
+    "empty": "🔔 Hozircha eslatmalar yo'q.",
+    "list": "🔔 Eslatmalar:",
+    "add_prompt": "🔔 Eslatma matnini kiriting:",
+    "created": "✅ Eslatma qo'shildi: {title}"
+  },
+  "birthdays": {
+    "empty": "🎂 Hozircha tug'ilgan kunlar yo'q."
   }
 }

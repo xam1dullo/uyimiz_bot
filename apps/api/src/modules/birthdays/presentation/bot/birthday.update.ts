@@ -16,17 +16,24 @@ export class BirthdayBotUpdate {
     private readonly i18n: I18nService,
   ) {}
 
+  private lang(ctx: Context): string {
+    return (ctx as any).session?.lang ?? 'uz';
+  }
+
   @Command('birthdays')
-  async list(@Ctx() ctx: Context & { session?: { familyId?: string } }) {
-    const l = this.i18n.getUserLang(ctx);
-    const fid = ctx.session?.familyId;
-    if (!fid) { await ctx.reply(this.i18n.t(l, 'errors.need_family')); return; }
-    const birthdays = await this.listBirthdays.execute({ familyId: fid });
-    if (birthdays.length === 0) {
-      await ctx.reply('🎂 Hozircha tug\'ilgan kunlar yo\'q.');
+  async list(@Ctx() ctx: Context) {
+    const l = this.lang(ctx);
+    const familyId = (ctx as any).session?.familyId;
+    if (!familyId) {
+      await ctx.reply(this.i18n.t(l, 'budget.no_family'));
       return;
     }
-    const list = birthdays.map((b) => `- ${b.name}: ${b.birthDate}`).join('\n');
-    await ctx.reply(`🎂 Tug'ilgan kunlar:\n${list}`);
+    const birthdays = await this.listBirthdays.execute({ familyId });
+    if (birthdays.length === 0) {
+      await ctx.reply(this.i18n.t(l, 'birthdays.empty'));
+      return;
+    }
+    const list = birthdays.map((b) => `🎂 ${b.name}: ${b.birthDate}`).join('\n');
+    await ctx.reply(`🎂 ${this.i18n.t(l, 'menu.birthdays')}:\n${list}`);
   }
 }

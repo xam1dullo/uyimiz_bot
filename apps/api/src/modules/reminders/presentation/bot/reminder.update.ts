@@ -1,24 +1,49 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Ctx, Update, Command } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
+import { I18nService } from '../../../../infrastructure/i18n/i18n.service';
+import { CreateReminderHandler } from '../../application/commands/create-reminder/create-reminder.handler';
+import { REMINDER_REPO } from '../../reminders.tokens';
+import { IReminderRepository } from '../../domain/repositories/reminder.repository.interface';
+import { CreateReminderCommand } from '../../application/commands/create-reminder/create-reminder.command';
 
 @Update()
 @Injectable()
 export class ReminderBotUpdate {
   private readonly logger = new Logger(ReminderBotUpdate.name);
 
+  constructor(
+    private readonly i18n: I18nService,
+    private readonly createReminder: CreateReminderHandler,
+    @Inject(REMINDER_REPO) private readonly repo: IReminderRepository,
+  ) {}
+
+  private lang(ctx: Context): string {
+    return (ctx as any).session?.lang ?? 'uz';
+  }
+
   @Command('reminders')
-  async list(@Ctx() ctx: Context & { session?: any }) {
-    const familyId = ctx.session?.familyId;
+  async list(@Ctx() ctx: Context) {
+    const l = this.lang(ctx);
+    const familyId = (ctx as any).session?.familyId;
     if (!familyId) {
-      await ctx.reply('Avval oilaga qo\'shiling!');
+      await ctx.reply(this.i18n.t(l, 'budget.no_family'));
       return;
     }
-    await ctx.reply('⏰ Eslatmalar bo\'limi. /add_reminder - yangi eslatma qo\'shish');
+    const reminders = await this.repo.findByFamilyId(familyId);
+    if (reminders.length === 0) {
+      await ctx.reply(this.i18n.t(l, 'reminders.empty'));
+      return;
+    }
+    const list = reminders
+      .map((r) => `${r.isActive ? '🔔' : '🔕'} ${r.title} — ${new Date(r.scheduledAt).toLocaleString()}`)
+      .join('\n');
+    await ctx.reply(`🔔 ${this.i18n.t(l, 'reminders.list')}\n\n${list}`);
   }
 
   @Command('add_reminder')
   async add(@Ctx() ctx: Context) {
-    await ctx.reply('Eslatma matnini kiriting:');
+    const l = this.lang(ctx);
+    await ctx.reply(this.i18n.t(l, 'reminders.add_prompt'));
   }
 }

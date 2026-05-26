@@ -18,13 +18,17 @@ export class BudgetAddWizard {
     @Inject(forwardRef(() => StreamingService)) private readonly stream: StreamingService,
   ) {}
 
+  private lang(ctx: WizardContext): string {
+    return (ctx as any).session?.lang ?? 'uz';
+  }
+
   @WizardStep(0)
   async stepCategory(@Ctx() ctx: WizardContext) {
-    await this.stream.answerFirst(ctx as any);
+    const l = this.lang(ctx);
     const cats = this.categories.getAll();
     const rows = cats.map((c) => [{ text: `${c.icon} ${c.name.uz}`, callback_data: `wiz:cat:${c.id}` }]);
     
-    await ctx.reply('📂 Kategoriyani tanlang:', {
+    await ctx.reply(this.i18n.t(l, 'budget.select_category'), {
       reply_markup: { inline_keyboard: rows },
     });
     ctx.wizard.next();
@@ -36,16 +40,18 @@ export class BudgetAddWizard {
     if (data?.startsWith('wiz:cat:')) {
       (ctx.wizard as any).state.categoryId = data.split(':')[2];
       await ctx.answerCbQuery();
-      await ctx.editMessageText('💵 Miqdorni kiriting (UZS):');
+      const l = this.lang(ctx);
+      await ctx.editMessageText(this.i18n.t(l, 'budget.enter_amount'));
       ctx.wizard.next();
     }
   }
 
   @WizardStep(2)
   async stepProcess(@Ctx() ctx: WizardContext) {
+    const l = this.lang(ctx);
     const amount = Number((ctx as any).message?.text?.replace(/[^0-9]/g, ''));
     if (!amount || amount <= 0) {
-      await ctx.reply('⚠️ Iltimos, to\'g\'ri miqdor kiriting.');
+      await ctx.reply(this.i18n.t(l, 'budget.invalid_amount'));
       return;
     }
 
@@ -60,7 +66,9 @@ export class BudgetAddWizard {
           categoryId: state.categoryId,
           amount, createdBy: String(ctx.from?.id),
         });
-        return `✅ ${cat?.icon ?? ''} ${cat?.name.uz ?? ''}: ${amount.toLocaleString()} UZS saqlandi`;
+        return this.i18n.t(l, 'budget.saved')
+          .replace('{amount}', amount.toLocaleString())
+          .replace('{category}', cat?.icon + ' ' + (cat?.name.uz ?? ''));
       }},
     ]);
 
@@ -69,7 +77,8 @@ export class BudgetAddWizard {
 
   @Hears(/\/cancel/)
   async cancel(@Ctx() ctx: WizardContext) {
+    const l = this.lang(ctx);
     await ctx.scene.leave();
-    await ctx.reply('❌ Bekor qilindi');
+    await ctx.reply(this.i18n.t(l, 'budget.cancelled'));
   }
 }

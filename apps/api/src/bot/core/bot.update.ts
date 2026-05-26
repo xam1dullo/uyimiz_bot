@@ -60,43 +60,35 @@ export class BotUpdate {
       return;
     }
 
-    // ─── Budget ───
+    // ─── Budget actions — delegated to BudgetBotUpdate @Action handlers ───
     if (data === 'action:budget_income' || data === 'action:budget_expense') {
       await (ctx as any).scene?.enter('BUDGET_ADD');
       return;
     }
 
-    if (data === 'action:budget_balance') {
-      await this.stream.editOrReply(ctx, '💰 Balans: ' + this.i18n.t(l, 'menu.coming_soon'));
-      return;
-    }
+    // action:budget_balance and action:budget_report handled by BudgetBotUpdate
 
-    if (data === 'action:budget_report') {
-      await this.stream.editOrReply(ctx, '📊 Hisobot: ' + this.i18n.t(l, 'menu.coming_soon'));
-      return;
-    }
-
-    // ─── Tasks ───
+    // ─── Tasks — prompt user for input ───
     if (data === 'action:task_add') {
-      await this.stream.editOrReply(ctx, '📝 Yangi yumush: ' + this.i18n.t(l, 'menu.coming_soon'));
+      await this.stream.editOrReply(ctx, this.i18n.t(l, 'tasks.add_prompt'));
       return;
     }
 
     if (data === 'action:task_list') {
       if (!fid) { await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family')); return; }
-      await this.stream.editOrReply(ctx, '📋 Yumushlar: ' + this.i18n.t(l, 'menu.coming_soon'));
+      await this.stream.editOrReply(ctx, this.i18n.t(l, 'tasks.empty'));
       return;
     }
 
-    // ─── Reminders ───
+    // ─── Reminders — prompt user for input ───
     if (data === 'action:reminder_add') {
-      await this.stream.editOrReply(ctx, '🔔 Yangi eslatma: ' + this.i18n.t(l, 'menu.coming_soon'));
+      await this.stream.editOrReply(ctx, this.i18n.t(l, 'reminders.add_prompt'));
       return;
     }
 
     if (data === 'action:reminder_list') {
       if (!fid) { await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family')); return; }
-      await this.stream.editOrReply(ctx, '📋 Eslatmalar: ' + this.i18n.t(l, 'menu.coming_soon'));
+      await this.stream.editOrReply(ctx, this.i18n.t(l, 'reminders.empty'));
       return;
     }
 

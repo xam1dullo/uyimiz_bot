@@ -4,7 +4,7 @@
     "start_button": "🚀 Начать",
     "help": "Доступные команды:\n/start - Запустить бота\n/help - Помощь\n/menu - Главное меню\n/create_family - Создать семью\n/join_family - Присоединиться к семье\n/my_family - Моя семья\n/balance - Баланс\n/reminders - Напоминания\n/add_reminder - Добавить напоминание",
     "cancel": "/cancel",
-    "cancelled": "❌ Отменено",
+    "cancelled": "Отменено",
     "back": "🔙 Назад",
     "yes": "✅ Да",
     "no": "❌ Нет",
@@ -19,7 +19,9 @@
     "welcome_short": "Привет",
     "welcome_desc": "@uyimiz_bot — ваш семейный помощник.",
     "ready": "Готово",
-    "choose_action": "👇 Что делаем?"
+    "choose_action": "👇 Что делаем?",
+    "balance": "💰 Баланс: {amount}",
+    "error_prefix": "❌"
   },
   "onboarding": {
     "language": {
@@ -87,7 +89,15 @@
     "add": {
       "success": "✅ {amount} UZS добавлено",
       "error": "❌ Произошла ошибка"
-    }
+    },
+    "select_category": "📂 Выберите категорию:",
+    "enter_amount": "💵 Введите сумму (UZS):",
+    "invalid_amount": "⚠️ Пожалуйста, введите правильную сумму.",
+    "cancelled": "❌ Отменено",
+    "no_family": "Сначала присоединитесь к семье! /join_family",
+    "add_description": "📝 Введите описание (или /skip):",
+    "saved": "✅ Сохранено: {amount} UZS — {category}",
+    "error": "❌ Произошла ошибка."
   },
   "reminder": {
     "section": "⏰ Напоминания",
@@ -100,5 +110,20 @@
   "miniapp": {
     "open": "📱 Откройте Mini App",
     "open_btn": "Открыть приложение"
+  },
+  "tasks": {
+    "empty": "📋 Пока нет задач.",
+    "list": "📋 Задачи:",
+    "add_prompt": "📝 Введите название задачи:",
+    "created": "✅ Задача добавлена: {title}"
+  },
+  "reminders": {
+    "empty": "🔔 Пока нет напоминаний.",
+    "list": "🔔 Напоминания:",
+    "add_prompt": "🔔 Введите текст напоминания:",
+    "created": "✅ Напоминание добавлено: {title}"
+  },
+  "birthdays": {
+    "empty": "🎂 Пока нет дней рождения."
   }
 }
