@@ -1,8 +1,33 @@
-// ─── Reminders Page ───
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiClient, getReminders } from '@/lib/api';
 import { useFamilyId } from '@/hooks';
+import {
+  AppShell,
+  EmptyState,
+  FloatingActionButton,
+  FloatingSheet,
+  ListCard,
+  PrimaryButton,
+  SkeletonList,
+  StatusPill,
+} from '@/components/app/premium';
+import { triggerNotification } from '@/components/app/telegram-theme';
+
+interface CreateReminderPayload {
+  familyId: string;
+  title: string;
+  text: string;
+  remindAt: string;
+}
+
+function formatReminderDate(value?: string) {
+  if (!value) {
+    return 'Vaqt belgilanmagan';
+  }
+
+  return new Date(value).toLocaleString('uz-UZ', { dateStyle: 'medium', timeStyle: 'short' });
+}
 
 export function RemindersPage() {
   const familyId = useFamilyId();
@@ -14,84 +39,100 @@ export function RemindersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['reminders', familyId],
-    queryFn: () => apiClient.get(`/reminders?familyId=${familyId}`).then(r => r.data),
+    queryFn: () => getReminders(familyId!),
     enabled: !!familyId,
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: any) => apiClient.post('/reminders', payload),
+    mutationFn: (payload: CreateReminderPayload) => apiClient.post('/reminders', payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reminders', familyId] });
-      setShowCreate(false); setTitle(''); setText(''); setRemindAt('');
+      setShowCreate(false);
+      setTitle('');
+      setText('');
+      setRemindAt('');
+      triggerNotification('success');
     },
+    onError: () => triggerNotification('error'),
   });
 
   const handleCreate = () => {
-    if (!title.trim() || !remindAt) return;
+    if (!familyId || !title.trim() || !remindAt) {
+      return;
+    }
+
     createMutation.mutate({ familyId, title: title.trim(), text: text.trim(), remindAt });
   };
 
+  if (!familyId) {
+    return (
+      <AppShell eyebrow="Eslatmalar" title="Oilaga ulanmagan" description="Eslatmalar family context bilan ishlaydi.">
+        <EmptyState icon="bell" title="Family context yo'q" description="Bot orqali oilaga qo'shiling yoki yangi oila yarating." />
+      </AppShell>
+    );
+  }
+
   const reminders = data?.data ?? [];
 
-  if (!familyId) return <div className="p-6 text-center text-gray-500">Oilaga ulanmagan</div>;
-
   return (
-    <div className="p-4 space-y-4 pb-20">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">🔔 Eslatmalar</h1>
-        <button onClick={() => setShowCreate(!showCreate)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
-          {showCreate ? '❌' : '+ Yangi'}
-        </button>
-      </div>
-
-      {/* Create Form */}
-      {showCreate && (
-        <div className="rounded-xl border p-4 space-y-3">
-          <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-            placeholder="Sarlavha" className="w-full border rounded-lg px-3 py-2 text-sm" />
-          <textarea value={text} onChange={e => setText(e.target.value)}
-            placeholder="Matn" rows={2} className="w-full border rounded-lg px-3 py-2 text-sm" />
-          <input type="datetime-local" value={remindAt} onChange={e => setRemindAt(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm" />
-          <button onClick={handleCreate}
-            disabled={createMutation.isPending}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium">
-            {createMutation.isPending ? 'Saqlanmoqda...' : '✅ Yaratish'}
-          </button>
-        </div>
-      )}
-
+    <AppShell
+      eyebrow="Scheduler"
+      title="Eslatmalar"
+      description="Telegram ichida vaqtli xabarlar va muhim ishlar."
+      fab={<FloatingActionButton label="Yangi eslatma yaratish" onClick={() => setShowCreate(true)} icon="bell" />}
+    >
       {isLoading ? (
-        <div className="space-y-2">
-          {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-gray-100 animate-pulse" />)}
+        <SkeletonList count={3} />
+      ) : reminders.length ? (
+        <div className="stack">
+          {reminders.map((reminder, index) => {
+            const scheduledAt = reminder.remindAt ?? reminder.scheduledAt;
+
+            return (
+              <ListCard
+                key={reminder.id}
+                icon="bell"
+                title={reminder.title}
+                subtitle={reminder.text ?? reminder.description ?? formatReminderDate(scheduledAt)}
+                tone={index === 0 ? 'yellow' : 'blue'}
+                meta={reminder.text || reminder.description ? formatReminderDate(scheduledAt) : undefined}
+                action={
+                  <StatusPill tone={reminder.confirmedAt ? 'mint' : 'yellow'}>
+                    {reminder.confirmedAt ? 'Qabul qilingan' : 'Kutilmoqda'}
+                  </StatusPill>
+                }
+              />
+            );
+          })}
         </div>
-      ) : reminders.length === 0 ? (
-        <p className="text-center text-gray-400 py-8">Eslatmalar yo'q</p>
       ) : (
-        <div className="space-y-2">
-          {reminders.map((r: any) => (
-            <div key={r.id} className="rounded-xl border p-3">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{r.title}</p>
-                  {r.text && <p className="text-xs text-gray-400 mt-0.5">{r.text}</p>}
-                </div>
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-gray-400">
-                  {new Date(r.remindAt).toLocaleString('uz-UZ', { dateStyle: 'short', timeStyle: 'short' })}
-                </span>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  r.confirmedAt ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                }`}>
-                  {r.confirmedAt ? '✓ Qabul qilingan' : 'Kutilmoqda'}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <EmptyState icon="bell" title="Eslatmalar yo'q" description="Muhim ishlar uchun birinchi eslatmani yarating." />
       )}
-    </div>
+
+      <FloatingSheet
+        open={showCreate}
+        title="Eslatma qo'shish"
+        description="Sarlavha, matn va vaqtni belgilang."
+        onClose={() => setShowCreate(false)}
+      >
+        <div className="sheet-form">
+          <label className="form-label">
+            Sarlavha
+            <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Bank to'lovi" />
+          </label>
+          <label className="form-label">
+            Matn
+            <textarea className="input" rows={3} value={text} onChange={(event) => setText(event.target.value)} placeholder="Kartani to'ldirish kerak" />
+          </label>
+          <label className="form-label">
+            Vaqt
+            <input className="input" type="datetime-local" value={remindAt} onChange={(event) => setRemindAt(event.target.value)} />
+          </label>
+          <PrimaryButton onClick={handleCreate} disabled={createMutation.isPending}>
+            {createMutation.isPending ? 'Saqlanmoqda...' : 'Yaratish'}
+          </PrimaryButton>
+        </div>
+      </FloatingSheet>
+    </AppShell>
   );
 }

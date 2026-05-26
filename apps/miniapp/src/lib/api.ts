@@ -3,6 +3,68 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
+export interface ApiListResponse<TItem> {
+  data: TItem[];
+  meta?: Record<string, unknown>;
+}
+
+export interface BudgetRecordDto {
+  id: string;
+  type?: 'income' | 'expense';
+  category?: string;
+  categoryId?: string;
+  note?: string;
+  description?: string;
+  amount?: number;
+  createdAt?: string;
+  txDate?: string;
+}
+
+export interface BudgetCategorySummaryDto {
+  name?: string;
+  category?: string;
+  amount?: number;
+}
+
+export interface BalanceDto {
+  income?: number;
+  expense?: number;
+  balance?: number;
+  categories?: BudgetCategorySummaryDto[];
+}
+
+export interface TaskDto {
+  id: string;
+  title: string;
+  description?: string;
+  status?: string;
+  category?: string;
+  priority?: string;
+  points?: number;
+  assignedTo?: string;
+  dueAt?: string;
+}
+
+export interface ReminderDto {
+  id: string;
+  title: string;
+  text?: string;
+  description?: string;
+  remindAt?: string;
+  scheduledAt?: string;
+  confirmedAt?: string | null;
+  isActive?: boolean;
+}
+
+export interface BirthdayDto {
+  id?: string;
+  name: string;
+  relation?: string;
+  day?: number;
+  month?: number;
+  date?: string;
+}
+
 export const apiClient = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -40,10 +102,10 @@ export const generateInvite = (familyId: string) =>
 
 // ═══ Budget ═══
 export const getBudgets = (familyId: string) =>
-  apiClient.get(`/budget/${familyId}/summary`).then(r => r.data);
+  apiClient.get<ApiListResponse<BudgetRecordDto>>(`/budget/${familyId}/summary`).then(r => r.data);
 
 export const getBalance = (familyId: string) =>
-  apiClient.get(`/budget/${familyId}/balance`).then(r => r.data);
+  apiClient.get<BalanceDto>(`/budget/${familyId}/balance`).then(r => r.data);
 
 export const addBudgetRecord = (data: {
   familyId: string;
@@ -58,7 +120,9 @@ export const getBudgetCategories = (type?: 'income' | 'expense') =>
 
 // ═══ Tasks ═══
 export const getTasks = (familyId: string, status?: string) =>
-  apiClient.get(`/tasks?familyId=${familyId}${status ? `&status=${status}` : ''}`).then(r => r.data);
+  apiClient
+    .get<ApiListResponse<TaskDto>>(`/tasks?familyId=${familyId}${status ? `&status=${status}` : ''}`)
+    .then(r => r.data);
 
 export const createTask = (data: {
   familyId: string;
@@ -74,7 +138,7 @@ export const completeTask = (taskId: string) =>
 
 // ═══ Reminders ═══
 export const getReminders = (familyId: string) =>
-  apiClient.get(`/reminders?familyId=${familyId}`).then(r => r.data);
+  apiClient.get<ApiListResponse<ReminderDto>>(`/reminders?familyId=${familyId}`).then(r => r.data);
 
 export const createReminder = (data: {
   familyId: string;
@@ -86,7 +150,7 @@ export const createReminder = (data: {
 
 // ═══ Birthdays ═══
 export const getBirthdays = (familyId: string) =>
-  apiClient.get(`/birthdays?familyId=${familyId}`).then(r => r.data);
+  apiClient.get<ApiListResponse<BirthdayDto>>(`/birthdays?familyId=${familyId}`).then(r => r.data);
 
 export const addBirthday = (data: {
   familyId: string;
