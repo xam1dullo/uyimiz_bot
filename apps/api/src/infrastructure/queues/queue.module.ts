@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { QUEUES } from './queue.constants';
+import { QueueService } from './queue.service';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { QUEUES } from './queue.constants';
       ...Object.values(QUEUES).map((name) => ({ name })),
     ),
   ],
-  exports: [BullModule],
+  providers: [QueueService],
+  exports: [BullModule, QueueService],
 })
 export class QueueModule {}

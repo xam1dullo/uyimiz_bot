@@ -1,32 +1,50 @@
-// ─── Auth: initData → JWT exchange ───
-import { apiClient } from './api';
+// ─── Mini App Auth ───
+import { getToken, refreshToken } from './api';
 
-export async function authenticate(): Promise<string | null> {
-  const stored = localStorage.getItem('access_token');
-  if (stored) return stored;
-
+export async function authenticate(): Promise<boolean> {
   try {
-    // In Telegram Mini App, initData is injected by Telegram
-    const wp = (window as any).Telegram?.WebApp;
-    if (!wp?.initData) return null;
-
-    const { data } = await apiClient.post('/auth/telegram', { initData: wp.initData });
-    if (data?.access_token) {
-      localStorage.setItem('access_token', data.access_token);
-      if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
-      return data.access_token;
+    // Get initData from Telegram Mini App SDK
+    const WebApp = (window as any).Telegram?.WebApp;
+    if (!WebApp?.initData) {
+      console.warn('Not running inside Telegram Mini App');
+      return false;
     }
-    return null;
-  } catch {
-    return null;
+
+    // Try to get token from backend using Telegram initData
+    const res = await getToken(WebApp.initData);
+    if (res?.accessToken) {
+      localStorage.setItem('access_token', res.accessToken);
+      localStorage.setItem('refresh_token', res.refreshToken);
+      return true;
+    }
+    
+    return false;
+  } catch (e) {
+    console.error('Auth failed:', e);
+    return false;
   }
 }
 
-export function getStoredToken(): string | null {
-  return localStorage.getItem('access_token');
+export async function ensureAuth(): Promise<boolean> {
+  // Try refresh if we have a stored token
+  const stored = localStorage.getItem('refresh_token');
+  if (stored) {
+    try {
+      const res = await refreshToken(stored);
+      if (res?.accessToken) {
+        localStorage.setItem('access_token', res.accessToken);
+        return true;
+      }
+    } catch {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    }
+  }
+
+  return authenticate();
 }
 
-export function clearAuth(): void {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
+export function getTelegramUser() {
+  const WebApp = (window as any).Telegram?.WebApp;
+  return WebApp?.initDataUnsafe?.user ?? null;
 }

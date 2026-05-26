@@ -16,14 +16,37 @@ export class QueueService {
     return { connection: { url: process.env.REDIS_URL ?? 'redis://localhost:6379' } };
   }
 
-  /** Add job to queue */
-  async add(queueName: string, job: QueueJob, delay?: number): Promise<void> {
+  /** Add job to queue — returns job ID for cancellation */
+  async add(queueName: string, job: QueueJob, delay?: number): Promise<string> {
     if (!this.queues.has(queueName)) {
       this.queues.set(queueName, new Queue(queueName, this.connection));
     }
     const queue = this.queues.get(queueName)!;
-    await queue.add(job.type, job.payload, delay ? { delay } : undefined);
-    this.logger.debug(`Job added: ${queueName}:${job.type}`);
+    const added = await queue.add(job.type, job.payload, { 
+      delay,
+      removeOnComplete: true,
+      removeOnFail: 100,
+    });
+    this.logger.debug(`Job added: ${queueName}:${job.type} (${added.id})`);
+    return added.id ?? '';
+  }
+
+  /** Cancel a job by ID */
+  async cancel(queueName: string, jobId: string): Promise<boolean> {
+    const queue = this.queues.get(queueName);
+    if (!queue) return false;
+    try {
+      const job = await queue.getJob(jobId);
+      if (job) {
+        await job.remove();
+        this.logger.debug(`Job cancelled: ${queueName}:${jobId}`);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      this.logger.error(`Cancel failed: ${queueName}:${jobId}: ${e}`);
+      return false;
+    }
   }
 
   /** Register worker for queue */
