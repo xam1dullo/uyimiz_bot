@@ -24,3 +24,6 @@ import { BudgetCategoriesController } from './presentation/http/budget-categorie
   exports: [BUDGET_REPO, CategorySystem, AddRecordHandler, GetBalanceHandler, GetMonthlySummaryHandler, GetCategoryReportHandler],
 })
 export class BudgetModule {}
+
+// BudgetModuleOnInit not needed — actions registered by BudgetBotUpdate @Action decorators
+// which nestjs-telegraf auto-registers. The ActionRouter is for non-Telegraf-decorator actions.

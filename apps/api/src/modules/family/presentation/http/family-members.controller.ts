@@ -10,7 +10,7 @@ export class FamilyMembersController {
 
   @Get(':familyId/members')
   async getMembers(@Param('familyId') familyId: string) {
-    const family = await this.repo.findById(familyId);
+    const family = await this.repo.findFamilyById(familyId);
     if (!family) throw new NotFoundException('Family not found');
     const members = await this.repo.findMembersByFamilyId(familyId);
     return members.map((m) => ({
@@ -29,14 +29,7 @@ export class FamilyMembersController {
     const existing = await this.repo.findMemberByTelegramId(body.telegramId);
     if (existing) throw new Error('USER_ALREADY_IN_FAMILY');
 
-    const { MemberEntity } = await import('../../domain/entities/member.entity');
-    const member = MemberEntity.create(
-      body.telegramId,
-      body.name,
-      familyId,
-      (body.role as any) ?? 'parent',
-    );
-    const created = await this.repo.addMember(member);
+    const created = await this.repo.addMember(familyId, body.telegramId, body.name, body.role ?? 'parent');
     return { id: created.id, name: created.name, role: created.role };
   }
 

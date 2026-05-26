@@ -4,6 +4,8 @@ import { session } from 'telegraf';
 
 // Core
 import { BotUpdate } from './core/bot.update';
+import { ActionRouter } from './core/action-router';
+import { KeyboardFactory } from './core/keyboard.factory';
 
 // Handlers
 import { StartHandler } from './handlers/start.handler';
@@ -17,10 +19,6 @@ import { PhotoHandler } from './handlers/photo.handler';
 
 // Menus
 import { MenuRegistry } from './menus/menu.registry';
-import { mainMenu } from './menus/main.menu';
-import { familyMenu } from './menus/family.menu';
-import { budgetMenu } from './menus/budget.menu';
-import { settingsMenu } from './menus/settings.menu';
 
 // Wizards
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
@@ -54,10 +52,6 @@ import { OnboardingModule } from '../modules/onboarding/onboarding.module';
     BotUpdate, MenuRegistry,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
     BudgetAddWizard, BudgetBotUpdate,
-    { provide: 'MAIN_MENU', useValue: mainMenu },
-    { provide: 'FAMILY_MENU', useValue: familyMenu },
-    { provide: 'BUDGET_MENU', useValue: budgetMenu },
-    { provide: 'SETTINGS_MENU', useValue: settingsMenu },
   ],
   exports: [MenuRegistry],
 })

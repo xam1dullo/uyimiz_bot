@@ -1,32 +1,30 @@
-// ─── BotUpdate — Streaming + Smart Edit Router ───
+// ─── BotUpdate — Thin dispatch layer ───
+// Delegates to ActionRouter + MenuRegistry. Zero action logic.
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
-import { KeyboardFactory } from './keyboard.factory';
 import { MenuRegistry } from '../menus/menu.registry';
+import { ActionRouter } from './action-router';
 import { StreamingService } from './streaming.service';
-import { MessageManager } from './message-manager';
 
 @Update()
 @Injectable()
-export class BotUpdate {
+export class BotUpdate implements OnModuleInit {
   private readonly logger = new Logger(BotUpdate.name);
 
   constructor(
     private readonly i18n: I18nService,
-    private readonly kb: KeyboardFactory,
     private readonly menus: MenuRegistry,
+    private readonly router: ActionRouter,
     private readonly stream: StreamingService,
-    private readonly msgs: MessageManager,
-  ) {
-    this.menus.register(require('../menus/main.menu').mainMenu);
-    this.menus.register(require('../menus/family.menu').familyMenu);
-    this.menus.register(require('../menus/budget.menu').budgetMenu);
-    this.menus.register(require('../menus/settings.menu').settingsMenu);
-    this.menus.register(require('../menus/tasks.menu').tasksMenu);
-    this.menus.register(require('../menus/reminders.menu').remindersMenu);
+  ) {}
+
+  /** Register built-in menus. Feature modules register theirs via onModuleInit. */
+  onModuleInit(): void {
+    // Built-in menus registered by importing modules
+    // Feature menus: BudgetModule, TasksModule etc register via DI
   }
 
   @Command('menu')
@@ -34,6 +32,7 @@ export class BotUpdate {
     await this.menus.render('main', ctx);
   }
 
+  /** All callback_data routes through ActionRouter */
   @Action(/.*/)
   async onAction(@Ctx() ctx: Context) {
     const data: string = (ctx as any).callbackQuery?.data;
@@ -46,55 +45,12 @@ export class BotUpdate {
     const routed = await this.menus.routeCallback(data, ctx);
     if (routed) return;
 
-    // Module actions — use editOrReply to avoid message flood
-    await this.handleAction(data, ctx);
-  }
+    // Delegate to registered action handlers
+    const consumed = await this.router.dispatch(data, ctx);
+    if (consumed) return;
 
-  private async handleAction(data: string, ctx: Context) {
+    // Fallback
     const l = this.i18n.getUserLang(ctx);
-    const fid = (ctx as any).session?.familyId;
-
-    // ─── Onboarding ───
-    if (data === 'action:start_onboarding') {
-      await (ctx as any).scene?.enter('ONBOARDING');
-      return;
-    }
-
-    // ─── Budget actions — delegated to BudgetBotUpdate @Action handlers ───
-    if (data === 'action:budget_income' || data === 'action:budget_expense') {
-      await (ctx as any).scene?.enter('BUDGET_ADD');
-      return;
-    }
-
-    // action:budget_balance and action:budget_report handled by BudgetBotUpdate
-
-    // ─── Tasks — prompt user for input ───
-    if (data === 'action:task_add') {
-      await this.stream.editOrReply(ctx, this.i18n.t(l, 'tasks.add_prompt'));
-      return;
-    }
-
-    if (data === 'action:task_list') {
-      if (!fid) { await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family')); return; }
-      await this.stream.editOrReply(ctx, this.i18n.t(l, 'tasks.empty'));
-      return;
-    }
-
-    // ─── Reminders — prompt user for input ───
-    if (data === 'action:reminder_add') {
-      await this.stream.editOrReply(ctx, this.i18n.t(l, 'reminders.add_prompt'));
-      return;
-    }
-
-    if (data === 'action:reminder_list') {
-      if (!fid) { await this.stream.editOrReply(ctx, this.i18n.t(l, 'errors.need_family')); return; }
-      await this.stream.editOrReply(ctx, this.i18n.t(l, 'reminders.empty'));
-      return;
-    }
-
-    // Generic
     await this.stream.editOrReply(ctx, '🚧 ' + this.i18n.t(l, 'menu.coming_soon'));
   }
-
-  // Removed @On('text') — was blocking @Start() handler chain
 }

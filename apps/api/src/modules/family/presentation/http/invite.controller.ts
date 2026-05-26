@@ -1,37 +1,28 @@
-import { Controller, Post, Body, Inject } from '@nestjs/common';
-import { type DB, inviteCodes } from '@uyimiz/db';
-import { nanoid } from 'nanoid';
-import { DB_TOKEN } from '../../../../infrastructure/database/database.module';
-import { eq } from 'drizzle-orm';
+import { Controller, Post, Body } from '@nestjs/common';
+import { GenerateInviteHandler } from '../../application/commands/generate-invite/generate-invite.handler';
+import { GenerateInviteCommand } from '../../application/commands/generate-invite/generate-invite.command';
+import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
+import { Inject } from '@nestjs/common';
+import { FAMILY_REPO } from '../../family.tokens';
 
 @Controller('api/invites')
 export class InviteController {
-  constructor(@Inject(DB_TOKEN) private readonly db: DB) {}
+  constructor(
+    private readonly generateInvite: GenerateInviteHandler,
+    @Inject(FAMILY_REPO) private readonly repo: IFamilyRepository,
+  ) {}
 
   @Post('generate')
   async generate(@Body() body: { familyId: string; createdBy: string }) {
-    const code = nanoid(8).toUpperCase();
-    await this.db.insert(inviteCodes).values({
-      familyId: body.familyId,
-      code,
-      createdBy: body.createdBy,
-    });
-    return { code };
+    return this.generateInvite.execute(new GenerateInviteCommand(body.familyId, body.createdBy));
   }
 
   @Post('validate')
   async validate(@Body() body: { code: string }) {
-    const [row] = await this.db.select()
-      .from(inviteCodes)
-      .where(eq(inviteCodes.code, body.code.toUpperCase()));
-
-    if (!row || row.isUsed) {
-      return { valid: false, message: 'Invalid or used code' };
+    const family = await this.repo.findFamilyByCode(body.code.toUpperCase());
+    if (!family) {
+      return { valid: false, message: 'Invalid code' };
     }
-    if (row.expiresAt && new Date(row.expiresAt) < new Date()) {
-      return { valid: false, message: 'Code expired' };
-    }
-
-    return { valid: true, familyId: row.familyId };
+    return { valid: true, familyId: family.id };
   }
 }

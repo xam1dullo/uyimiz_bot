@@ -10,7 +10,7 @@ export class GetFamilyHandler {
   constructor(@Inject(FAMILY_REPO) private readonly repo: IFamilyRepository) {}
 
   async execute(query: GetFamilyQuery): Promise<{ family: FamilyEntity; members: MemberEntity[] } | null> {
-    const family = await this.repo.findById(query.familyId);
+    const family = await this.repo.findFamilyById(query.familyId);
     if (!family) return null;
     const members = await this.repo.findMembersByFamilyId(query.familyId);
     return { family, members };

@@ -2,14 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { birthdays, withFamilyContext, type DB } from '@uyimiz/db';
 import { eq } from 'drizzle-orm';
 import { BirthdayEntity } from '../../domain/entities/birthday.entity';
+import { IBirthdayRepository } from '../../domain/repositories/birthday.repository.interface';
 import { DB_TOKEN } from '../../../../infrastructure/database/database.module';
-
-export interface IBirthdayRepository {
-  create(b: BirthdayEntity): Promise<BirthdayEntity>;
-  findByFamilyId(familyId: string): Promise<BirthdayEntity[]>;
-  update(b: BirthdayEntity): Promise<BirthdayEntity>;
-  delete(id: string): Promise<void>;
-}
 
 @Injectable()
 export class DrizzleBirthdayRepository implements IBirthdayRepository {
@@ -44,8 +38,10 @@ export class DrizzleBirthdayRepository implements IBirthdayRepository {
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.delete(birthdays).where(eq(birthdays.id, id));
+  async delete(id: string, familyId: string): Promise<void> {
+    return withFamilyContext(familyId, async (tx) => {
+      await tx.delete(birthdays).where(eq(birthdays.id, id));
+    }, this.db);
   }
 
   private toEntity(row: Record<string, unknown>): BirthdayEntity {

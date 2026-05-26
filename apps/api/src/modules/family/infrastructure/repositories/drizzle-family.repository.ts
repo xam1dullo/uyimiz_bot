@@ -1,54 +1,57 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { families, users, type DB } from '@uyimiz/db';
+import { families, users, inviteCodes, type DB } from '@uyimiz/db';
+import { nanoid } from 'nanoid';
 import { eq } from 'drizzle-orm';
+import { DB_TOKEN } from '../../../../infrastructure/database/database.module';
 import { FamilyEntity } from '../../domain/entities/family.entity';
 import { MemberEntity } from '../../domain/entities/member.entity';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
-import { DB_TOKEN } from '../../../../infrastructure/database/database.module';
 
 @Injectable()
 export class DrizzleFamilyRepository implements IFamilyRepository {
   constructor(@Inject(DB_TOKEN) private readonly db: DB) {}
 
-  async create(family: FamilyEntity): Promise<FamilyEntity> {
+  async createFamily(name: string, creatorTelegramId: string, creatorName: string): Promise<{ family: FamilyEntity; member: MemberEntity }> {
     const [row] = await this.db.insert(families).values({
-      id: family.id,
-      name: family.name,
-      code: family.code,
-      createdAt: family.createdAt,
-      updatedAt: family.updatedAt,
+      name,
+      code: nanoid(8).toUpperCase(),
     }).returning();
-    return this.toFamilyEntity(row);
+    const family = this.toFamilyEntity(row);
+
+    const [memberRow] = await this.db.insert(users).values({
+      telegramId: creatorTelegramId,
+      familyId: family.id,
+      name: creatorName,
+      role: 'admin',
+    }).returning();
+    const member = this.toMemberEntity(memberRow);
+
+    return { family, member };
   }
 
-  async findById(id: string): Promise<FamilyEntity | null> {
+  async findFamilyById(id: string): Promise<FamilyEntity | null> {
     const [row] = await this.db.select().from(families).where(eq(families.id, id));
     return row ? this.toFamilyEntity(row) : null;
   }
 
-  async findByCode(code: string): Promise<FamilyEntity | null> {
+  async findFamilyByCode(code: string): Promise<FamilyEntity | null> {
     const [row] = await this.db.select().from(families).where(eq(families.code, code));
     return row ? this.toFamilyEntity(row) : null;
   }
 
-  async update(family: FamilyEntity): Promise<FamilyEntity> {
+  async updateFamily(family: FamilyEntity): Promise<FamilyEntity> {
     const [row] = await this.db.update(families)
-      .set({ name: family.name, updatedAt: family.updatedAt })
-      .where(eq(families.id, family.id))
-      .returning();
+      .set({ name: family.name, updatedAt: new Date() })
+      .where(eq(families.id, family.id)).returning();
     return this.toFamilyEntity(row);
   }
 
-  async addMember(member: MemberEntity): Promise<MemberEntity> {
+  async addMember(familyId: string, telegramId: string, name: string, role = 'parent'): Promise<MemberEntity> {
     const [row] = await this.db.insert(users).values({
-      id: member.id,
-      telegramId: member.telegramId,
-      name: member.name,
-      role: member.role as any,
-      lang: member.lang as any,
-      familyId: member.familyId,
-      createdAt: member.createdAt,
-      updatedAt: member.updatedAt,
+      telegramId,
+      familyId,
+      name,
+      role: role as any,
     }).returning();
     return this.toMemberEntity(row);
   }
@@ -65,9 +68,8 @@ export class DrizzleFamilyRepository implements IFamilyRepository {
 
   async updateMember(member: MemberEntity): Promise<MemberEntity> {
     const [row] = await this.db.update(users)
-      .set({ name: member.name, role: member.role as any, lang: member.lang as any, updatedAt: member.updatedAt })
-      .where(eq(users.id, member.id))
-      .returning();
+      .set({ name: member.name, role: member.role as any, lang: member.lang, updatedAt: new Date() })
+      .where(eq(users.id, member.id)).returning();
     return this.toMemberEntity(row);
   }
 
@@ -75,12 +77,18 @@ export class DrizzleFamilyRepository implements IFamilyRepository {
     await this.db.delete(users).where(eq(users.id, memberId));
   }
 
-  async findFamilyByTelegramId(telegramId: string): Promise<FamilyEntity | null> {
+  async getFamilyWithMembers(familyId: string): Promise<{ family: FamilyEntity; members: MemberEntity[] } | null> {
     const [row] = await this.db.select({ family: families })
-      .from(users)
-      .innerJoin(families, eq(users.familyId, families.id))
-      .where(eq(users.telegramId, telegramId));
-    return row ? this.toFamilyEntity(row.family as any) : null;
+      .from(families).where(eq(families.id, familyId));
+    if (!row) return null;
+    const members = await this.findMembersByFamilyId(familyId);
+    return { family: this.toFamilyEntity(row.family), members };
+  }
+
+  async generateInviteCode(familyId: string, createdBy: string): Promise<{ code: string }> {
+    const code = nanoid(8).toUpperCase();
+    await this.db.insert(inviteCodes).values({ familyId, code, createdBy });
+    return { code };
   }
 
   private toFamilyEntity(row: any): FamilyEntity {
