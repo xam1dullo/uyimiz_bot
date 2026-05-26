@@ -38,7 +38,7 @@ services:
     container_name: uyimiz-api-prod
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-uyimiz}
+      DATABASE_URL: postgres://${POSTGRES_USER:-uyimiz_app}:${POSTGRES_PASSWORD:-uyimiz_app_prod_pwd}@postgres:5432/${POSTGRES_DB:-uyimiz}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET:?required}

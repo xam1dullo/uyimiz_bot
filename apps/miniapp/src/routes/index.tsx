@@ -1,6 +1,6 @@
 // ─── Dashboard Page ───
 import { useQuery } from '@tanstack/react-query';
-import { getBalance, getTasks, getLeaderboard } from '@/lib/api';
+import { getBalance, getTasks } from '@/lib/api';
 import { useFamilyId } from '@/hooks';
 
 function useTgTheme() {
@@ -32,7 +32,7 @@ export function DashboardPage() {
 
   const { data: leaderboard } = useQuery({
     queryKey: ['leaderboard', familyId, 'weekly'],
-    queryFn: () => getLeaderboard(familyId!),
+    queryFn: async () => ({ data: [] }), // leaderboard not yet implemented
     enabled: !!familyId,
   });
 

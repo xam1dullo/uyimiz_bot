@@ -37,16 +37,18 @@ export class DrizzleTaskRepository implements ITaskRepository {
   }
 
   async findByFamilyId(familyId: string, options?: { status?: string; assignedTo?: string; limit?: number; offset?: number }): Promise<TaskEntity[]> {
-    const conditions = [eq(tasks.familyId, familyId)];
-    if (options?.status) conditions.push(eq(tasks.status, options.status as TaskEntity['status']));
-    if (options?.assignedTo) conditions.push(eq(tasks.assignedTo, options.assignedTo));
+    return withFamilyContext(familyId, async (tx) => {
+      const conditions = [eq(tasks.familyId, familyId)];
+      if (options?.status) conditions.push(eq(tasks.status, options.status as TaskEntity['status']));
+      if (options?.assignedTo) conditions.push(eq(tasks.assignedTo, options.assignedTo));
 
-    const rows = await this.db.select().from(tasks)
-      .where(and(...conditions))
-      .orderBy(desc(tasks.createdAt))
-      .limit(options?.limit ?? 50)
-      .offset(options?.offset ?? 0);
-    return rows.map((r) => this.toEntity(r));
+      const rows = await tx.select().from(tasks)
+        .where(and(...conditions))
+        .orderBy(desc(tasks.createdAt))
+        .limit(options?.limit ?? 50)
+        .offset(options?.offset ?? 0);
+      return rows.map((r) => this.toEntity(r));
+    }, this.db);
   }
 
   async update(task: TaskEntity): Promise<TaskEntity> {

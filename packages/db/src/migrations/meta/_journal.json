@@ -8,6 +8,34 @@
       "when": 1779741654145,
       "tag": "0000_cheerful_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779742000000,
+      "tag": "0001_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779742500000,
+      "tag": "0002_triggers",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779743000000,
+      "tag": "0003_rls_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779743500000,
+      "tag": "0004_performance_indexes",
+      "breakpoints": true
     }
   ]
 }

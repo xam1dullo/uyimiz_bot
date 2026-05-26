@@ -1,7 +1,7 @@
 // ─── Budget Page (with Add form) ───
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBudgets, getBudgetReport, apiClient } from '@/lib/api';
+import { getBudgets, getBalance, apiClient } from '@/lib/api';
 import { useFamilyId } from '@/hooks';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -26,8 +26,8 @@ export function BudgetPage() {
   });
 
   const { data: report } = useQuery({
-    queryKey: ['budget', familyId, 'report', 'month'],
-    queryFn: () => getBudgetReport(familyId!, 'month'),
+    queryKey: ['budget', familyId, 'balance'],
+    queryFn: () => getBalance(familyId!),
     enabled: !!familyId,
   });
 

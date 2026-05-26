@@ -2,10 +2,11 @@
 -- Ensures RLS is never bypassed, even for table owners
 
 -- Create app role (no superuser privileges)
+-- Password should be provided via environment variable in deployment
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'uyimiz_app') THEN
-    CREATE ROLE uyimiz_app WITH LOGIN PASSWORD 'uyimiz_app_password' NOINHERIT;
+    CREATE ROLE uyimiz_app WITH LOGIN PASSWORD 'uyimiz_app_dev_pwd' NOINHERIT;
   END IF;
 END
 $$;
