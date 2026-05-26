@@ -1,7 +1,7 @@
 // ─── BotUpdate — Thin dispatch layer ───
 // Delegates to ActionRouter + MenuRegistry. Zero action logic.
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import type { BotContext } from './bot-context.types';
@@ -16,10 +16,10 @@ export class BotUpdate implements OnModuleInit {
   private readonly logger = new Logger(BotUpdate.name);
 
   constructor(
-    private readonly i18n: I18nService,
-    private readonly menus: MenuRegistry,
-    private readonly router: ActionRouter,
-    private readonly stream: StreamingService,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
+    @Inject(forwardRef(() => MenuRegistry)) private readonly menus: MenuRegistry,
+    @Inject(forwardRef(() => ActionRouter)) private readonly router: ActionRouter,
+    @Inject(forwardRef(() => StreamingService)) private readonly stream: StreamingService,
   ) {}
 
   /** Register built-in menus. Feature modules register theirs via onModuleInit. */

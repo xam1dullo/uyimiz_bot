@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards , Inject, forwardRef } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { CreateReminderHandler } from '../../application/commands/create-reminder/create-reminder.handler';
 import { CreateReminderCommand } from '../../application/commands/create-reminder/create-reminder.command';
@@ -10,7 +10,7 @@ import { IReminderRepository } from '../../domain/repositories/reminder.reposito
 @UseGuards(JwtAuthGuard)
 export class ReminderController {
   constructor(
-    private readonly createReminder: CreateReminderHandler,
+    @Inject(forwardRef(() => CreateReminderHandler)) private readonly createReminder: CreateReminderHandler,
     @Inject(REMINDER_REPO) private readonly repo: IReminderRepository,
   ) {}
 

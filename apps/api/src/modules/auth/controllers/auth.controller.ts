@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UnauthorizedException, Injectable } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Injectable, Inject, forwardRef } from '@nestjs/common';
 import { createHmac, createHash } from 'crypto';
 import { JwtService } from '../services/jwt.service';
 
@@ -43,7 +43,7 @@ function verifyTelegramInitData(initData: string, botToken: string): InitDataPay
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly jwt: JwtService) {}
+  constructor(    @Inject(forwardRef(() => JwtService)) private readonly jwt: JwtService) {}
 
   /** Telegram Mini App auth — verifies initData from TMA SDK */
   @Post('token')

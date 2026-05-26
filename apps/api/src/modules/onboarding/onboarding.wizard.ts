@@ -12,9 +12,9 @@ export class OnboardingWizard {
   private readonly logger = new Logger(OnboardingWizard.name);
 
   constructor(
-    private readonly createFamily: CreateFamilyHandler,
-    private readonly joinFamily: JoinFamilyHandler,
-    private readonly i18n: I18nService,
+    @Inject(forwardRef(() => CreateFamilyHandler)) private readonly createFamily: CreateFamilyHandler,
+    @Inject(forwardRef(() => JoinFamilyHandler)) private readonly joinFamily: JoinFamilyHandler,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
     @Inject(forwardRef(() => StreamingService)) private readonly stream: StreamingService,
   ) {}
 

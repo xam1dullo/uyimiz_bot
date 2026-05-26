@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import type { Context } from 'telegraf';
 import type { BotContext } from '../core/bot-context.types';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
@@ -7,7 +7,7 @@ import { Command, Ctx, Update } from 'nestjs-telegraf';
 @Update()
 @Injectable()
 export class PollHandler {
-  constructor(private readonly i18n: I18nService) {}
+  constructor(    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService) {}
 
   @Command('poll')
   async createPoll(@Ctx() ctx: BotContext) {

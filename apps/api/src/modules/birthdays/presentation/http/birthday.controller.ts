@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards , Inject, forwardRef } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { CreateBirthdayHandler } from '../../application/commands/create/create-birthday.handler';
 import { ListBirthdaysHandler } from '../../application/queries/list/list-birthdays.handler';
@@ -7,8 +7,8 @@ import { ListBirthdaysHandler } from '../../application/queries/list/list-birthd
 @UseGuards(JwtAuthGuard)
 export class BirthdayController {
   constructor(
-    private readonly createBirthday: CreateBirthdayHandler,
-    private readonly listBirthdays: ListBirthdaysHandler,
+    @Inject(forwardRef(() => CreateBirthdayHandler)) private readonly createBirthday: CreateBirthdayHandler,
+    @Inject(forwardRef(() => ListBirthdaysHandler)) private readonly listBirthdays: ListBirthdaysHandler,
   ) {}
 
   @Get()

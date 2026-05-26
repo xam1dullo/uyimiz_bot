@@ -1,6 +1,6 @@
 // ─── Start Handler ───
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import type { Context } from 'telegraf';
 import type { BotContext } from '../core/bot-context.types';
 import { I18nService } from '../../infrastructure/i18n/i18n.service';
@@ -11,8 +11,8 @@ import { Ctx, Start, Update } from 'nestjs-telegraf';
 @Injectable()
 export class StartHandler {
   constructor(
-    private readonly i18n: I18nService,
-    private readonly kb: KeyboardFactory,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
+    @Inject(forwardRef(() => KeyboardFactory)) private readonly kb: KeyboardFactory,
   ) {}
 
   @Start()

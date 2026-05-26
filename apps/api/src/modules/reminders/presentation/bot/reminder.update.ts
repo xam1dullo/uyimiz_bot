@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Ctx, Update, Command } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import type { BotContext } from '../../../../bot/core/bot-context.types';
@@ -14,8 +14,8 @@ export class ReminderBotUpdate {
   private readonly logger = new Logger(ReminderBotUpdate.name);
 
   constructor(
-    private readonly i18n: I18nService,
-    private readonly createReminder: CreateReminderHandler,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
+    @Inject(forwardRef(() => CreateReminderHandler)) private readonly createReminder: CreateReminderHandler,
     @Inject(REMINDER_REPO) private readonly repo: IReminderRepository,
   ) {}
 

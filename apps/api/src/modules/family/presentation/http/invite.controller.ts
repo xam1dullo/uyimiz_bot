@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body , Inject, forwardRef } from '@nestjs/common';
 import { GenerateInviteHandler } from '../../application/commands/generate-invite/generate-invite.handler';
 import { GenerateInviteCommand } from '../../application/commands/generate-invite/generate-invite.command';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
@@ -8,7 +8,7 @@ import { FAMILY_REPO } from '../../family.tokens';
 @Controller('api/invites')
 export class InviteController {
   constructor(
-    private readonly generateInvite: GenerateInviteHandler,
+    @Inject(forwardRef(() => GenerateInviteHandler)) private readonly generateInvite: GenerateInviteHandler,
     @Inject(FAMILY_REPO) private readonly repo: IFamilyRepository,
   ) {}
 

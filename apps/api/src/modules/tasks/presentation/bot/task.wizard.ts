@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { Wizard, WizardStep, Ctx, Hears } from 'nestjs-telegraf';
 import type { WizardContext } from 'telegraf/scenes';
 import { CreateTaskHandler } from '../../application/commands/create-task/create-task.handler';
@@ -8,8 +8,8 @@ import { I18nService } from '../../../../infrastructure/i18n/i18n.service';
 @Wizard('TASK_ADD')
 export class TaskAddWizard {
   constructor(
-    private readonly createTask: CreateTaskHandler,
-    private readonly i18n: I18nService,
+    @Inject(forwardRef(() => CreateTaskHandler)) private readonly createTask: CreateTaskHandler,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
   ) {}
 
   private lang(ctx: WizardContext): string {

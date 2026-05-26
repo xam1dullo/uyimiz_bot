@@ -13,9 +13,9 @@ export class BudgetAddWizard {
   private readonly logger = new Logger(BudgetAddWizard.name);
 
   constructor(
-    private readonly addRecord: AddRecordHandler,
-    private readonly categories: CategorySystem,
-    private readonly i18n: I18nService,
+    @Inject(forwardRef(() => AddRecordHandler)) private readonly addRecord: AddRecordHandler,
+    @Inject(forwardRef(() => CategorySystem)) private readonly categories: CategorySystem,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
     @Inject(forwardRef(() => StreamingService)) private readonly stream: StreamingService,
   ) {}
 

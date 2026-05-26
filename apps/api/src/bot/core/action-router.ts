@@ -6,7 +6,7 @@
 // Dependency class: In-process (Telegraf context, NestJS DI).
 // Testable directly — no port/adapter needed.
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import type { Context } from 'telegraf';
 
 export interface ActionHandler {

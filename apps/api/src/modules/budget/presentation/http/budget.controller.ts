@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards , Inject, forwardRef } from '@nestjs/common';
 import { AddRecordHandler } from '../../application/commands/add-record/add-record.handler';
 import { GetBalanceHandler } from '../../application/queries/get-balance/get-balance.handler';
 import { GetMonthlySummaryHandler } from '../../application/queries/get-monthly-summary/get-monthly-summary.handler';
@@ -7,9 +7,9 @@ import type { TransactionType } from '@uyimiz/shared';
 @Controller('api/budget')
 export class BudgetController {
   constructor(
-    private readonly addRecord: AddRecordHandler,
-    private readonly getBalance: GetBalanceHandler,
-    private readonly getMonthlySummary: GetMonthlySummaryHandler,
+    @Inject(forwardRef(() => AddRecordHandler)) private readonly addRecord: AddRecordHandler,
+    @Inject(forwardRef(() => GetBalanceHandler)) private readonly getBalance: GetBalanceHandler,
+    @Inject(forwardRef(() => GetMonthlySummaryHandler)) private readonly getMonthlySummary: GetMonthlySummaryHandler,
   ) {}
 
   @Post('records')

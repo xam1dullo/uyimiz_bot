@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Ctx, Update, Command } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import type { BotContext } from '../../../../bot/core/bot-context.types';
@@ -12,9 +12,9 @@ export class BirthdayBotUpdate {
   private readonly logger = new Logger(BirthdayBotUpdate.name);
 
   constructor(
-    private readonly listBirthdays: ListBirthdaysHandler,
-    private readonly createBirthday: CreateBirthdayHandler,
-    private readonly i18n: I18nService,
+    @Inject(forwardRef(() => ListBirthdaysHandler)) private readonly listBirthdays: ListBirthdaysHandler,
+    @Inject(forwardRef(() => CreateBirthdayHandler)) private readonly createBirthday: CreateBirthdayHandler,
+    @Inject(forwardRef(() => I18nService)) private readonly i18n: I18nService,
   ) {}
 
   private lang(ctx: Context): string {

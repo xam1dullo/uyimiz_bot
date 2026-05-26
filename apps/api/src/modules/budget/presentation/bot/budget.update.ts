@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Ctx, Update, Command, Action } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 import type { BotContext } from '../../../../bot/core/bot-context.types';
@@ -14,7 +14,7 @@ export class BudgetBotUpdate {
   private readonly logger = new Logger(BudgetBotUpdate.name);
 
   constructor(
-    private readonly addRecord: AddRecordHandler,
+    @Inject(forwardRef(() => AddRecordHandler)) private readonly addRecord: AddRecordHandler,
     private readonly getBalance: GetBalanceHandler,
     private readonly getMonthlySummary: GetMonthlySummaryHandler,
     private readonly i18n: I18nService,

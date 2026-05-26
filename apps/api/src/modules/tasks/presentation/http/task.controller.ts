@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Query, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Query, Param, UseGuards , Inject, forwardRef } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { CreateTaskHandler } from '../../application/commands/create-task/create-task.handler';
 import { ListTasksHandler } from '../../application/queries/list-tasks/list-tasks.handler';
@@ -8,8 +8,8 @@ import { CreateTaskCommand } from '../../application/commands/create-task/create
 @UseGuards(JwtAuthGuard)
 export class TaskController {
   constructor(
-    private readonly createTask: CreateTaskHandler,
-    private readonly listTasks: ListTasksHandler,
+    @Inject(forwardRef(() => CreateTaskHandler)) private readonly createTask: CreateTaskHandler,
+    @Inject(forwardRef(() => ListTasksHandler)) private readonly listTasks: ListTasksHandler,
   ) {}
 
   @Get()
