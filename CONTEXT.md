@@ -17,8 +17,9 @@
 | **Family Member** | Telegram user in one family. Role: `admin` | `parent` | `child` | `guest`. |
 | **Cross-Family Lookup** | Identity lookup before a family context exists. Allowed only to resolve a Telegram user's membership during onboarding/auth, not to read family-owned data. |
 | **Pre-Context Flow** | Controlled onboarding/auth flow that runs before a Family Context exists. It may resolve identity or invite data, then must enter a Family Context before reading or mutating family-owned data. |
+| **Pre-Context Resolver** | Narrow interface used only by Pre-Context Flows to resolve an invite code or Telegram identity into a Family Context. |
 | **Platform Audit Event** | Audit event about platform operation rather than one Family. It belongs outside family-domain audit logs. |
-| **Invite Code** | Short code for joining a family. One-time use, time-limited. |
+| **Invite Code** | Tenant-owned short code for joining a Family. It may be resolved in a Pre-Context Flow only to discover the Family Context. |
 | **Onboarding** | FSM wizard: language → has-family? → enter/create → menu. |
 
 ### Budget

@@ -22,12 +22,14 @@ import { MenuRegistry } from './menus/menu.registry';
 
 // Wizards
 import { BudgetAddWizard } from '../modules/budget/presentation/bot/budget.wizard';
+import { TaskAddWizard } from '../modules/tasks/presentation/bot/task.wizard';
 import { BudgetBotUpdate } from '../modules/budget/presentation/bot/budget.update';
 
 // Dependencies
 import { FamilyModule } from '../modules/family/family.module';
 import { BudgetModule } from '../modules/budget/budget.module';
 import { OnboardingModule } from '../modules/onboarding/onboarding.module';
+import { TasksModule } from '../modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -47,11 +49,12 @@ import { OnboardingModule } from '../modules/onboarding/onboarding.module';
     forwardRef(() => FamilyModule),
     forwardRef(() => BudgetModule),
     OnboardingModule,
+    forwardRef(() => TasksModule),
   ],
   providers: [
     BotUpdate, ActionRouter, MenuRegistry,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
-    BudgetAddWizard, BudgetBotUpdate,
+    BudgetAddWizard, BudgetBotUpdate, TaskAddWizard,
   ],
   exports: [MenuRegistry],
 })
