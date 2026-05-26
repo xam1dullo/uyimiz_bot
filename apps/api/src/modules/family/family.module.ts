@@ -22,6 +22,6 @@ import { InviteController } from './presentation/http/invite.controller';
     { provide: FAMILY_REPO, useClass: DrizzleFamilyRepository },
     FamilyBotUpdate,
   ],
-  exports: [FAMILY_REPO, CreateFamilyHandler, JoinFamilyHandler],
+  exports: [FAMILY_REPO, CreateFamilyHandler, JoinFamilyHandler, GenerateInviteHandler],
 })
 export class FamilyModule {}

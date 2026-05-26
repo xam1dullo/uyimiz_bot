@@ -49,7 +49,7 @@ import { OnboardingModule } from '../modules/onboarding/onboarding.module';
     OnboardingModule,
   ],
   providers: [
-    BotUpdate, MenuRegistry,
+    BotUpdate, ActionRouter, MenuRegistry,
     StartHandler, HelpHandler, SettingsHandler, MiniAppHandler, InlineHandler, PollHandler, ChatMemberHandler, PhotoHandler,
     BudgetAddWizard, BudgetBotUpdate,
   ],
