@@ -1,8 +1,7 @@
-import { Controller, Post, Body , Inject, forwardRef } from '@nestjs/common';
+import { Controller, Post, Body, Inject, forwardRef } from '@nestjs/common';
 import { GenerateInviteHandler } from '../../application/commands/generate-invite/generate-invite.handler';
 import { GenerateInviteCommand } from '../../application/commands/generate-invite/generate-invite.command';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
-import { Inject } from '@nestjs/common';
 import { FAMILY_REPO } from '../../family.tokens';
 
 @Controller('api/invites')

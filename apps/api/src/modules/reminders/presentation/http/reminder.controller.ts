@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Body, Query, UseGuards , Inject, forwardRef } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Inject, forwardRef } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { CreateReminderHandler } from '../../application/commands/create-reminder/create-reminder.handler';
 import { CreateReminderCommand } from '../../application/commands/create-reminder/create-reminder.command';
 import { REMINDER_REPO } from '../../reminders.tokens';
-import { Inject } from '@nestjs/common';
 import { IReminderRepository } from '../../domain/repositories/reminder.repository.interface';
 
 @Controller('api/reminders')
