@@ -1,8 +1,50 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
+import { useStore, type FamilyMember } from '../../stores';
 import { AppIcon, type AppIconName } from './icons';
-import { triggerImpact, useTelegramThemeStyle } from './telegram-theme';
+import { triggerImpact, triggerSelection, useTelegramThemeStyle } from './telegram-theme';
 
 export type Tone = 'mint' | 'blue' | 'red' | 'yellow' | 'purple' | 'neutral';
+
+const FALLBACK_AVATAR_INITIALS = ['ZI', 'JA', 'SA'] as const;
+
+function initialsFromMember(member: FamilyMember): string {
+  const explicitInitials = member.initials.trim();
+  if (explicitInitials) {
+    return explicitInitials.slice(0, 2).toUpperCase();
+  }
+
+  const nameParts = member.name.trim().split(/\s+/).filter(Boolean);
+  if (nameParts.length >= 2) {
+    return `${nameParts[0]?.[0] ?? ''}${nameParts[1]?.[0] ?? ''}`.toUpperCase();
+  }
+
+  return (nameParts[0]?.slice(0, 2) || '?').toUpperCase();
+}
+
+function labelFromMember(member: FamilyMember): string {
+  return member.name.trim() || initialsFromMember(member);
+}
+
+export function AvatarStack() {
+  const members = useStore((state) => state.members);
+  const visibleMembers = members.slice(0, FALLBACK_AVATAR_INITIALS.length);
+  const avatarInitials = visibleMembers.length
+    ? visibleMembers.map((member) => initialsFromMember(member))
+    : [...FALLBACK_AVATAR_INITIALS];
+  const label = visibleMembers.length
+    ? `Family members: ${visibleMembers.map((member) => labelFromMember(member)).join(', ')}`
+    : 'Family members';
+
+  return (
+    <div className="avatar-stack" role="group" aria-label={label}>
+      {avatarInitials.map((initials, index) => (
+        <span className="avatar" key={`${initials}-${index}`} aria-hidden="true">
+          {initials}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export interface AppShellProps {
   eyebrow?: string;
@@ -33,11 +75,7 @@ export function AppShell({
           <span>Uyimiz</span>
         </div>
         <div className="topbar-actions">
-          <div className="avatar-stack" aria-label="Family members">
-            <span className="avatar">ZI</span>
-            <span className="avatar">JA</span>
-            <span className="avatar">SA</span>
-          </div>
+          <AvatarStack />
         </div>
       </header>
 
@@ -64,7 +102,12 @@ export interface IconBadgeProps {
 
 export function IconBadge({ icon, tone = 'mint', label }: IconBadgeProps) {
   return (
-    <span className={`icon icon-badge icon-${tone} icon-badge--${tone}`} aria-label={label}>
+    <span
+      className={`icon icon-badge icon-${tone} icon-badge--${tone}`}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+    >
       <AppIcon name={icon} />
     </span>
   );
@@ -174,7 +217,7 @@ export function SegmentedControl<TValue extends string>({
           aria-checked={value === option.value}
           role="radio"
           onClick={() => {
-            triggerImpact();
+            triggerSelection();
             onChange(option.value);
           }}
         >
@@ -216,21 +259,43 @@ export interface FloatingSheetProps {
 }
 
 export function FloatingSheet({ title, description, open, onClose, children }: FloatingSheetProps) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const closeLabel = `Close ${title}`;
+
   if (!open) {
     return null;
   }
 
+  const handleClose = () => {
+    triggerImpact();
+    onClose();
+  };
+
   return (
     <>
-      <button className="scrim sheet-scrim" type="button" aria-label="Close sheet" onClick={onClose} />
-      <section className="sheet floating-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-        <div className="sheet__handle sheet-handle" />
+      <button
+        className="scrim sheet-scrim"
+        type="button"
+        aria-label={closeLabel}
+        tabIndex={-1}
+        style={{ border: 0, padding: 0 }}
+        onClick={handleClose}
+      />
+      <section
+        className="sheet floating-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+      >
+        <div className="sheet__handle sheet-handle" aria-hidden="true" />
         <header className="sheet__head sheet-head">
           <div>
-            <h2 id="sheet-title">{title}</h2>
-            {description ? <p>{description}</p> : null}
+            <h2 id={titleId}>{title}</h2>
+            {description ? <p id={descriptionId}>{description}</p> : null}
           </div>
-          <button type="button" className="icon-button" aria-label="Close" onClick={onClose}>
+          <button type="button" className="icon-button" aria-label={closeLabel} onClick={handleClose}>
             <AppIcon name="close" />
           </button>
         </header>
@@ -288,6 +353,7 @@ export function PrimaryButton({
       type={type}
       className="button primary button--primary full"
       disabled={disabled}
+      aria-disabled={disabled}
       onClick={() => {
         triggerImpact('medium');
         onClick?.();
@@ -312,6 +378,7 @@ export function SecondaryButton({
       type="button"
       className="button secondary button--secondary full"
       disabled={disabled}
+      aria-disabled={disabled}
       onClick={() => {
         triggerImpact();
         onClick?.();
@@ -348,9 +415,13 @@ export function CheckControl({
       type="button"
       className={`check ${done ? 'done' : ''}`}
       aria-label={label}
+      aria-pressed={done}
       onClick={() => {
+        if (!onClick) {
+          return;
+        }
         triggerImpact();
-        onClick?.();
+        onClick();
       }}
     >
       <AppIcon name="check" />

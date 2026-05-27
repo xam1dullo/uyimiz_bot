@@ -1,9 +1,12 @@
 import { Link } from '@tanstack/react-router';
 import { useStore } from '../../stores';
+import { AvatarStack } from './premium';
+import { triggerSelection } from './telegram-theme';
 
 export function AppTopbar() {
   const theme = useStore((state) => state.theme);
   const toggleTheme = useStore((state) => state.toggleTheme);
+  const nextThemeLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
 
   return (
     <header className="topbar app-topbar">
@@ -15,16 +18,16 @@ export function AppTopbar() {
         <button
           className="theme-toggle"
           type="button"
-          aria-label="Toggle theme"
-          onClick={toggleTheme}
+          aria-label={nextThemeLabel}
+          aria-pressed={theme === 'dark'}
+          onClick={() => {
+            triggerSelection();
+            toggleTheme();
+          }}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          <span aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
         </button>
-        <div className="avatar-stack" aria-label="Family members">
-          <span className="avatar">ZI</span>
-          <span className="avatar">JA</span>
-          <span className="avatar">SA</span>
-        </div>
+        <AvatarStack />
       </div>
     </header>
   );

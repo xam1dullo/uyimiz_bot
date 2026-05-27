@@ -1,12 +1,14 @@
 import { Link, useRouterState } from '@tanstack/react-router';
+import { AppIcon, type AppIconName } from './icons';
+import { triggerSelection } from './telegram-theme';
 
 const nav = [
-  { to: '/', key: 'dashboard', icon: '🏠', label: 'Bosh' },
-  { to: '/budget', key: 'budget', icon: '💰', label: 'Byudjet' },
-  { to: '/tasks', key: 'tasks', icon: '✅', label: 'Vazifa' },
-  { to: '/reminders', key: 'reminders', icon: '🔔', label: 'Eslatma' },
-  { to: '/settings', key: 'profile', icon: '👤', label: 'Men' },
-] as const;
+  { to: '/', key: 'dashboard', icon: 'home', label: 'Bosh' },
+  { to: '/budget', key: 'budget', icon: 'wallet', label: 'Byudjet' },
+  { to: '/tasks', key: 'tasks', icon: 'tasks', label: 'Vazifa' },
+  { to: '/reminders', key: 'reminders', icon: 'bell', label: 'Eslatma' },
+  { to: '/settings', key: 'profile', icon: 'user', label: 'Men' },
+] as const satisfies ReadonlyArray<{ to: string; key: string; icon: AppIconName; label: string }>;
 
 export function BottomNav() {
   const router = useRouterState();
@@ -22,8 +24,13 @@ export function BottomNav() {
             to={item.to}
             className={`bottom-nav__item${isActive ? ' is-active' : ''}`}
             aria-current={isActive ? 'page' : undefined}
+            onClick={() => {
+              if (!isActive) {
+                triggerSelection();
+              }
+            }}
           >
-            <span>{item.icon}</span>
+            <AppIcon name={item.icon} />
             <small>{item.label}</small>
           </Link>
         );

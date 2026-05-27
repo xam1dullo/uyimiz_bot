@@ -1,5 +1,6 @@
 // ─── Router (TanStack Router) ───
-import { createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
+import { useCallback } from 'react';
+import { createRouter, createRootRoute, createRoute, Outlet, useRouterState } from '@tanstack/react-router';
 import DashboardPage from './routes/index';
 import BudgetPage from './routes/budget/index';
 import BudgetReportPage from './routes/budget/report';
@@ -12,10 +13,24 @@ import SettingsPage from './routes/settings/index';
 import { BottomNav } from './components/app/BottomNav';
 import { AppTopbar } from './components/app/Topbar';
 import { ErrorBoundary } from './components/app/ErrorBoundary';
-import { useTelegramThemeStyle } from './components/app/telegram-theme';
+import { useTelegramBackButton, useTelegramThemeStyle } from './components/app/telegram-theme';
 
 function RootLayout() {
   const themeStyle = useTelegramThemeStyle();
+  const currentPath = useRouterState({ select: (state) => state.location.pathname });
+  const canGoBack = currentPath !== '/';
+  const handleTelegramBack = useCallback(() => {
+    if (currentPath === '/budget/report') {
+      void router.navigate({ to: '/budget' });
+      return;
+    }
+
+    if (currentPath !== '/') {
+      void router.navigate({ to: '/' });
+    }
+  }, [currentPath]);
+
+  useTelegramBackButton(canGoBack, handleTelegramBack);
 
   return (
     <main className="mobile-shell has-nav" style={themeStyle}>

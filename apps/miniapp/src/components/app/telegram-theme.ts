@@ -1,13 +1,32 @@
 import { useEffect, useMemo, type CSSProperties } from 'react';
 import {
+  bindMiniAppCssVars,
   bindThemeParamsCssVars,
+  bindViewportCssVars,
+  expandViewport,
   hapticFeedbackImpactOccurred,
   hapticFeedbackNotificationOccurred,
   hapticFeedbackSelectionChanged,
+  hideBackButton,
+  init,
+  isBackButtonMounted,
+  isBackButtonSupported,
+  isMiniAppCssVarsBound,
+  isMiniAppMounted,
   isThemeParamsCssVarsBound,
   isThemeParamsDark,
   isThemeParamsMounted,
+  isViewportCssVarsBound,
+  isViewportMounted,
+  isViewportMounting,
+  miniAppReady,
+  mountBackButton,
+  mountMiniAppSync,
   mountThemeParamsSync,
+  mountViewport,
+  onBackButtonClick,
+  retrieveRawInitData,
+  showBackButton,
   themeParamsBackgroundColor,
   themeParamsBottomBarBgColor,
   themeParamsButtonColor,
@@ -21,29 +40,109 @@ import {
   themeParamsSubtitleTextColor,
   themeParamsTextColor,
   useSignal,
+  viewportContentSafeAreaInsetBottom,
+  viewportContentSafeAreaInsetLeft,
+  viewportContentSafeAreaInsetRight,
+  viewportContentSafeAreaInsetTop,
+  viewportHeight,
+  viewportSafeAreaInsetBottom,
+  viewportSafeAreaInsetLeft,
+  viewportSafeAreaInsetRight,
+  viewportSafeAreaInsetTop,
+  viewportStableHeight,
+  viewportWidth,
   type ImpactHapticFeedbackStyle,
   type NotificationHapticFeedbackType,
 } from '@telegram-apps/sdk-react';
 
 export type ThemeStyle = CSSProperties & Record<`--${string}`, string | undefined>;
 
+let sdkInitialized = false;
+
+function safeCall(action: () => void) {
+  try {
+    action();
+  } catch {
+    // Telegram SDK calls are progressive enhancement outside the Mini App shell.
+  }
+}
+
+function safeInitTelegramSdk() {
+  if (sdkInitialized) {
+    return;
+  }
+
+  sdkInitialized = true;
+  safeCall(() => {
+    init({ acceptCustomStyles: true });
+  });
+}
+
+function persistRawInitData() {
+  try {
+    const rawInitData = retrieveRawInitData();
+
+    if (rawInitData) {
+      localStorage.setItem('telegram_init_data', rawInitData);
+      return;
+    }
+  } catch {
+    // Outside Telegram there is no launch data to persist.
+  }
+
+  localStorage.removeItem('telegram_init_data');
+}
+
 export function useTelegramThemeStyle(): ThemeStyle {
   useEffect(() => {
-    let cleanup: VoidFunction | undefined;
+    safeInitTelegramSdk();
+    persistRawInitData();
 
-    try {
+    const cleanups: VoidFunction[] = [];
+
+    safeCall(() => {
+      if (mountMiniAppSync.isAvailable() && !isMiniAppMounted()) {
+        mountMiniAppSync();
+      }
+
       if (mountThemeParamsSync.isAvailable() && !isThemeParamsMounted()) {
         mountThemeParamsSync();
       }
 
-      if (bindThemeParamsCssVars.isAvailable() && !isThemeParamsCssVarsBound()) {
-        cleanup = bindThemeParamsCssVars();
+      if (bindMiniAppCssVars.isAvailable() && !isMiniAppCssVarsBound()) {
+        cleanups.push(bindMiniAppCssVars());
       }
-    } catch {
-      cleanup = undefined;
-    }
 
-    return () => cleanup?.();
+      if (bindThemeParamsCssVars.isAvailable() && !isThemeParamsCssVarsBound()) {
+        cleanups.push(bindThemeParamsCssVars());
+      }
+
+      if (miniAppReady.isAvailable()) {
+        miniAppReady();
+      }
+
+      if (expandViewport.isAvailable()) {
+        expandViewport();
+      }
+
+      if (mountViewport.isAvailable() && !isViewportMounted() && !isViewportMounting()) {
+        void mountViewport().then(() => {
+          safeCall(() => {
+            if (bindViewportCssVars.isAvailable() && !isViewportCssVarsBound()) {
+              cleanups.push(bindViewportCssVars());
+            }
+          });
+        });
+      }
+
+      if (isViewportMounted() && bindViewportCssVars.isAvailable() && !isViewportCssVarsBound()) {
+        cleanups.push(bindViewportCssVars());
+      }
+    });
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
   }, []);
 
   const isDark = useSignal(isThemeParamsDark);
@@ -59,6 +158,17 @@ export function useTelegramThemeStyle(): ThemeStyle {
   const linkColor = useSignal(themeParamsLinkColor);
   const destructiveTextColor = useSignal(themeParamsDestructiveTextColor);
   const bottomBarBgColor = useSignal(themeParamsBottomBarBgColor);
+  const safeAreaTop = useSignal(viewportSafeAreaInsetTop);
+  const safeAreaRight = useSignal(viewportSafeAreaInsetRight);
+  const safeAreaBottom = useSignal(viewportSafeAreaInsetBottom);
+  const safeAreaLeft = useSignal(viewportSafeAreaInsetLeft);
+  const contentSafeAreaTop = useSignal(viewportContentSafeAreaInsetTop);
+  const contentSafeAreaRight = useSignal(viewportContentSafeAreaInsetRight);
+  const contentSafeAreaBottom = useSignal(viewportContentSafeAreaInsetBottom);
+  const contentSafeAreaLeft = useSignal(viewportContentSafeAreaInsetLeft);
+  const viewportCurrentHeight = useSignal(viewportHeight);
+  const viewportCurrentStableHeight = useSignal(viewportStableHeight);
+  const viewportCurrentWidth = useSignal(viewportWidth);
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
@@ -83,6 +193,17 @@ export function useTelegramThemeStyle(): ThemeStyle {
       '--tg-theme-link-color': linkColor,
       '--tg-theme-destructive-text-color': destructiveTextColor,
       '--tg-theme-bottom-bar-bg-color': bottomBarBgColor,
+      '--tg-viewport-safe-area-inset-top': `${safeAreaTop}px`,
+      '--tg-viewport-safe-area-inset-right': `${safeAreaRight}px`,
+      '--tg-viewport-safe-area-inset-bottom': `${safeAreaBottom}px`,
+      '--tg-viewport-safe-area-inset-left': `${safeAreaLeft}px`,
+      '--tg-viewport-content-safe-area-inset-top': `${contentSafeAreaTop}px`,
+      '--tg-viewport-content-safe-area-inset-right': `${contentSafeAreaRight}px`,
+      '--tg-viewport-content-safe-area-inset-bottom': `${contentSafeAreaBottom}px`,
+      '--tg-viewport-content-safe-area-inset-left': `${contentSafeAreaLeft}px`,
+      '--tg-viewport-height': `${viewportCurrentHeight}px`,
+      '--tg-viewport-stable-height': `${viewportCurrentStableHeight}px`,
+      '--tg-viewport-width': `${viewportCurrentWidth}px`,
       colorScheme: isDark ? 'dark' : 'light',
     }),
     [
@@ -90,45 +211,87 @@ export function useTelegramThemeStyle(): ThemeStyle {
       bottomBarBgColor,
       buttonColor,
       buttonTextColor,
+      contentSafeAreaBottom,
+      contentSafeAreaLeft,
+      contentSafeAreaRight,
+      contentSafeAreaTop,
       destructiveTextColor,
       isDark,
       lineColor,
       linkColor,
       mutedColor,
+      safeAreaBottom,
+      safeAreaLeft,
+      safeAreaRight,
+      safeAreaTop,
       secondaryBgColor,
       subtitleColor,
       surfaceColor,
       textColor,
+      viewportCurrentHeight,
+      viewportCurrentStableHeight,
+      viewportCurrentWidth,
     ],
   );
 }
 
+export function useTelegramBackButton(canGoBack: boolean, onBack: () => void) {
+  useEffect(() => {
+    safeInitTelegramSdk();
+
+    let cleanup: VoidFunction | undefined;
+
+    safeCall(() => {
+      if (isBackButtonSupported() && mountBackButton.isAvailable() && !isBackButtonMounted()) {
+        mountBackButton();
+      }
+
+      if (onBackButtonClick.isAvailable()) {
+        cleanup = onBackButtonClick(onBack);
+      }
+    });
+
+    return () => cleanup?.();
+  }, [onBack]);
+
+  useEffect(() => {
+    safeCall(() => {
+      if (!isBackButtonSupported()) {
+        return;
+      }
+
+      if (canGoBack && showBackButton.isAvailable()) {
+        showBackButton();
+        return;
+      }
+
+      if (hideBackButton.isAvailable()) {
+        hideBackButton();
+      }
+    });
+  }, [canGoBack]);
+}
+
 export function triggerImpact(style: ImpactHapticFeedbackStyle = 'light') {
-  try {
+  safeCall(() => {
     if (hapticFeedbackImpactOccurred.isAvailable()) {
       hapticFeedbackImpactOccurred(style);
     }
-  } catch {
-    // Telegram haptics are progressive enhancement outside the Mini App shell.
-  }
+  });
 }
 
 export function triggerSelection() {
-  try {
+  safeCall(() => {
     if (hapticFeedbackSelectionChanged.isAvailable()) {
       hapticFeedbackSelectionChanged();
     }
-  } catch {
-    // Telegram haptics are progressive enhancement outside the Mini App shell.
-  }
+  });
 }
 
 export function triggerNotification(type: NotificationHapticFeedbackType) {
-  try {
+  safeCall(() => {
     if (hapticFeedbackNotificationOccurred.isAvailable()) {
       hapticFeedbackNotificationOccurred(type);
     }
-  } catch {
-    // Telegram haptics are progressive enhancement outside the Mini App shell.
-  }
+  });
 }

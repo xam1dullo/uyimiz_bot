@@ -31,7 +31,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={{ toast }}>
       {children}
-      <div className="toast-stack" aria-live="polite">
+      <div className="toast-stack" role="status" aria-live="polite" aria-atomic="false" aria-relevant="additions text">
         {messages.map((msg, i) => (
           <div key={`${msg}-${i}`} className="toast">
             {msg}
