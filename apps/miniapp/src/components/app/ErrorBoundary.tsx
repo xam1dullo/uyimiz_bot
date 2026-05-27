@@ -6,6 +6,11 @@ interface State { hasError: boolean; error?: Error }
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false };
   static getDerivedStateFromError(error: Error) { return { hasError: true, error }; }
+
+  private reset = () => {
+    this.setState({ hasError: false, error: undefined });
+  };
+
   render() {
     if (this.state.hasError) {
       return this.props.fallback ?? (
@@ -13,7 +18,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="icon icon-red icon-large">⚠</div>
           <h1>Xatolik yuz berdi</h1>
           <p>{this.state.error?.message ?? "Noma'lum xatolik"}</p>
-          <button className="button primary" onClick={() => window.location.reload()}>Qayta yuklash</button>
+          <button className="button primary" type="button" onClick={this.reset}>Qayta yuklash</button>
         </section>
       );
     }

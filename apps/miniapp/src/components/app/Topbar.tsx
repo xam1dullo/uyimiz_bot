@@ -1,20 +1,30 @@
-export default function AppTopbar() {
+import { Link } from '@tanstack/react-router';
+import { useStore } from '../../stores';
+
+export function AppTopbar() {
+  const theme = useStore((state) => state.theme);
+  const toggleTheme = useStore((state) => state.toggleTheme);
+
   return (
     <header className="topbar app-topbar">
-      <a className="brand compact" href="/" style={{ textDecoration: 'none' }}>
+      <Link className="brand compact" to="/" aria-label="@uyimiz dashboard">
         <span className="logo-mark">u</span>
-        <span>Oilam</span>
-      </a>
+        <span>Uyimiz</span>
+      </Link>
       <div className="topbar-actions">
-        <div className="avatar-stack">
+        <button
+          className="theme-toggle"
+          type="button"
+          aria-label="Toggle theme"
+          onClick={toggleTheme}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+        <div className="avatar-stack" aria-label="Family members">
           <span className="avatar">ZI</span>
           <span className="avatar">JA</span>
           <span className="avatar">SA</span>
         </div>
-        <button className="theme-toggle" onClick={() => {
-          document.documentElement.setAttribute('data-theme',
-            document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-        }}>🌙</button>
       </div>
     </header>
   );

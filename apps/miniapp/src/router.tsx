@@ -9,13 +9,16 @@ import BirthdaysPage from './routes/birthdays/index';
 import MembersPage from './routes/members/index';
 import LeaderboardPage from './routes/leaderboard/index';
 import SettingsPage from './routes/settings/index';
-import BottomNav from './components/app/BottomNav';
-import AppTopbar from './components/app/Topbar';
+import { BottomNav } from './components/app/BottomNav';
+import { AppTopbar } from './components/app/Topbar';
 import { ErrorBoundary } from './components/app/ErrorBoundary';
+import { useTelegramThemeStyle } from './components/app/telegram-theme';
 
 function RootLayout() {
+  const themeStyle = useTelegramThemeStyle();
+
   return (
-    <main className="mobile-shell has-nav">
+    <main className="mobile-shell has-nav" style={themeStyle}>
       <AppTopbar />
       <ErrorBoundary>
         <Outlet />

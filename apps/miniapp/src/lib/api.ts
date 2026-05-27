@@ -54,6 +54,29 @@ export interface CreateBirthdayInput {
   notifyDaysBefore?: number[];
 }
 
+export interface AddBudgetRecordInput {
+  familyId: string;
+  type: 'income' | 'expense';
+  categoryId: string;
+  amount: number;
+  description?: string;
+}
+
+export interface CreateTaskInput {
+  familyId: string;
+  title: string;
+  priority?: 'low' | 'medium' | 'high';
+  points?: number;
+}
+
+export interface CreateReminderInput {
+  familyId: string;
+  title: string;
+  scheduledAt: string;
+  type: 'one_time' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+  description?: string;
+}
+
 export interface TaskDto {
   id: string;
   title: string;
@@ -103,7 +126,7 @@ export async function getTransactions(familyId: string, params?: Record<string, 
   const { data } = await api.get(`/families/${familyId}/budget`, { params });
   return Array.isArray(data) ? data : data.data ?? [];
 }
-export async function addBudgetRecord(payload: any) {
+export async function addBudgetRecord(payload: AddBudgetRecordInput) {
   const { data } = await api.post(`/families/${payload.familyId}/budget`, payload);
   return data;
 }
@@ -119,7 +142,7 @@ export async function getTasks(familyId: string, status?: string) {
   const { data } = await api.get(`/families/${familyId}/tasks`, { params });
   return Array.isArray(data) ? data : data.data ?? [];
 }
-export async function createTask(payload: any) {
+export async function createTask(payload: CreateTaskInput) {
   const { data } = await api.post(`/families/${payload.familyId}/tasks`, payload);
   return data;
 }
@@ -133,7 +156,7 @@ export async function getReminders(familyId: string) {
   const { data } = await api.get(`/families/${familyId}/reminders`);
   return Array.isArray(data) ? data : data.data ?? [];
 }
-export async function createReminder(payload: any) {
+export async function createReminder(payload: CreateReminderInput) {
   const { data } = await api.post(`/families/${payload.familyId}/reminders`, payload);
   return data;
 }
@@ -147,7 +170,7 @@ export async function getBirthdays(familyId: string) {
   const { data } = await api.get(`/families/${familyId}/birthdays`);
   return Array.isArray(data) ? data : data.data ?? [];
 }
-export async function addBirthday(payload: any) {
+export async function addBirthday(payload: CreateBirthdayInput) {
   const { data } = await api.post(`/families/${payload.familyId}/birthdays`, payload);
   return data;
 }

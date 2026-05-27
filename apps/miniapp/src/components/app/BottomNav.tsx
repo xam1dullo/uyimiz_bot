@@ -6,9 +6,9 @@ const nav = [
   { to: '/tasks', key: 'tasks', icon: '✅', label: 'Vazifa' },
   { to: '/reminders', key: 'reminders', icon: '🔔', label: 'Eslatma' },
   { to: '/settings', key: 'profile', icon: '👤', label: 'Men' },
-];
+] as const;
 
-export default function BottomNav() {
+export function BottomNav() {
   const router = useRouterState();
   const currentPath = router.location.pathname;
 
@@ -21,7 +21,7 @@ export default function BottomNav() {
             key={item.key}
             to={item.to}
             className={`bottom-nav__item${isActive ? ' is-active' : ''}`}
-            style={{ textDecoration: 'none' }}
+            aria-current={isActive ? 'page' : undefined}
           >
             <span>{item.icon}</span>
             <small>{item.label}</small>

@@ -18,7 +18,7 @@ export default function LeaderboardPage() {
       </section>
 
       {arr.length > 0 && (
-        <section className="hero-card leader-hero" style={{ marginBottom: 18, textAlign: 'center' }}>
+        <section className="hero-card" style={{ marginBottom: 18, textAlign: 'center' }}>
           <div className="icon icon-yellow icon-large" style={{ margin: '0 auto 14px' }}>👑</div>
           <h2>{arr[0]?.name}</h2>
           <p>{arr[0]?.points ?? 0} ball · Bu hafta 1-o'rin</p>

@@ -1,10 +1,35 @@
 // ─── Mini App Auth ───
 import { getToken, refreshToken } from './api';
 
+interface TelegramWebAppUser {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  language_code?: string;
+}
+
+interface TelegramWebApp {
+  initData?: string;
+  initDataUnsafe?: {
+    user?: TelegramWebAppUser;
+  };
+}
+
+interface TelegramWindow extends Window {
+  Telegram?: {
+    WebApp?: TelegramWebApp;
+  };
+}
+
+function getTelegramWebApp() {
+  return (window as TelegramWindow).Telegram?.WebApp;
+}
+
 export async function authenticate(): Promise<boolean> {
   try {
     // Get initData from Telegram Mini App SDK
-    const WebApp = (window as any).Telegram?.WebApp;
+    const WebApp = getTelegramWebApp();
     if (!WebApp?.initData) {
       console.warn('Not running inside Telegram Mini App');
       return false;
@@ -45,6 +70,6 @@ export async function ensureAuth(): Promise<boolean> {
 }
 
 export function getTelegramUser() {
-  const WebApp = (window as any).Telegram?.WebApp;
+  const WebApp = getTelegramWebApp();
   return WebApp?.initDataUnsafe?.user ?? null;
 }
