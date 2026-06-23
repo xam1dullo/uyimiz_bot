@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { validateEnv } from '@uyimiz/config';
 
@@ -36,10 +37,16 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
+  // Health check endpoint
+  app.getHttpAdapter().get('/health', async (_req, res) => {
+    res.status(200).send({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  const logger = new Logger('Bootstrap');
   const port = env.PORT;
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 Server: http://localhost:${port}`);
-  console.log(`📚 Swagger: http://localhost:${port}/api/docs`);
+  logger.log(`🚀 Server: http://localhost:${port}`);
+  logger.log(`📚 Swagger: http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

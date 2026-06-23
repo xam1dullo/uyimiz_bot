@@ -29,7 +29,8 @@ export class FamilyMembersController {
     const existing = await this.repo.findMemberByTelegramId(body.telegramId);
     if (existing) throw new Error('USER_ALREADY_IN_FAMILY');
 
-    const created = await this.repo.addMember(familyId, body.telegramId, body.name, body.role ?? 'parent');
+    const role = (body.role ?? 'MEMBER') as 'OWNER' | 'MEMBER' | 'CHILD';
+    const created = await this.repo.addMember(familyId, body.telegramId, body.name, role);
     return { id: created.id, name: created.name, role: created.role };
   }
 

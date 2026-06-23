@@ -1,0 +1,481 @@
+import { TranslationSet, FamilyMember, BudgetEntry, Task, Reminder, Birthday } from './types';
+
+export const TRANSLATIONS: Record<string, TranslationSet> = {
+  uz: {
+    welcome: "Xush kelibsiz",
+    chooseLang: "Tilni tanlang",
+    langNotice: "Tilni keyinchalik sozlamalardan o'zgartirish mumkin",
+    subtitle: "Oila uchun yagona raqamli uy",
+    continue: "Davom etish",
+    back: "Orqaga",
+    cancel: "Bekor qilish",
+    save: "Saqlash",
+    
+    // Onboarding
+    hasFamilyQuestion: "Oilangiz bormi?",
+    createFamilyOpt: "Yangi oila yarataman",
+    createFamilyDesc: "Yangi oilaviy raqamli makonni birinchi bo'lib boshlash",
+    joinFamilyOpt: "Oilaga qo'shilaman",
+    joinFamilyDesc: "Oila a'zosi yuborgan taklif (invite) kodi orqali kirish",
+    enterFamilyName: "Oilangiz nomini kiriting",
+    familyNamePlaceholder: "Karimovlar oilasi",
+    addEmojiButton: "Emoji tanlash",
+    enterInviteCode: "Invite kodni kiriting",
+    otpDescription: "Sizga yuborilgan 6 xonali taklif kodini kiriting",
+    qrCodeButton: "Yoki QR kod skanerlash",
+    waitingApproval: "Tasdiqlash kutilmoqda...",
+    waitingDesc: "Oila egasi (Owner) sizni tasdiqlashini kutyapsiz",
+    sentNotification: "Oila ma'muriga xabar yuborildi",
+    successTitle: "Muvaffaqiyatli!",
+    successDesc: "Oilaga muvaffaqiyatli qo'shildingiz!",
+    
+    // Tabs
+    tabHome: "Bosh",
+    tabBudget: "Byudjet",
+    tabTasks: "Vazifalar",
+    tabReminders: "Eslatmalar",
+    tabMe: "Men",
+    tabRating: "Reyting",
+    
+    // Dashboard
+    greetingMorning: "🌅 Xayrli tong",
+    greetingAfternoon: "☀️ Xayrli kun",
+    greetingEvening: "🌌 Xayrli oqshom",
+    membersCount: "a'zo",
+    thisMonth: "Bu oy",
+    income: "Daromad",
+    expense: "Xarajat",
+    balance: "Balans",
+    viewReport: "Hisobot ko'rish →",
+    tasksWidgetTitle: "Aktiv vazifalar",
+    noTasksToday: "Bugun vazifalar yo'q 😌",
+    upcomingReminder: "Yaqin eslatma",
+    noRemindersToday: "Bugun eslatma yo'q 😌",
+    upcomingBirthday: "Kelayotgan tug'ilgan kun",
+    daysLeftText: "kun qoldi",
+    yearsOldText: "yoshga to'ladi",
+    weeklyLeaderboard: "Bu haftalik liderboard",
+    viewFullRating: "To'liq reyting →",
+    fastActions: "Tez harakatlar",
+    addExpenseAction: "💸 Xarajat qo'sh",
+    addTaskAction: "✅ Vazifa qo'sh",
+    addReminderAction: "🔔 Eslatma qo'sh",
+    
+    // Budget
+    all: "Hammasi",
+    budgetTitle: "Moliya",
+    budgetSettings: "Sozlamalar",
+    periodThisMonth: "Bu oy",
+    periodLastMonth: "O'tgan oy",
+    periodWeekly: "Haftalik",
+    deleteText: "O'chirish",
+    reportsTab: "Hisobot sahifasi",
+    generalTab: "Byudjet ro'yxati",
+    categoriesTitle: "Kategoriyalar bo'yicha",
+    daysExpenseChart: "Kunlar bo'yicha xarajat va daromad",
+    addTransactionTitle: "Yozuv qo'shish",
+    whatToAdd: "Nima qo'shmoqchisiz?",
+    amountText: "Miqdorni kiriting",
+    selectCategory: "Kategoriya tanlang",
+    finishAndSave: "Tafsilotlar va saqlash",
+    optionalNote: "Izoh (ixtiyoriy)",
+    transactionDate: "Sana",
+    addedSuccess: "qo'shildi!",
+    
+    // Tasks
+    tasksTitle: "Vazifalar",
+    tabNew: "Yangi",
+    tabInProgress: "Jarayonda",
+    tabDone: "Bajarilgan",
+    filterMy: "Mening",
+    filterAll: "Oila hammasi",
+    sortBy: "Saralash ↕",
+    taskDoneBtn: "Bajardim",
+    congratsPoints: "ball oldingiz! 🎉",
+    addTaskTitle: "Yangi vazifa",
+    taskTitlePlaceholder: "Vazifa sarlavhasini yozing...",
+    assignTo: "Kimga belgilash",
+    childOnlyTasks: "Mening vazifalarim",
+    pointsText: "Ball",
+    pointsAuto: "Avtomatik",
+    repeatOnce: "Bir marta",
+    repeatDaily: "Har kuni",
+    repeatWeekly: "Har hafta",
+    
+    // Reminders
+    remindersTitle: "Eslatmalar",
+    sectionUpcoming: "Yaqinlashayotgan",
+    sectionPast: "O'tilgan",
+    noRemindersMsg: "Eslatmalar yo'q. Dam oling!",
+    btnSnooze: "Kechiktirish ⏰",
+    snoozeTitle: "Qancha vaqtga kechiktiramiz?",
+    minutesAgo: "daqiqa oldin",
+    minutesLater: "daqiqadan keyin eslatamiz",
+    snoozeAdded: "⏰ Kechiktirildi",
+    
+    // Profile
+    pointsScore: "Ball",
+    tasksStat: "Vazifa",
+    remindersStat: "Eslatma",
+    familySection: "Oila a'zolari",
+    birthdaysSection: "Tug'ilgan kunlar",
+    notificationsSection: "Bildirishnomalar",
+    languageSection: "Til tanlash",
+    helpSection: "Yordam (FAQ)",
+    logoutBtn: "Chiqish / Qayta boshlash",
+    memberJoined: "A'zo qo'shish",
+    inviteLinkTitle: "Taklif havolasi (Invite link)",
+    copyBtn: "Nusxalash",
+    copiedMsg: "Nusxalandi!",
+    shareBtn: "Ulashish",
+    ownerOnlyMsg: "Faqat Oila Egasi tahrirlay oladi.",
+    cantAccessMsg: "Kechirasiz, sizda ushbu modulga ruxsat yo'q 🔒",
+    
+    // Leaderboard
+    leaderboardTitle: "Reyting taxtasi",
+    statThisWeek: "Bu hafta",
+    statTotal: "Umumiy ball",
+    heroBadge: "Oila Qahramoni (4 haftali)"
+  },
+  ru: {
+    welcome: "Добро пожаловать",
+    chooseLang: "Выберите язык",
+    langNotice: "Язык можно будет изменить позже в настройках",
+    subtitle: "Единый цифровой дом для вашей семьи",
+    continue: "Продолжить",
+    back: "Назад",
+    cancel: "Отмена",
+    save: "Сохранить",
+    
+    // Onboarding
+    hasFamilyQuestion: "У вас уже есть семья?",
+    createFamilyOpt: "Создать новую семью",
+    createFamilyDesc: "Начать новое семейное цифровое пространство",
+    joinFamilyOpt: "Присоединиться к семье",
+    joinFamilyDesc: "Войти по пригласительному коду от члена семьи",
+    enterFamilyName: "Введите название вашей семьи",
+    familyNamePlaceholder: "Семья Каримовых",
+    addEmojiButton: "Выбрать эмодзи",
+    enterInviteCode: "Введите код приглашения",
+    otpDescription: "Введите 6-значный код приглашения, отправленный вам",
+    qrCodeButton: "Или сканировать QR-код",
+    waitingApproval: "Ожидание подтверждения...",
+    waitingDesc: "Вы ждете подтверждения от создателя семьи",
+    sentNotification: "Уведомление отправлено владельцу",
+    successTitle: "Успех!",
+    successDesc: "Вы успешно присоединились!",
+    
+    // Tabs
+    tabHome: "Главная",
+    tabBudget: "Бюджет",
+    tabTasks: "Задачи",
+    tabReminders: "Напоминания",
+    tabMe: "Профиль",
+    tabRating: "Рейтинг",
+    
+    // Dashboard
+    greetingMorning: "🌅 Доброе утро",
+    greetingAfternoon: "☀️ Добрый день",
+    greetingEvening: "🌌 Добрый вечер",
+    membersCount: "чл.",
+    thisMonth: "В этом месяце",
+    income: "Доход",
+    expense: "Расход",
+    balance: "Баланс",
+    viewReport: "Смотреть отчет →",
+    tasksWidgetTitle: "Активные задачи",
+    noTasksToday: "На сегодня задач нет 😌",
+    upcomingReminder: "Ближайшее напоминание",
+    noRemindersToday: "На сегодня напоминаний нет 😌",
+    upcomingBirthday: "Ближайший день рождения",
+    daysLeftText: "дн. осталось",
+    yearsOldText: "лет исполняется",
+    weeklyLeaderboard: "Рейтинг этой недели",
+    viewFullRating: "Полный рейтинг →",
+    fastActions: "Быстрые действия",
+    addExpenseAction: "💸 Добавить расход",
+    addTaskAction: "✅ Добавить задачу",
+    addReminderAction: "🔔 Добавить напоминание",
+    
+    // Budget
+    all: "Все",
+    budgetTitle: "Бюджет",
+    budgetSettings: "Настройки",
+    periodThisMonth: "Этот месяц",
+    periodLastMonth: "Прошлый месяц",
+    periodWeekly: "Неделя",
+    deleteText: "Удалить",
+    reportsTab: "Аналитика",
+    generalTab: "Список транзакций",
+    categoriesTitle: "Расходы по категориям",
+    daysExpenseChart: "Доходы и расходы по дням",
+    addTransactionTitle: "Новая запись",
+    whatToAdd: "Что вы хотите добавить?",
+    amountText: "Введите сумму",
+    selectCategory: "Выберите категорию",
+    finishAndSave: "Детали и сохранение",
+    optionalNote: "Комментарий (необязательно)",
+    transactionDate: "Дата",
+    addedSuccess: "добавлено!",
+    
+    // Tasks
+    tasksTitle: "Задачи",
+    tabNew: "Новые",
+    tabInProgress: "В процессе",
+    tabDone: "Выполненные",
+    filterMy: "Мои",
+    filterAll: "Семья",
+    sortBy: "Сортировка ↕",
+    taskDoneBtn: "Выполнил",
+    congratsPoints: "очков получено! 🎉",
+    addTaskTitle: "Новая задача",
+    taskTitlePlaceholder: "Введите название задачи...",
+    assignTo: "Кому поручить",
+    childOnlyTasks: "Мои задачи",
+    pointsText: "Баллы",
+    pointsAuto: "Автоматически",
+    repeatOnce: "Один раз",
+    repeatDaily: "Каждый день",
+    repeatWeekly: "Каждую неделю",
+    
+    // Reminders
+    remindersTitle: "Напоминания",
+    sectionUpcoming: "Предстоящие",
+    sectionPast: "Прошедшие",
+    noRemindersMsg: "Напоминаний нет. Отдыхайте!",
+    btnSnooze: "Отложить ⏰",
+    snoozeTitle: "На сколько времени отложить?",
+    minutesAgo: "минут назад",
+    minutesLater: "минут напомним позже",
+    snoozeAdded: "⏰ Отложено",
+    
+    // Profile
+    pointsScore: "Баллы",
+    tasksStat: "Задач",
+    remindersStat: "Напом.",
+    familySection: "Члены семьи",
+    birthdaysSection: "Дни рождения",
+    notificationsSection: "Уведомления",
+    languageSection: "Выбор языка",
+    helpSection: "Помощь (FAQ)",
+    logoutBtn: "Выйти / Сбросить прогресс",
+    memberJoined: "Добавить члена",
+    inviteLinkTitle: "Ссылка-инвайт (Invite link)",
+    copyBtn: "Копировать",
+    copiedMsg: "Скопировано!",
+    shareBtn: "Поделиться",
+    ownerOnlyMsg: "Только Владелец может редактировать.",
+    cantAccessMsg: "Извините, у вас нет доступа к этому модулю 🔒",
+    
+    // Leaderboard
+    leaderboardTitle: "Доска лидеров",
+    statThisWeek: "На этой неделе",
+    statTotal: "Всего баллов",
+    heroBadge: "Герой недели (серия 4 нед.)"
+  },
+  en: {
+    welcome: "Welcome",
+    chooseLang: "Choose Language",
+    langNotice: "Language can be changed later in settings",
+    subtitle: "The unified digital home for your family",
+    continue: "Continue",
+    back: "Back",
+    cancel: "Cancel",
+    save: "Save",
+    
+    // Onboarding
+    hasFamilyQuestion: "Do you have a family space?",
+    createFamilyOpt: "Create a new family",
+    createFamilyDesc: "Start a brand new digital family space",
+    joinFamilyOpt: "Join a family",
+    joinFamilyDesc: "Join via invite code sent by your family member",
+    enterFamilyName: "Enter your family's name",
+    familyNamePlaceholder: "Karimovs Family",
+    addEmojiButton: "Add emoji",
+    enterInviteCode: "Enter invite code",
+    otpDescription: "Enter the 6-digit invitation code sent to you",
+    qrCodeButton: "Or scan QR code",
+    waitingApproval: "Waiting for approval...",
+    waitingDesc: "Waiting for approval from the Family Owner",
+    sentNotification: "Notification sent to family head",
+    successTitle: "Success!",
+    successDesc: "You have successfully joined the family!",
+    
+    // Tabs
+    tabHome: "Home",
+    tabBudget: "Budget",
+    tabTasks: "Tasks",
+    tabReminders: "Reminders",
+    tabMe: "Me",
+    tabRating: "Rating",
+    
+    // Dashboard
+    greetingMorning: "🌅 Good morning",
+    greetingAfternoon: "☀️ Good afternoon",
+    greetingEvening: "🌌 Good evening",
+    membersCount: "mbr",
+    thisMonth: "This Month",
+    income: "Income",
+    expense: "Expense",
+    balance: "Balance",
+    viewReport: "View Report →",
+    tasksWidgetTitle: "Active Tasks",
+    noTasksToday: "No tasks for today 😌",
+    upcomingReminder: "Upcoming Reminder",
+    noRemindersToday: "No reminders for today 😌",
+    upcomingBirthday: "Upcoming Birthday",
+    daysLeftText: "days left",
+    yearsOldText: "years old",
+    weeklyLeaderboard: "Weekly Leaderboard",
+    viewFullRating: "View Rating →",
+    fastActions: "Quick Actions",
+    addExpenseAction: "💸 Add Expense",
+    addTaskAction: "✅ Add Task",
+    addReminderAction: "🔔 Add Reminder",
+    
+    // Budget
+    all: "All",
+    budgetTitle: "Finance",
+    budgetSettings: "Settings",
+    periodThisMonth: "This Month",
+    periodLastMonth: "Last Month",
+    periodWeekly: "Weekly",
+    deleteText: "Delete",
+    reportsTab: "Analytics",
+    generalTab: "Transactions",
+    categoriesTitle: "By Category",
+    daysExpenseChart: "Income & Expense Daily Flow",
+    addTransactionTitle: "New Entry",
+    whatToAdd: "What do you want to add?",
+    amountText: "Enter amount",
+    selectCategory: "Select Category",
+    finishAndSave: "Details & Save",
+    optionalNote: "Comment (optional)",
+    transactionDate: "Date",
+    addedSuccess: "added!",
+    
+    // Tasks
+    tasksTitle: "Tasks",
+    tabNew: "New",
+    tabInProgress: "In Progress",
+    tabDone: "Completed",
+    filterMy: "Mine",
+    filterAll: "All Family",
+    sortBy: "Sort By ↕",
+    taskDoneBtn: "Done",
+    congratsPoints: "points earned! 🎉",
+    addTaskTitle: "New Task",
+    taskTitlePlaceholder: "Write a task name...",
+    assignTo: "Assign to",
+    childOnlyTasks: "My Tasks",
+    pointsText: "Points",
+    pointsAuto: "Auto",
+    repeatOnce: "Once",
+    repeatDaily: "Daily",
+    repeatWeekly: "Weekly",
+    
+    // Reminders
+    remindersTitle: "Reminders",
+    sectionUpcoming: "Upcoming",
+    sectionPast: "Past",
+    noRemindersMsg: "No reminders. Enjoy your time!",
+    btnSnooze: "Snooze ⏰",
+    snoozeTitle: "How long to snooze?",
+    minutesAgo: "minutes ago",
+    minutesLater: "minutes later, reminder set",
+    snoozeAdded: "⏰ Snoozed",
+    
+    // Profile
+    pointsScore: "Points",
+    tasksStat: "Tasks",
+    remindersStat: "Remind.",
+    familySection: "Family Members",
+    birthdaysSection: "Birthdays",
+    notificationsSection: "Notifications",
+    languageSection: "Language",
+    helpSection: "Help (FAQ)",
+    logoutBtn: "Log out / Reset Progress",
+    memberJoined: "Add Member",
+    inviteLinkTitle: "Invitation Link (Invite link)",
+    copyBtn: "Copy",
+    copiedMsg: "Copied!",
+    shareBtn: "Share",
+    ownerOnlyMsg: "Only Family Owner can modify settings.",
+    cantAccessMsg: "Sorry, you don't have access to this module 🔒",
+    
+    // Leaderboard
+    leaderboardTitle: "Leaderboard",
+    statThisWeek: "This Week",
+    statTotal: "Total Points",
+    heroBadge: "Family Hero (4-wk streak)"
+  }
+};
+
+export const INITIAL_MEMBERS: FamilyMember[] = [
+  { id: '1', name: 'Xamidullo', role: 'OWNER', avatar: '👨🏻', points: 280, lastActive: 'Online', isSelf: true },
+  { id: '2', name: 'Jasur Karimov', role: 'MEMBER', avatar: '👨', points: 190, lastActive: '2 soat oldin' },
+  { id: '3', name: 'Sarvar (14 yosh)', role: 'CHILD', avatar: '👦', points: 120, lastActive: 'Kecha' },
+  { id: '4', name: 'Malika (9 yosh)', role: 'CHILD', avatar: '👧', points: 45, lastActive: '3 kun oldin' }
+];
+
+export const INITIAL_BUDGET: BudgetEntry[] = [
+  { id: 'b1', amount: 285000, type: 'EXPENSE', category: 'Oziq-ovqat', icon: '🛒', note: 'Qora bozor non, go\'sht, meva', date: 'Bugun, 12:30', addedBy: 'Zilola Karimova' },
+  { id: 'b2', amount: 3500000, type: 'INCOME', category: 'Maosh', icon: '💼', note: 'Oylik tushumi', date: 'Bugun, 09:00', addedBy: 'Jasur Karimov' },
+  { id: 'b3', amount: 540000, type: 'EXPENSE', category: 'Kommunal', icon: '🏠', note: 'Gaz va Svet to\'lovi', date: 'Kecha, 18:45', addedBy: 'Jasur Karimov' },
+  { id: 'b4', amount: 150000, type: 'EXPENSE', category: 'Transport', icon: '🚗', note: 'Benzin quydirish', date: 'Kecha, 08:15', addedBy: 'Zilola Karimova' },
+  { id: 'b5', amount: 450000, type: 'EXPENSE', category: 'Kiyim', icon: '👔', note: 'Sarvarga maktab formasi', date: '3 kun oldin', addedBy: 'Zilola Karimova' },
+  { id: 'b6', amount: 800000, type: 'EXPENSE', category: 'Ta\'lim', icon: '🎓', note: 'Malikani ingliz tili to\'garagi', date: '4 kun oldin', addedBy: 'Zilola Karimova' },
+  { id: 'b7', amount: 120000, type: 'EXPENSE', category: 'Sog\'liq', icon: '🏥', note: 'Zilolaga vitaminlar', date: '5 kun oldin', addedBy: 'Jasur Karimov' }
+];
+
+export const BUDGET_CATEGORIES = [
+  { name: 'Oziq-ovqat', icon: '🛒', color: '#f59e0b' },
+  { name: 'Kommunal', icon: '🏠', color: '#3b82f6' },
+  { name: 'Transport', icon: '🚗', color: '#10b981' },
+  { name: 'Kiyim', icon: '👔', color: '#8b5cf6' },
+  { name: 'Ta\'lim', icon: '🎓', color: '#ec4899' },
+  { name: 'Sog\'liq', icon: '🏥', color: '#ef4444' },
+  { name: 'Sayohat', icon: '🎉', color: '#06b6d4' },
+  { name: 'Dori', icon: '💊', color: '#a855f7' },
+  { name: 'Boshqa', icon: '➕', color: '#6b7280' }
+];
+
+export const INITIAL_TASKS: Task[] = [
+  { id: 't1', title: 'Yashash xonani tozalash', category: '🧹', assignedTo: '1', dueDate: 'Bugun, 20:00', repeat: 'Har hafta', points: 30, status: 'NEW' },
+  { id: 't2', title: 'Darslarni tayyorlash', category: '🎓', assignedTo: '3', dueDate: 'Bugun, 16:30', repeat: 'Har kuni', points: 20, status: 'IN_PROGRESS' },
+  { id: 't3', title: 'Idishlarni yuvish', category: '🍽', assignedTo: '4', dueDate: 'Ertaga, 12:00', repeat: 'Har kuni', points: 15, status: 'NEW' },
+  { id: 't4', title: 'Bozordan go\'sht va sabzavotlar olish', category: '🛒', assignedTo: '2', dueDate: 'Ertaga, 18:00', repeat: 'Bir marta', points: 40, status: 'NEW' },
+  { id: 't5', title: 'Gullarga suv quyish', category: '🌱', assignedTo: '3', dueDate: 'Bugun, 10:00', repeat: 'Har kuni', points: 10, status: 'DONE' },
+  { id: 't6', title: 'Ahlatni olib chiqish', category: '📦', assignedTo: '4', dueDate: 'Kecha, 09:00', repeat: 'Har kuni', points: 10, status: 'DONE' }
+];
+
+export const INITIAL_REMINDERS: Reminder[] = [
+  { id: 'r1', title: 'Shifokorga borish', note: 'Zuhra opani ko\'rigi', assignedTo: '1', time: 'Bugun, 18:00', repeat: 'Bir marta' },
+  { id: 'r2', title: 'Bank kredit to\'lovi', note: 'Ipoteka krediti to\'lash muddati', assignedTo: 'all', time: 'Ertaga, 09:00', repeat: 'Har oy' },
+  { id: 'r3', title: 'Konservatoriyaga konsertga chipta', note: 'Bolalar uchun baddiy chiqish', assignedTo: '2', time: '3 kundan keyin, 19:30', repeat: 'Bir marta' }
+];
+
+export const INITIAL_BIRTHDAYS: Birthday[] = [
+  { id: 'birth1', name: 'Jasur Karimov', relationship: 'Ota', date: '12-iyun', daysLeft: 3, age: 38 },
+  { id: 'birth2', name: 'Sarvar Karimov', relationship: 'Aka/opa', date: '25-iyun', daysLeft: 16, age: 14 },
+  { id: 'birth3', name: 'Barno Karimova', relationship: 'Bobo/Buvi', date: '8-iyul', daysLeft: 29, age: 67 }
+];
+
+export const FAQ_DATA = [
+  {
+    q: "Qanday qilib yangi oila a'zolarini qo'shishim mumkin?",
+    a: "Profil sahifasidagi 'Oila a'zolari' bo'limiga kiring. O'sha yerda, agar siz Oila Egasi bo'lsangiz, 'A'zo qo'shish' tugmasi va maxsus taklif (invite) havolasini olasiz. Havolani nusxalab oilangiz a'zosiga yuborasiz."
+  },
+  {
+    q: "Rollar nima va ular qanday farq qiladi?",
+    a: "Oilada 3 xil rol bor: 1) Oila Egasi 👑: oilani boshqaradi, sozlamalar va invite havola olish huquqiga ega. 2) A'zo 👤: xarajatlar va vazifalar yaratishi, hisobotlarni ko'rishi mumkin. 3) Bola 👦: faqat o'zi uchun belgilangan vazifalarni ko'radi va bal to'playdi, byudjetni ko'ra olmaydi."
+  },
+  {
+    q: "Ballar qanday hisoblanadi va reyting taxtasi nima?",
+    a: "Har bir vazifa belgilangan ballga ega. Vazifani muvaffaqiyatli bajarganingizdan so'ng 'Bajardim' tugmasini bossangiz, ballaringiz hisobingizga qo'shiladi va haftalik reyting taxtasida (Leaderboard) yuqoriga ko'tarilasiz!"
+  },
+  {
+    q: "Eslatmalarni o'zgartirish (Snooze) qanday ishlaydi?",
+    a: "Biron bir eslatma muddati kelganda uni kechiktirish (snooze) imkoniyatingiz bor. 'Kechiktir' bosib, 10 daqiqa, 30 daqiqa yoki o'zingiz xohlagan boshqa vaqtga surib qo'yishingiz mumkin."
+  }
+];

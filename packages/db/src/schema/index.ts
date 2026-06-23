@@ -1,7 +1,7 @@
 // ─── @uyimiz/db — Drizzle Schema (MVP: TZ v2.0) ───
 import { pgTable, uuid, text, timestamp, pgEnum, integer, boolean, jsonb, date, uniqueIndex, index } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['admin', 'parent', 'child', 'guest']);
+export const userRoleEnum = pgEnum('user_role', ['OWNER', 'MEMBER', 'CHILD']);
 export const userLangEnum = pgEnum('user_lang', ['uz', 'ru', 'en']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['income', 'expense']);
 export const taskStatusEnum = pgEnum('task_status', ['pending', 'in_progress', 'completed', 'cancelled']);
@@ -24,7 +24,7 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   telegramId: text('telegram_id').notNull().unique(),
   familyId: uuid('family_id').references(() => families.id, { onDelete: 'set null' }),
-  role: userRoleEnum('role').notNull().default('parent'),
+  role: userRoleEnum('role').notNull().default('MEMBER'),
   lang: userLangEnum('lang').notNull().default('uz'),
   name: text('name').notNull(),
   username: text('username'),

@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 
-export type MemberRole = 'admin' | 'parent' | 'child' | 'guest';
+// DB enum: userRoleEnum = ['OWNER', 'MEMBER', 'CHILD']
+export type MemberRole = 'OWNER' | 'MEMBER' | 'CHILD';
 export type UserLang = 'uz' | 'ru' | 'en';
 
 export class MemberEntity {
@@ -19,7 +20,7 @@ export class MemberEntity {
     telegramId: string,
     name: string,
     familyId: string,
-    role: MemberRole = 'parent',
+    role: MemberRole = 'MEMBER',
     lang: UserLang = 'uz',
   ): MemberEntity {
     return new MemberEntity(

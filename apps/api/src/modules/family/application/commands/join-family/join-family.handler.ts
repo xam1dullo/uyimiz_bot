@@ -18,6 +18,6 @@ export class JoinFamilyHandler {
       throw new Error('INVITE_CODE_INVALID');
     }
 
-    return this.repo.addMember(family.id, command.telegramId, command.name, 'parent');
+    return this.repo.addMember(family.id, command.telegramId, command.name, 'MEMBER');
   }
 }

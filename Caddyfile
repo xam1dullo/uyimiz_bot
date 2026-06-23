@@ -1,18 +1,50 @@
 uyimiz.uz {
-    reverse_proxy api:3000
+    tls internal
+
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-XSS-Protection "1; mode=block"
+        -Server
+    }
+
+    # API reverse proxy
+    @api path /api/*
+    reverse_proxy @api api:3000 {
+        rate_limit 30r/s
+    }
+
+    # Health check
+    @health path /health
+    reverse_proxy @health api:3000
+
+    # Web frontend
+    root * /app/apps/web/dist
+    file_server
 }
 
 miniapp.uyimiz.uz {
+    tls internal
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
     root * /app/apps/miniapp/dist
     file_server
 }
 
 admin.uyimiz.uz {
+    tls internal
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
     root * /app/apps/admin/dist
-    file_server
-}
-
-uyimiz.uz {
-    root * /app/apps/web/dist
     file_server
 }
