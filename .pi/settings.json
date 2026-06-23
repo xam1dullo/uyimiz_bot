@@ -1,0 +1,25 @@
+{
+  "skills": [
+    "~/.claude/skills",
+    "~/.codex/skills",
+    "~/.pi/agent/skills"
+  ],
+  "agent": {
+    "defaultModel": "openmodel/deepseek-v4-flash",
+    "defaultThinkingLevel": "high"
+  },
+  "beads": {
+    "enabled": true,
+    "autoPrime": true
+  },
+  "theme": "dark",
+  "retry": {
+    "enabled": true,
+    "maxRetries": 6,
+    "baseDelayMs": 5000
+  },
+  "subagents": {
+    "maxConcurrent": 10,
+    "graceTurns": 5
+  }
+}

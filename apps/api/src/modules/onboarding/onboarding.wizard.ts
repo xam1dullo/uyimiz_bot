@@ -22,6 +22,10 @@ export class OnboardingWizard {
     return (ctx.wizard as any).state?.lang ?? 'uz';
   }
 
+  private t(ctx: WizardContext, key: string, params?: Record<string, string | number>): string {
+    return this.i18n.t(this.lang(ctx), key, params);
+  }
+
   @WizardStep(0)
   async stepLanguage(@Ctx() ctx: WizardContext) {
     const l = this.lang(ctx);
@@ -41,15 +45,20 @@ export class OnboardingWizard {
   async stepLanguageChoose(@Ctx() ctx: WizardContext) {
     const text = (ctx as any).message?.text;
     if (!text) return;
-    
+
+    let selectedLang: string | null = null;
     if (text.includes('O\'zbekcha')) {
-      (ctx.wizard as any).state.lang = 'uz';
+      selectedLang = 'uz';
     } else if (text.includes('Русский')) {
-      (ctx.wizard as any).state.lang = 'ru';
-    } else {
+      selectedLang = 'ru';
+    }
+
+    if (!selectedLang) {
       await ctx.reply('❗ Iltimos, tilni tanlang / Пожалуйста, выберите язык');
       return;
     }
+
+    (ctx.wizard as any).state.lang = selectedLang;
     ctx.wizard.next();
     await this.stepFamily(ctx);
   }
@@ -60,8 +69,8 @@ export class OnboardingWizard {
     await ctx.reply('👨‍👩‍👧‍👦 ' + this.i18n.t(l, 'onboarding.family.has'), {
       reply_markup: {
         keyboard: [[
-          { text: '🆕 Yangi oila yaratish' },
-          { text: '🔑 Kod bilan qo\'shilish' },
+          { text: this.i18n.t(l, 'onboarding.family.new_btn') },
+          { text: this.i18n.t(l, 'onboarding.family.join_btn') },
         ]],
         resize_keyboard: true, one_time_keyboard: true,
       },
@@ -71,35 +80,31 @@ export class OnboardingWizard {
 
   @WizardStep(3)
   async stepFamilyChoice(@Ctx() ctx: WizardContext) {
-    const l = this.lang(ctx);
     const text = (ctx as any).message?.text;
-    
-    if (text?.includes('Yangi oila')) {
-      // Skip to create family
+    const l = this.lang(ctx);
+
+    if (text?.includes(this.i18n.t(l, 'onboarding.family.new_btn').slice(2))) {
       ctx.wizard.selectStep(6);
       await this.stepCreateFamily(ctx);
-    } else if (text?.includes('Kod')) {
-      // Enter code
+    } else if (text?.includes(this.i18n.t(l, 'onboarding.family.join_btn').slice(2))) {
       ctx.wizard.selectStep(4);
       await this.stepEnterCode(ctx);
     } else {
-      await ctx.reply('❗ Iltimos, tugmalardan birini tanlang');
+      await ctx.reply(this.t(ctx, 'onboarding.choose_action'));
     }
   }
 
   @WizardStep(4)
   async stepEnterCode(@Ctx() ctx: WizardContext) {
-    const l = this.lang(ctx);
-    await ctx.reply('🔑 ' + this.i18n.t(l, 'onboarding.code.enter'));
+    await ctx.reply('🔑 ' + this.t(ctx, 'onboarding.code.enter'));
     ctx.wizard.next();
   }
 
   @WizardStep(5)
   async stepProcessCode(@Ctx() ctx: WizardContext) {
-    const l = this.lang(ctx);
     const code = (ctx as any).message?.text?.trim().toUpperCase();
     if (!code || code.length < 4) {
-      await ctx.reply('⚠️ ' + this.i18n.t(l, 'onboarding.code.invalid'));
+      await ctx.reply('⚠️ ' + this.t(ctx, 'onboarding.code.invalid_short'));
       return;
     }
 
@@ -107,61 +112,56 @@ export class OnboardingWizard {
       const telegramId = String(ctx.from?.id);
       const name = ctx.from?.first_name ?? 'User';
       const result = await this.joinFamily.execute({ code, telegramId, name });
-      
-      // Save to session
-      this.saveSession(ctx, result.familyId, l);
-      
-      await ctx.reply('✅ Oilaga qo\'shildingiz!');
+
+      this.saveSession(ctx, result.familyId, this.lang(ctx));
+
+      await ctx.reply('✅ ' + this.t(ctx, 'onboarding.code.joined'));
       await ctx.scene.leave();
-      await this.showMainMenu(ctx as any, l);
+      await this.showMainMenu(ctx as any, this.lang(ctx));
     } catch (e: any) {
       const msg = e?.message ?? '';
       if (msg.includes('INVITE_INVALID') || msg.includes('NOT_FOUND')) {
-        await ctx.reply('⚠️ Bunday kod topilmadi. Qaytadan kiriting yoki /cancel');
+        await ctx.reply('⚠️ ' + this.t(ctx, 'onboarding.code.not_found'));
       } else {
-        await ctx.reply('❌ Xatolik yuz berdi. /cancel yozib qaytadan boshlang');
+        await ctx.reply('❌ ' + this.t(ctx, 'onboarding.error_unknown'));
       }
     }
   }
 
   @WizardStep(6)
   async stepCreateFamily(@Ctx() ctx: WizardContext) {
-    const l = this.lang(ctx);
-    await ctx.reply('📝 ' + this.i18n.t(l, 'onboarding.family.create_name'));
+    await ctx.reply('📝 ' + this.t(ctx, 'onboarding.family.create_name'));
     ctx.wizard.next();
   }
 
   @WizardStep(7)
   async stepProcessCreation(@Ctx() ctx: WizardContext) {
-    const l = this.lang(ctx);
     const familyName = (ctx as any).message?.text?.trim();
     if (!familyName || familyName.length < 2) {
-      await ctx.reply('⚠️ Iltimos, oila nomini kiriting (kamida 2 ta harf)');
+      await ctx.reply('⚠️ ' + this.t(ctx, 'onboarding.family.name_too_short'));
       return;
     }
 
-    // Show loading
-    const loadingMsg = await ctx.reply('🏗️ Oila yaratilmoqda...');
+    const loadingMsg = await ctx.reply(this.t(ctx, 'onboarding.family.create_loading'));
 
     try {
       const telegramId = String(ctx.from?.id);
       const name = ctx.from?.first_name ?? 'User';
-      const result = await this.createFamily.execute({ 
-        name: familyName, creatorTelegramId: telegramId, creatorName: name 
+      const result = await this.createFamily.execute({
+        name: familyName, creatorTelegramId: telegramId, creatorName: name,
       });
-      
-      // Save to session
-      this.saveSession(ctx, result.family.id, l);
-      
-      // Update loading message
+
+      this.saveSession(ctx, result.family.id, this.lang(ctx));
+
+      const l = this.lang(ctx);
       await ctx.telegram.editMessageText(
         ctx.chat!.id, (loadingMsg as any).message_id, undefined,
-        `✅ Oila yaratildi!\n\n` +
-        `📛 Nomi: ${familyName}\n` +
-        `🔑 Kodi: \`${result.family.code}\`\n\n` +
-        `Bu kodni oila a'zolariga yuboring.`
+        this.t(ctx, 'onboarding.family.created_inline', {
+          name: familyName,
+          code: result.family.code,
+        }),
       );
-      
+
       await ctx.scene.leave();
       await this.showMainMenu(ctx as any, l);
     } catch (e: any) {
@@ -169,12 +169,12 @@ export class OnboardingWizard {
       if (msg.includes('USER_ALREADY_IN_FAMILY')) {
         await ctx.telegram.editMessageText(
           ctx.chat!.id, (loadingMsg as any).message_id, undefined,
-          '⚠️ Siz allaqachon oiladasiz!\n\nAvval eski oiladan chiqing yoki /cancel bosing.'
+          this.t(ctx, 'onboarding.already_in_family'),
         );
       } else {
         await ctx.telegram.editMessageText(
           ctx.chat!.id, (loadingMsg as any).message_id, undefined,
-          '❌ Xatolik: ' + (msg || 'Nomalum xatolik')
+          this.t(ctx, 'onboarding.error_prefix') + (msg || 'Unknown'),
         );
       }
     }
@@ -190,14 +190,14 @@ export class OnboardingWizard {
 
   private async showMainMenu(ctx: any, l: string): Promise<void> {
     await ctx.reply(
-      '📋 Asosiy menyu:',
+      this.i18n.t(l, 'onboarding.main_menu'),
       {
         reply_markup: {
           inline_keyboard: [
-            [{ text: '💰 Byudjet', callback_data: 'menu:budget:open' }],
-            [{ text: '📋 Yumushlar', callback_data: 'menu:tasks:open' }],
-            [{ text: '🔔 Eslatmalar', callback_data: 'menu:reminders:open' }],
-            [{ text: '⚙️ Sozlamalar', callback_data: 'menu:settings:open' }],
+            [{ text: '💰 ' + this.i18n.t(l, 'menu.budget'), callback_data: 'menu:budget:open' }],
+            [{ text: '📋 ' + this.i18n.t(l, 'menu.tasks'), callback_data: 'menu:tasks:open' }],
+            [{ text: '🔔 ' + this.i18n.t(l, 'menu.reminders'), callback_data: 'menu:reminders:open' }],
+            [{ text: '⚙️ ' + this.i18n.t(l, 'menu.settings'), callback_data: 'menu:settings:open' }],
           ],
         },
       },
@@ -206,9 +206,8 @@ export class OnboardingWizard {
 
   @Hears(/\/cancel/)
   async cancel(@Ctx() ctx: WizardContext) {
-    const l = this.lang(ctx);
     await ctx.scene.leave();
-    await ctx.reply('👋 Bekor qilindi.', {
+    await ctx.reply(this.t(ctx, 'onboarding.cancelled'), {
       reply_markup: { remove_keyboard: true },
     });
   }

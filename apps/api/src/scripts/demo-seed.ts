@@ -12,7 +12,7 @@ async function seed() {
   await db.insert(families).values({ id: familyId, name: 'Demo Family', code: 'DEMO2024' }).onConflictDoNothing();
   
   // User
-  await db.insert(users).values({ id: userId, telegramId: 'demo_user', familyId, name: 'Demo User', role: 'admin', lang: 'uz' }).onConflictDoNothing();
+  await db.insert(users).values({ id: userId, telegramId: 'demo_user', familyId, name: 'Demo User', role: 'OWNER', lang: 'uz' }).onConflictDoNothing();
 
   // Categories
   const cats = [

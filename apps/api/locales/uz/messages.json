@@ -32,18 +32,32 @@
     },
     "family": {
       "has": "Sizda oila bormi?",
+      "new_btn": "🆕 Yangi oila yaratish",
+      "join_btn": "🔑 Kod bilan qo'shilish",
       "join": "🔑 Kodni kiriting",
       "create": "🆕 Yangi oila",
       "create_name": "Oila nomini kiriting:",
+      "create_loading": "🏗️ Oila yaratilmoqda...",
       "created": "✅ Oilangiz yaratildi!\n\nOila kodi: *{code}*\n\nBu kodni oila a'zolaringizga yuboring, ular /join_family orqali qo'shilishadi.",
-      "no_name": "Iltimos, oila nomini kiriting."
+      "created_inline": "✅ Oila yaratildi!\n\n📛 Nomi: {name}\n🔑 Kodi: `{code}`\n\nBu kodni oila a'zolariga yuboring.",
+      "no_name": "Iltimos, oila nomini kiriting.",
+      "name_too_short": "Iltimos, oila nomini kiriting (kamida 2 ta harf)"
     },
     "code": {
       "enter": "Iltimos, oila kodini kiriting:",
       "invalid": "Noto'g'ri kod. Qayta urining.",
+      "invalid_short": "Iltimos, to'g'ri kod kiriting (kamida 4 belgi)",
       "success": "✅ Oila ga qo'shildingiz! /menu",
-      "not_found": "Kod topilmadi yoki muddati o'tgan."
-    }
+      "joined": "✅ Oilaga qo'shildingiz!",
+      "not_found": "Bunday kod topilmadi. Qaytadan kiriting yoki /cancel",
+      "expired": "Kod topilmadi yoki muddati o'tgan."
+    },
+    "choose_action": "❗ Iltimos, tugmalardan birini tanlang",
+    "already_in_family": "⚠️ Siz allaqachon oiladasiz!\n\nAvval eski oiladan chiqing yoki /cancel bosing.",
+    "error_unknown": "❌ Xatolik yuz berdi. /cancel yozib qaytadan boshlang",
+    "error_prefix": "❌ Xatolik: ",
+    "cancelled": "👋 Bekor qilindi.",
+    "main_menu": "📋 Asosiy menyu:"
   },
   "family": {
     "created": "✅ Oila yaratildi!",
@@ -125,5 +139,14 @@
   },
   "birthdays": {
     "empty": "🎂 Hozircha tug'ilgan kunlar yo'q."
+  },
+  "streaming": {
+    "search": "🔍 Qidirilmoqda...",
+    "compute": "🧮 Hisoblanmoqda...",
+    "save": "💾 Saqlanmoqda...",
+    "load": "📂 Yuklanmoqda...",
+    "process": "⚙️ Ishlamoqda...",
+    "done": "✅ Tayyor!",
+    "error": "❌ Xatolik"
   }
 }

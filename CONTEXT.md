@@ -14,7 +14,7 @@
 | **Family Context** | The current tenant context for one request, command, wizard step, job, or worker action. |
 | **Tenant-Owned Data** | Data that belongs to exactly one Family. It must have a required family reference and must not use nullable tenant fields. |
 | **Orphan Tenant Row** | Tenant-owned row without a Family. Invalid state; migrations must not silently assign it to a Family. |
-| **Family Member** | Telegram user in one family. Role: `admin` | `parent` | `child` | `guest`. |
+| **Family Member** | Telegram user in one family. Role: `OWNER` | `MEMBER` | `CHILD`. |
 | **Cross-Family Lookup** | Identity lookup before a family context exists. Allowed only to resolve a Telegram user's membership during onboarding/auth, not to read family-owned data. |
 | **Pre-Context Flow** | Controlled onboarding/auth flow that runs before a Family Context exists. It may resolve identity or invite data, then must enter a Family Context before reading or mutating family-owned data. |
 | **Pre-Context Resolver** | Narrow interface used only by Pre-Context Flows to resolve an invite code or Telegram identity into a Family Context. |
@@ -100,8 +100,8 @@ From `improve-codebase-architecture/LANGUAGE.md`. Use these terms exactly — no
 | 0002 | Drizzle ORM | Accepted |
 | 0003 | Custom i18n | Accepted |
 | 0004 | PostgreSQL RLS | Accepted |
-| 0005 | Result<T,E> error pattern | Accepted |
-| 0006 | NestJS lifecycle queue worker | Accepted |
+| 0005 | Obsidian RAG + MCP integration | Accepted |
+| 0006 | Tenant RLS and DB roles | Accepted |
 
 ---
 

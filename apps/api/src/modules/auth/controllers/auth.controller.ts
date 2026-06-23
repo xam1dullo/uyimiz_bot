@@ -2,52 +2,40 @@ import { Controller, Post, Body, UnauthorizedException, Injectable, Inject, forw
 import { createHmac, createHash } from 'crypto';
 import { JwtService } from '../services/jwt.service';
 
+import { validate, parse } from '@telegram-apps/init-data-node';
+import { LoginHandler } from '../application/commands/login/login.handler';
+
 interface InitDataPayload {
   telegramId: string;
-  familyId?: string;
-  role?: string;
+  name?: string;
+  username?: string;
 }
 
-// ─── Telegram initData verification ───
 function verifyTelegramInitData(initData: string, botToken: string): InitDataPayload | null {
   try {
-    const params = new URLSearchParams(initData);
-    const hash = params.get('hash');
-    if (!hash) return null;
-
-    // Build data check string
-    params.delete('hash');
-    const dataCheckString = Array.from(params.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([k, v]) => `${k}=${v}`)
-      .join('\n');
-
-    // Compute HMAC-SHA256
-    const secretKey = createHmac('sha256', 'WebAppData').update(botToken).digest();
-    const computedHash = createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-
-    if (computedHash !== hash) return null;
-
-    // Parse user data
-    const userStr = params.get('user');
-    if (!userStr) return null;
-
-    const user = JSON.parse(userStr);
+    validate(initData, botToken);
+    const parsed = parse(initData);
+    if (!parsed.user) return null;
     return {
-      telegramId: String(user.id),
+      telegramId: String(parsed.user.id),
+      name: parsed.user.firstName + (parsed.user.lastName ? ' ' + parsed.user.lastName : ''),
+      username: parsed.user.username,
     };
-  } catch {
+  } catch (err) {
     return null;
   }
 }
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(    @Inject(forwardRef(() => JwtService)) private readonly jwt: JwtService) {}
+  constructor(
+    @Inject(forwardRef(() => JwtService)) private readonly jwt: JwtService,
+    private readonly loginHandler: LoginHandler
+  ) {}
 
   /** Telegram Mini App auth — verifies initData from TMA SDK */
-  @Post('token')
-  async getToken(@Body() body: { initData?: string; telegramId?: string; familyId?: string; role?: string }) {
+  @Post('init')
+  async getToken(@Body() body: { initData?: string; telegramId?: string; name?: string }) {
     const botToken = process.env.BOT_TOKEN ?? '';
 
     // Try Telegram initData verification first (Mini App)
@@ -56,15 +44,14 @@ export class AuthController {
       if (!payload) {
         throw new UnauthorizedException('Invalid Telegram initData');
       }
-      return this.issueTokens(payload);
+      return this.loginHandler.execute(payload);
     }
 
     // Dev/test mode: allow direct telegramId
     if (process.env.NODE_ENV === 'development' && body.telegramId) {
-      return this.issueTokens({
+      return this.loginHandler.execute({
         telegramId: body.telegramId,
-        familyId: body.familyId,
-        role: body.role,
+        name: body.name || 'Dev User',
       });
     }
 
@@ -72,23 +59,6 @@ export class AuthController {
       'Authentication requires Telegram Mini App initData. ' +
       'Open the app via Telegram.'
     );
-  }
-
-  @Post('refresh')
-  async refresh(@Body() body: { refreshToken: string }) {
-    const payload = this.jwt.verify(body.refreshToken);
-    if (!payload) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    const token = this.jwt.sign({
-      sub: payload.sub,
-      telegramId: payload.telegramId,
-      familyId: payload.familyId,
-      role: payload.role,
-    });
-
-    return { accessToken: token, expiresIn: 15 * 60 };
   }
 
   @Post('verify')
@@ -99,18 +69,4 @@ export class AuthController {
     return { valid: true, role: payload.role };
   }
 
-  private issueTokens(payload: InitDataPayload) {
-    const tokenPayload = {
-      sub: payload.telegramId,
-      telegramId: payload.telegramId,
-      familyId: payload.familyId,
-      role: payload.role ?? 'parent',
-    };
-
-    return {
-      accessToken: this.jwt.sign(tokenPayload),
-      refreshToken: this.jwt.signRefresh(tokenPayload),
-      expiresIn: 15 * 60,
-    };
-  }
 }

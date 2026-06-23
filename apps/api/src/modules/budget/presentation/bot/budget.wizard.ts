@@ -61,7 +61,7 @@ export class BudgetAddWizard {
     const familyId = (ctx as any).session.familyId ?? 'unknown';
 
     await this.stream.stream(ctx as any, [
-      { emoji: '💾', placeholder: 'Saqlanmoqda...', compute: async () => {
+      { emoji: '💾', placeholderKey: 'streaming.save', compute: async () => {
         await this.addRecord.execute({
           familyId, type: cat?.type ?? 'expense',
           categoryId: state.categoryId ?? '',

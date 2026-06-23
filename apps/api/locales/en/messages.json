@@ -32,18 +32,32 @@
     },
     "family": {
       "has": "Do you have a family?",
+      "new_btn": "🆕 Create new family",
+      "join_btn": "🔑 Join with code",
       "join": "🔑 Enter code",
       "create": "🆕 New family",
       "create_name": "Enter family name:",
+      "create_loading": "🏗️ Creating family...",
       "created": "✅ Family created!\n\nFamily code: *{code}*\n\nShare this code with family members, they can join via /join_family.",
-      "no_name": "Please enter a family name."
+      "created_inline": "✅ Family created!\n\n📛 Name: {name}\n🔑 Code: `{code}`\n\nShare this code with family members.",
+      "no_name": "Please enter a family name.",
+      "name_too_short": "Please enter a family name (at least 2 characters)"
     },
     "code": {
       "enter": "Please enter the family code:",
       "invalid": "Invalid code. Try again.",
+      "invalid_short": "Please enter a valid code (at least 4 characters)",
       "success": "✅ Joined the family! /menu",
-      "not_found": "Code not found or expired."
-    }
+      "joined": "✅ Joined the family!",
+      "not_found": "Code not found. Try again or press /cancel",
+      "expired": "Code not found or expired."
+    },
+    "choose_action": "❗ Please choose one of the options",
+    "already_in_family": "⚠️ You are already in a family!\n\nLeave the old family first or press /cancel",
+    "error_unknown": "❌ An error occurred. Press /cancel and start again",
+    "error_prefix": "❌ Error: ",
+    "cancelled": "👋 Cancelled.",
+    "main_menu": "📋 Main menu:"
   },
   "family": {
     "created": "✅ Family created!",
@@ -125,5 +139,14 @@
   },
   "birthdays": {
     "empty": "🎂 No birthdays yet."
+  },
+  "streaming": {
+    "search": "🔍 Searching...",
+    "compute": "🧮 Computing...",
+    "save": "💾 Saving...",
+    "load": "📂 Loading...",
+    "process": "⚙️ Processing...",
+    "done": "✅ Done!",
+    "error": "❌ Error"
   }
 }
